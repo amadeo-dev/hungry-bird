@@ -2,12 +2,10 @@ import pygame
 
 pygame.init()
 
-# Paramètres de la fenêtre
 WIDTH, HEIGHT = 800, 600
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Jeu Pygame")
 
-# Couleurs
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
