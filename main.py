@@ -9,7 +9,7 @@ pygame.display.set_caption("Jeu Pygame")
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
-# Paramètres du joueur
+
 player_size = 50
 player_x = WIDTH // 2 - player_size // 2
 player_y = HEIGHT // 2 - player_size // 2
