@@ -14,17 +14,16 @@ pygame.display.set_caption("Angry Birds - Version Avancée")
 
 # Couleurs
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLACK = (0, 0, 0)
-BROWN = (139, 69, 19)
-GRAY = (200, 200, 200)
+RED = (255, 0, 0, 255)  # Ajout de la composante alpha
+GREEN = (0, 255, 0, 255)  # Ajout de la composante alpha
+BLACK = (0, 0, 0, 255)  # Ajout de la composante alpha
+BROWN = (139, 69, 19, 255)  # Ajout de la composante alpha
+GRAY = (200, 200, 200, 255)  # Ajout de la composante alpha
 
 # Initialisation de Pymunk
 space = pymunk.Space()
 space.gravity = (0, 900)
 draw_options = pymunk.pygame_util.DrawOptions(screen)
-
 
 # Création du sol
 def create_ground():
@@ -36,9 +35,7 @@ def create_ground():
     space.add(body, shape)
     return shape
 
-
 ground = create_ground()
-
 
 # Fonction pour créer un oiseau
 def create_bird(x, y):
@@ -47,10 +44,9 @@ def create_bird(x, y):
     shape = pymunk.Circle(body, 15)
     shape.elasticity = 0.5
     shape.friction = 0.5
-    shape.color = RED
+    shape.color = (255, 0, 0, 255)  # Ajout de la composante alpha
     space.add(body, shape)
     return body
-
 
 # Fonction pour créer une cible (cochon)
 def create_pig(x, y):
@@ -59,10 +55,9 @@ def create_pig(x, y):
     shape = pymunk.Circle(body, 20)
     shape.elasticity = 0.5
     shape.friction = 0.5
-    shape.color = GREEN
+    shape.color = (0, 255, 0, 255)  # Ajout de la composante alpha
     space.add(body, shape)
     return body
-
 
 # Fonction pour créer une structure (bloc destructible)
 def create_block(x, y, width, height):
@@ -71,10 +66,9 @@ def create_block(x, y, width, height):
     shape = pymunk.Poly.create_box(body, (width, height))
     shape.elasticity = 0.3
     shape.friction = 0.8
-    shape.color = BROWN
+    shape.color = (139, 69, 19, 255)  # Ajout de la composante alpha
     space.add(body, shape)
     return body
-
 
 # Création de l'oiseau, des cochons et des blocs
 bird = create_bird(150, 400)
@@ -102,7 +96,7 @@ while running:
             end_pos = pygame.mouse.get_pos()
             force_x = (start_pos[0] - end_pos[0]) * 5
             force_y = (start_pos[1] - end_pos[1]) * 5
-            bird.apply_impulse_at_local_point((force_x, force_y))
+            bird.apply_impulse_at_local_point((force_x, force_y))  # Applique l'impulsion
             launched = True
 
     # Dessiner les objets
