@@ -12,18 +12,25 @@ WIDTH, HEIGHT = 1000, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Angry Birds - Version Avancée")
 
-# Couleurs
+# Charger les images
+try:
+    BIRD_IMG = pygame.image.load(r"C:\Users\Nicolas\Downloads\Jacky.png")  # Remplace par le bon chemin
+    HOTDOG_IMG = pygame.image.load(r"C:\Users\Nicolas\Downloads\hotdog.png")  # Remplace par le bon chemin
+except pygame.error:
+    print("Erreur lors du chargement des images.")
+
+# Redimensionner l'image de l'oiseau pour qu'elle soit un peu plus grande
+BIRD_IMG = pygame.transform.scale(BIRD_IMG, (50, 50))  # Redimensionne l'image de l'oiseau à 50x50
+HOTDOG_IMG = pygame.transform.scale(HOTDOG_IMG, (50, 30))  # Redimensionne l'image du hot-dog à 50x30
+
+# Couleurs avec alpha (transparence à 255 pour opacité complète)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0, 255)  # Ajout de la composante alpha
-GREEN = (0, 255, 0, 255)  # Ajout de la composante alpha
-BLACK = (0, 0, 0, 255)  # Ajout de la composante alpha
-BROWN = (139, 69, 19, 255)  # Ajout de la composante alpha
-GRAY = (200, 200, 200, 255)  # Ajout de la composante alpha
+BLACK = (0, 0, 0, 255)
 
 # Initialisation de Pymunk
 space = pymunk.Space()
 space.gravity = (0, 900)
-draw_options = pymunk.pygame_util.DrawOptions(screen)
+
 
 # Création du sol
 def create_ground():
@@ -35,7 +42,33 @@ def create_ground():
     space.add(body, shape)
     return shape
 
-ground = create_ground()
+
+# Création des bordures autour de l'écran (haut, bas, gauche, droite)
+def create_boundaries():
+    # Haut
+    top_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+    top_body.position = (WIDTH // 2, 0)
+    top_shape = pymunk.Poly.create_box(top_body, (WIDTH, 10))
+    space.add(top_body, top_shape)
+
+    # Bas
+    bottom_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+    bottom_body.position = (WIDTH // 2, HEIGHT)
+    bottom_shape = pymunk.Poly.create_box(bottom_body, (WIDTH, 10))
+    space.add(bottom_body, bottom_shape)
+
+    # Gauche
+    left_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+    left_body.position = (0, HEIGHT // 2)
+    left_shape = pymunk.Poly.create_box(left_body, (10, HEIGHT))
+    space.add(left_body, left_shape)
+
+    # Droite
+    right_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+    right_body.position = (WIDTH, HEIGHT // 2)
+    right_shape = pymunk.Poly.create_box(right_body, (10, HEIGHT))
+    space.add(right_body, right_shape)
+
 
 # Fonction pour créer un oiseau
 def create_bird(x, y):
@@ -44,40 +77,27 @@ def create_bird(x, y):
     shape = pymunk.Circle(body, 15)
     shape.elasticity = 0.5
     shape.friction = 0.5
-    shape.color = (255, 0, 0, 255)  # Ajout de la composante alpha
     space.add(body, shape)
-    return body
+    return body, shape
 
-# Fonction pour créer une cible (cochon)
-def create_pig(x, y):
-    body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 20))
+
+# Fonction pour créer un hot-dog
+def create_hotdog(x, y):
+    body = pymunk.Body(1, pymunk.moment_for_box(1, (50, 30)))
     body.position = x, y
-    shape = pymunk.Circle(body, 20)
+    shape = pymunk.Poly.create_box(body, (50, 30))
     shape.elasticity = 0.5
     shape.friction = 0.5
-    shape.color = (0, 255, 0, 255)  # Ajout de la composante alpha
     space.add(body, shape)
-    return body
+    return body, shape
 
-# Fonction pour créer une structure (bloc destructible)
-def create_block(x, y, width, height):
-    body = pymunk.Body(5, pymunk.moment_for_box(5, (width, height)))
-    body.position = x, y
-    shape = pymunk.Poly.create_box(body, (width, height))
-    shape.elasticity = 0.3
-    shape.friction = 0.8
-    shape.color = (139, 69, 19, 255)  # Ajout de la composante alpha
-    space.add(body, shape)
-    return body
 
-# Création de l'oiseau, des cochons et des blocs
-bird = create_bird(150, 400)
-pigs = [create_pig(600, 500), create_pig(650, 500)]
-blocks = [
-    create_block(600, 450, 50, 100),
-    create_block(650, 450, 50, 100),
-    create_block(625, 400, 100, 20)
-]
+# Création de l'oiseau, des cochons, des blocs et du hot-dog
+bird_body, bird_shape = create_bird(150, 400)
+hotdog_body, hotdog_shape = create_hotdog(600, 300)
+
+# Création des limites
+create_boundaries()
 
 # Variables de contrôle
 running = True
@@ -87,6 +107,7 @@ start_pos = None
 dt = 1 / 60.0
 while running:
     screen.fill(WHITE)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -96,12 +117,21 @@ while running:
             end_pos = pygame.mouse.get_pos()
             force_x = (start_pos[0] - end_pos[0]) * 5
             force_y = (start_pos[1] - end_pos[1]) * 5
-            bird.apply_impulse_at_local_point((force_x, force_y))  # Applique l'impulsion
+            bird_body.apply_impulse_at_local_point((force_x, force_y))  # Applique l'impulsion
             launched = True
 
-    # Dessiner les objets
-    space.debug_draw(draw_options)
+    # Appliquer les changements de la physique
     space.step(dt)
+
+    # Dessiner l'oiseau (en premier plan)
+    bird_rect = BIRD_IMG.get_rect(center=(int(bird_body.position[0]), int(bird_body.position[1])))
+    screen.blit(BIRD_IMG, bird_rect)
+
+    # Dessiner le hot-dog (en premier plan)
+    hotdog_rect = HOTDOG_IMG.get_rect(center=(int(hotdog_body.position[0]), int(hotdog_body.position[1])))
+    screen.blit(HOTDOG_IMG, hotdog_rect)
+
+    # Affichage du résultat
     pygame.display.flip()
     pygame.time.delay(int(dt * 1000))
 
