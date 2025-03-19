@@ -380,4 +380,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    pygame.quit()
+    pygame.quit() #Bien la chienneté ?
