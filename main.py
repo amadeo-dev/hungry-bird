@@ -285,10 +285,11 @@ menu_button = pygame.Rect(WIDTH - 150, 80, 130, 50)
 
 def main():
     """Fonction principale du programme."""
-    global bird_body, bird_shape, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, launched, start_pos, score
+    global bird_body, bird_shape, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, launched, start_pos, score, BIRD_SIZE
     while True:
         show_menu()
         clear_space()  # Vide l'espace physique avant de relancer le jeu
+        BIRD_SIZE = BIRD_SIZE_DEFAULT  # Réinitialisation de la taille de l'oiseau
         bird_body, bird_shape = create_bird()
         hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food()
         create_ground()
