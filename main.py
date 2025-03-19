@@ -221,12 +221,20 @@ def game_loop():
                         start_pos = pygame.mouse.get_pos()
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
                 end_pos = pygame.mouse.get_pos()
-                if start_pos:
-                    birds[current_bird_index].body.apply_impulse_at_local_point(
+                if start_pos:  # Vérifie que start_pos est défini
+                    # Ordre de lancement : droite (index 2), milieu (index 1), gauche (index 0)
+                    if current_bird_index == 0:
+                        bird_index = 2  # Premier oiseau (droite)
+                    elif current_bird_index == 1:
+                        bird_index = 1  # Deuxième oiseau (milieu)
+                    elif current_bird_index == 2:
+                        bird_index = 0  # Troisième oiseau (gauche)
+
+                    birds[bird_index].body.apply_impulse_at_local_point(
                         ((start_pos[0] - end_pos[0]) * 5, (start_pos[1] - end_pos[1]) * 5))
-                    birds[current_bird_index].launched = True
-                    current_bird_index += 1
-                    start_pos = None
+                    birds[bird_index].launched = True
+                    current_bird_index += 1  # Passe à l'oiseau suivant
+                    start_pos = None  # Réinitialise start_pos après le tir
 
         space.step(dt)
         limit_speed()
