@@ -33,8 +33,10 @@ end_game_time = None
 def create_birds():
     """Crée les 3 oiseaux au début du jeu."""
     personnages.clear()
+    noms_tete = ['jacky','thomas','adrien','nicolas','amadeo']
     for i in range(5):
-        personnage = personnage((150 + i * 60, HEIGHT - 60))  # Oiseaux à gauche
+        img = noms_tete[i] + '_IMG'
+        personnage = tete((noms_tete[i], img,150 + i * 60, HEIGHT - 60))  # Oiseaux à gauche
         personnages.append(personnage)
 
 

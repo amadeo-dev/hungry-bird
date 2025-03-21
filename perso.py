@@ -4,11 +4,11 @@ from pymunk import Vec2d
 from main import *
 
 # Chargement des images
-jacky_IMG = pygame.image.load("Ressources/image/Jacky.png")
-thomas_IMG = pygame.image.load("Ressources/image/Jacky.png")
-adrien_IMG = pygame.image.load("Ressources/image/Jacky.png")
-nicolas_IMG = pygame.image.load("Ressources/image/Jacky.png")
-amadeo_IMG = pygame.image.load("Ressources/image/Jacky.png")
+jacky_IMG = pygame.image.load("Ressources/image/asch.png")
+thomas_IMG = pygame.image.load("Ressources/image/thomas.png")
+adrien_IMG = pygame.image.load("Ressources/image/adrien.png")
+nicolas_IMG = pygame.image.load("Ressources/image/nicolas.png")
+amadeo_IMG = pygame.image.load("Ressources/image/amadeo.png")
 
 class tete():
     def __init__(self,name, img, position):

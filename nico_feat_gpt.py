@@ -15,7 +15,7 @@ GRAVITY = (0, 900)
 MIN_DISTANCE = 50  # Distance minimale entre les aliments
 
 # Chargement des images
-BIRD_IMG = pygame.image.load("Ressources/image/Jacky.png")
+BIRD_IMG = pygame.image.load("Ressources/image/asch.png")
 HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
 BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
 BROCOLI_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.png"), (40, 40))
@@ -57,7 +57,7 @@ class Bird:
         self.launched = False
 
 def create_birds():
-    """Crée les 3 oiseaux au début du jeu."""
+    """Crée les 5 bird """
     birds.clear()
     for i in range(3):
         bird = Bird((150 + i * 60, HEIGHT - 60))  # Oiseaux à gauche
