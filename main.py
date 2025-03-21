@@ -2,13 +2,12 @@ import pygame
 import pymunk
 import random
 import time
-from perso import tete
+from perso import Tete
 
 pygame.init()
 
+# Dimensions de l'écran
 WIDTH, HEIGHT = 1280, 720
-
-# Initialisation de l'écran
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hungry Bird")
 
@@ -16,12 +15,17 @@ pygame.display.set_caption("Hungry Bird")
 space = pymunk.Space()
 space.gravity = (0, 900)
 
+# Chargement des images
+bird_images = {
+    'jacky': pygame.image.load('Ressources/image/asch.png'),
+    'thomas': pygame.image.load('Ressources/image/thomas.png'),
+    'adrien': pygame.image.load('Ressources/image/adrien.png'),
+    'nicolas': pygame.image.load('Ressources/image/nicolas.png'),
+    'amadeo': pygame.image.load('Ressources/image/amadeo.png')
+}
+
 # Variables globales
 personnages = []
-hotdog_positions = []
-burger_positions = []
-brocoli_positions = []
-dinde_positions = []
 running = True
 score = 0
 current_level = 1
@@ -31,17 +35,41 @@ game_over = False
 end_game_time = None
 
 def create_birds():
-    """Crée les 3 oiseaux au début du jeu."""
+    """Crée 5 oiseaux au début du jeu."""
     personnages.clear()
-    noms_tete = ['jacky','thomas','adrien','nicolas','amadeo']
+    noms_tete = ['jacky', 'thomas', 'adrien', 'nicolas', 'amadeo']
     for i in range(5):
-        img = noms_tete[i] + '_IMG'
-        personnage = tete((noms_tete[i], img,150 + i * 60, HEIGHT - 60))  # Oiseaux à gauche
+        img = bird_images[noms_tete[i]]
+        personnage = Tete(noms_tete[i], img, (150 + i * 60, HEIGHT - 60))
         personnages.append(personnage)
 
-
 def load_music():
-    """Load the music"""
-    song1 = '../resources/sounds/angry-birds.ogg'
+    """Charge la musique du jeu."""
+    song1 = 'Ressources/sounds/angry-birds.ogg'
     pygame.mixer.music.load(song1)
-    pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(-1)  # Correction du bug ici
+
+# Lancement de la musique et création des oiseaux
+load_music()
+create_birds()
+
+# Boucle principale du jeu
+clock = pygame.time.Clock()
+while running:
+    screen.fill((135, 206, 235))  # Fond bleu ciel
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Dessiner les oiseaux
+    for bird in personnages:
+        bird.draw(screen)
+
+    # Mettre à jour la physique
+    space.step(1 / 60.0)
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
