@@ -15,13 +15,13 @@ GRAVITY = (0, 900)
 MIN_DISTANCE = 50  # Distance minimale entre les aliments
 
 # Chargement des images
-BIRD_IMG = pygame.image.load("Ressources/Jacky.png")
-HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/hotdog.png"), (50, 30))
-BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/burger.png"), (50, 50))
-BROCOLI_IMG = pygame.transform.scale(pygame.image.load("Ressources/brocolis.png"), (40, 40))
-DINDE_IMG = pygame.transform.scale(pygame.image.load("Ressources/Dinde Royale.png"), (60, 60))
-RESTART_IMG = pygame.transform.scale(pygame.image.load("Ressources/Restart.png"), (50, 50))
-DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/decor.png"), (WIDTH, HEIGHT))
+BIRD_IMG = pygame.image.load("Ressources/image/Jacky.png")
+HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
+BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
+BROCOLI_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.png"), (40, 40))
+DINDE_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Dinde Royale.png"), (60, 60))
+RESTART_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Restart.png"), (50, 50))
+DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
 
 # Initialisation de l'écran
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -285,7 +285,7 @@ def select_team():
     font = pygame.font.Font(None, 40)
     selection_running = True
 
-    char_img = pygame.image.load("Ressources/Jacky.png")
+    char_img = pygame.image.load("Ressources/image/Jacky.png")
     char_img = pygame.transform.scale(char_img, (100, 100))
 
     while selection_running:
