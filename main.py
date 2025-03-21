@@ -34,20 +34,49 @@ start_pos = None
 game_over = False
 end_game_time = None
 
+
+def create_boundaries():
+    """Crée le sol et les murs."""
+    thickness = 10
+    elasticity = 0.8
+
+    # Sol
+    ground = pymunk.Segment(space.static_body, (0, HEIGHT), (WIDTH, HEIGHT), thickness)
+    ground.elasticity = elasticity
+    ground.friction = 0.5
+
+    # Murs gauche et droit
+    left_wall = pymunk.Segment(space.static_body, (0, 0), (0, HEIGHT), thickness)
+    left_wall.elasticity = elasticity
+    left_wall.friction = 0.5
+
+    right_wall = pymunk.Segment(space.static_body, (WIDTH, 0), (WIDTH, HEIGHT), thickness)
+    right_wall.elasticity = elasticity
+    right_wall.friction = 0.5
+
+    # Ajouter au space
+    space.add(ground, left_wall, right_wall)
+
+
 def create_birds():
     """Crée 5 oiseaux au début du jeu."""
     personnages.clear()
     noms_tete = ['jacky', 'thomas', 'adrien', 'nicolas', 'amadeo']
     for i in range(5):
         img = bird_images[noms_tete[i]]
-        personnage = Tete(noms_tete[i], img, (150 + i * 60, HEIGHT - 60))
+        personnage = Tete(noms_tete[i], img, (150 + i * 60, HEIGHT - 60), space)
         personnages.append(personnage)
+
 
 def load_music():
     """Charge la musique du jeu."""
-    song1 = 'Ressources/sounds/angry-birds.ogg'
+    song1 = 'Ressources/sound/ridin.mp3'
     pygame.mixer.music.load(song1)
-    pygame.mixer.music.play(-1)  # Correction du bug ici
+    pygame.mixer.music.play(-1)
+
+
+# Créer le sol et les murs
+create_boundaries()
 
 # Lancement de la musique et création des oiseaux
 load_music()
@@ -61,6 +90,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    # Dessiner le sol et les murs (pour qu'ils soient visibles)
+    pygame.draw.line(screen, (0, 0, 0), (0, HEIGHT), (WIDTH, HEIGHT), 10)  # Sol
+    pygame.draw.line(screen, (0, 0, 0), (0, 0), (0, HEIGHT), 10)  # Mur gauche
+    pygame.draw.line(screen, (0, 0, 0), (WIDTH, 0), (WIDTH, HEIGHT), 10)  # Mur droit
 
     # Dessiner les oiseaux
     for bird in personnages:
