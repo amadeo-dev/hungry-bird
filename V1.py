@@ -2,20 +2,22 @@ import pygame
 import pymunk
 import random
 import time
-
-# Initialisation de Pygame
 pygame.init()
 
-# Constantes
 WIDTH, HEIGHT = 1280, 720
 WHITE, RED, GREEN, BLACK = (255, 255, 255), (255, 0, 0), (0, 200, 0), (0, 0, 0)
 BIRD_SIZE_DEFAULT = 50
 MAX_SPEED = 1000
 GRAVITY = (0, 900)
-MIN_DISTANCE = 50  # Distance minimale entre les aliments
+MIN_DISTANCE = 50
 
-# Chargement des images
-BIRD_IMG = pygame.image.load("Ressources/image/asch.png")
+bird_images = {
+    'jacky': pygame.image.load('Ressources/image/Jacky.png'),
+    'thomas': pygame.image.load('Ressources/image/thomas.png'),
+    'adrien': pygame.image.load('Ressources/image/adrien.png'),
+    'nicolas': pygame.image.load('Ressources/image/nicolas.png'),
+    'amadeo': pygame.image.load('Ressources/image/amadeo.png')
+}
 HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
 BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
 BROCOLI_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.png"), (40, 40))
@@ -23,15 +25,12 @@ DINDE_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Dinde Roy
 RESTART_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Restart.png"), (50, 50))
 DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
 
-# Initialisation de l'écran
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hungry Bird")
 
-# Initialisation de Pymunk
 space = pymunk.Space()
 space.gravity = GRAVITY
 
-# Variables globales
 birds = []
 hotdog_positions = []
 burger_positions = []
@@ -60,7 +59,7 @@ def create_birds():
     """Crée les 5 bird """
     birds.clear()
     for i in range(3):
-        bird = Bird((150 + i * 60, HEIGHT - 60))  # Oiseaux à gauche
+        bird = Bird((150 + i * 60, HEIGHT - 60))
         birds.append(bird)
 
 def is_far_enough(pos, others):
@@ -221,27 +220,26 @@ def game_loop():
                         start_pos = pygame.mouse.get_pos()
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
                 end_pos = pygame.mouse.get_pos()
-                if start_pos:  # Vérifie que start_pos est défini
-                    # Ordre de lancement : droite (index 2), milieu (index 1), gauche (index 0)
+                if start_pos:
                     if current_bird_index == 0:
-                        bird_index = 2  # Premier oiseau (droite)
+                        bird_index = 2
                     elif current_bird_index == 1:
-                        bird_index = 1  # Deuxième oiseau (milieu)
+                        bird_index = 1
                     elif current_bird_index == 2:
-                        bird_index = 0  # Troisième oiseau (gauche)
+                        bird_index = 0
 
                     birds[bird_index].body.apply_impulse_at_local_point(
                         ((start_pos[0] - end_pos[0]) * 5, (start_pos[1] - end_pos[1]) * 5))
                     birds[bird_index].launched = True
-                    current_bird_index += 1  # Passe à l'oiseau suivant
-                    start_pos = None  # Réinitialise start_pos après le tir
+                    current_bird_index += 1
+                    start_pos = None
 
         space.step(dt)
         limit_speed()
         check_collision()
 
         for bird in birds:
-            BIRD_IMG_RESIZED = pygame.transform.scale(BIRD_IMG, (bird.size, bird.size))
+            BIRD_IMG_RESIZED = pygame.transform.scale(bird_images, (bird.size, bird.size))
             bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
             screen.blit(BIRD_IMG_RESIZED, bird_rect)
 
@@ -285,8 +283,11 @@ def select_team():
     font = pygame.font.Font(None, 40)
     selection_running = True
 
-    char_img = pygame.image.load("Ressources/image/Jacky.png")
-    char_img = pygame.transform.scale(char_img, (100, 100))
+    for i in range( len(bird_images)):
+        bird = pygame.image.load(bird_images[i])
+        print (bird_images[i])
+        bird_images[i] = pygame.transform.scale(bird, (100, 100))
+
 
     while selection_running:
         screen.fill(WHITE)
@@ -295,7 +296,7 @@ def select_team():
 
         for i, (name, power) in enumerate(all_characters):
             x, y = 100 + i * 250, 200
-            screen.blit(char_img, (x, y))
+            screen.blit(bird_images[name], (x, y))
 
             text_name = font.render(name, True, BLACK)
             screen.blit(text_name, (x + 10, y + 110))
@@ -380,4 +381,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    pygame.quit() #Bien la chienneté ?
+    pygame.quit()

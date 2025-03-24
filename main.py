@@ -17,7 +17,7 @@ space.gravity = (0, 900)
 
 # Chargement des images
 bird_images = {
-    'jacky': pygame.image.load('Ressources/image/asch.png'),
+    'jacky': pygame.image.load('Ressources/image/Jacky.png'),
     'thomas': pygame.image.load('Ressources/image/thomas.png'),
     'adrien': pygame.image.load('Ressources/image/adrien.png'),
     'nicolas': pygame.image.load('Ressources/image/nicolas.png'),
