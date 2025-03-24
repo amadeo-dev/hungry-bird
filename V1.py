@@ -55,7 +55,7 @@ class Bird:
 
 def create_birds():
     birds.clear()
-    selected_names = bird_name[:3]  # Example: Use first 3 names for simplicity
+    selected_names = bird_name[:3]
     for i, name in enumerate(selected_names):
         bird = Bird((150 + i * 60, HEIGHT - 60), name)
         birds.append(bird)
