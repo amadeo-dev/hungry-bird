@@ -53,7 +53,9 @@ def select_team():
 
 
     while selection_running:
-        screen.fill('Ressources/image/selec_bckg.jpg')
+        background = pygame.image.load("Ressources/image/fond.jpg")  # Chemin vers l'image de fond
+        background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+        screen.fill(background)
         text = font.render("Choisissez 3 personnages :", True, (0, 0, 0))
         screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 50))
 
@@ -86,3 +88,10 @@ def select_team():
                     selection_running = False
 
     return selected_characters
+
+menu_running = True
+while menu_running:
+    create_birds()
+    select_team()
+
+pygame.quit()
