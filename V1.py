@@ -11,13 +11,9 @@ MAX_SPEED = 1000
 GRAVITY = (0, 900)
 MIN_DISTANCE = 50
 
-bird_images = {
-    'jacky': pygame.image.load('Ressources/image/Jacky.png'),
-    'thomas': pygame.image.load('Ressources/image/thomas.png'),
-    'adrien': pygame.image.load('Ressources/image/adrien.png'),
-    'nicolas': pygame.image.load('Ressources/image/nicolas.png'),
-    'amadeo': pygame.image.load('Ressources/image/amadeo.png')
-}
+bird_images = {}
+bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo' ]
+
 HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
 BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
 BROCOLI_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.png"), (40, 40))
@@ -36,6 +32,7 @@ hotdog_positions = []
 burger_positions = []
 brocoli_positions = []
 dinde_positions = []
+selected_team = []
 running = True
 score = 0
 current_level = 1
@@ -45,7 +42,7 @@ game_over = False
 end_game_time = None
 
 class Bird:
-    def __init__(self, position):
+    def __init__(self, position, name):
         self.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 15))
         self.body.position = position
         self.shape = pymunk.Circle(self.body, 15)
@@ -54,12 +51,13 @@ class Bird:
         space.add(self.body, self.shape)
         self.size = BIRD_SIZE_DEFAULT
         self.launched = False
+        self.name = name
 
 def create_birds():
-    """Crée les 5 bird """
     birds.clear()
-    for i in range(3):
-        bird = Bird((150 + i * 60, HEIGHT - 60))
+    selected_names = bird_name[:3]  # Example: Use first 3 names for simplicity
+    for i, name in enumerate(selected_names):
+        bird = Bird((150 + i * 60, HEIGHT - 60), name)
         birds.append(bird)
 
 def is_far_enough(pos, others):
@@ -239,9 +237,10 @@ def game_loop():
         check_collision()
 
         for bird in birds:
-            BIRD_IMG_RESIZED = pygame.transform.scale(bird_images, (bird.size, bird.size))
-            bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
-            screen.blit(BIRD_IMG_RESIZED, bird_rect)
+            if bird.name in bird_images:
+                BIRD_IMG_RESIZED = pygame.transform.scale(bird_images[bird.name], (bird.size, bird.size))
+                bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
+                screen.blit(BIRD_IMG_RESIZED, bird_rect)
 
         for img, positions in [
             (HOTDOG_IMG, hotdog_positions),
@@ -275,7 +274,7 @@ def select_team():
     all_characters = [
         ("Adrien", "Aucun pouvoir"),
         ("Thomas", "Pouvoir X"),
-        ("Amadéo", "Pouvoir Y"),
+        ("Amadeo", "Pouvoir Y"),
         ("Nicolas", "Pouvoir Z"),
         ("Jacky", "Pouvoir mystère"),
     ]
@@ -283,10 +282,11 @@ def select_team():
     font = pygame.font.Font(None, 40)
     selection_running = True
 
-    for i in range( len(bird_images)):
-        bird = pygame.image.load(bird_images[i])
-        print (bird_images[i])
-        bird_images[i] = pygame.transform.scale(bird, (100, 100))
+    for i in range(len(bird_name)):
+        name = bird_name[i]
+        print(name)
+        bird = pygame.image.load(f"Ressources/image/{name}.png")
+        bird_images[name] = pygame.transform.scale(bird, (100, 100))
 
 
     while selection_running:

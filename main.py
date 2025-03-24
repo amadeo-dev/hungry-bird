@@ -15,13 +15,13 @@ pygame.display.set_caption("Hungry Bird")
 space = pymunk.Space()
 space.gravity = (0, 900)
 
-# Chargement des images
+# dico avc les images
 bird_images = {
     'jacky': pygame.image.load('Ressources/image/Jacky.png'),
-    'thomas': pygame.image.load('Ressources/image/thomas.png'),
-    'adrien': pygame.image.load('Ressources/image/adrien.png'),
-    'nicolas': pygame.image.load('Ressources/image/nicolas.png'),
-    'amadeo': pygame.image.load('Ressources/image/amadeo.png')
+    'thomas': pygame.image.load('Ressources/image/Thomas.png'),
+    'adrien': pygame.image.load('Ressources/image/Adrien.png'),
+    'nicolas': pygame.image.load('Ressources/image/Nicolas.png'),
+    'amadeo': pygame.image.load('Ressources/image/Amadeo.png')
 }
 
 # Variables globales
@@ -35,8 +35,7 @@ game_over = False
 end_game_time = None
 
 
-def create_boundaries():
-    """Crée le sol et les murs."""
+def cree_bord   ():
     thickness = 10
     elasticity = 0.8
 
@@ -75,8 +74,8 @@ def load_music():
     pygame.mixer.music.play(-1)
 
 
-# Créer le sol et les murs
-create_boundaries()
+
+cree_bord()
 
 # Lancement de la musique et création des oiseaux
 load_music()
