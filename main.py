@@ -2,11 +2,12 @@ import pygame
 import pymunk
 import random
 import time
-from perso import *
+
 
 pygame.init()
 pygame.font.init()
 
+from perso import *
 
 WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -16,8 +17,6 @@ def main():
     while True:
         create_birds()
 
-
 if __name__ == "__main__":
     main()
     pygame.quit()
-

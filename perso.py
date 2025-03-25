@@ -8,6 +8,7 @@ bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo' ]
 WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 space = pymunk.Space()
+pygame.font.init()
 space.gravity = (0, 900)
 
 ekip = []
@@ -53,7 +54,7 @@ def select_team():
 
 
     while selection_running:
-        background = pygame.image.load("Ressources/image/fond.jpg")  # Chemin vers l'image de fond
+        background = pygame.image.load("Ressources/image/selec_bckg.jpg")  # Chemin vers l'image de fond
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
         screen.fill(background)
         text = font.render("Choisissez 3 personnages :", True, (0, 0, 0))
@@ -90,6 +91,7 @@ def select_team():
     return selected_characters
 
 menu_running = True
+
 while menu_running:
     create_birds()
     select_team()
