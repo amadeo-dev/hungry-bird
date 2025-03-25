@@ -1,6 +1,6 @@
 import pygame
-import pymunk
-from Constantes import WIDTH, HEIGHT, physique
+
+from Constantes import *
 
 
 def create_bordures():
@@ -10,6 +10,6 @@ def create_bordures():
     bottom_border = pymunk.Segment(physique.static_body, (0, HEIGHT), (WIDTH, HEIGHT), 5)
 
     # Définir directement l'élasticité
-    left_border.elasticity = right_border.elasticity = bottom_border.elasticity = 0.8
-    # Ajouter les bordures au moteur physique
+    left_border.elasticity = right_border.elasticity =  0.8
+    bottom_border.elasticity = 0.3 # Ajouter les bordures au moteur physique
     physique.add(left_border, right_border, bottom_border)
