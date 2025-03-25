@@ -56,7 +56,10 @@ def select_team():
     while selection_running:
         background = pygame.image.load("Ressources/image/selec_bckg.jpg")  # Chemin vers l'image de fond
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
-        screen.fill(background)
+        ship_top = screen.get_height() - background.get_height()
+        ship_left = screen.get_width() / 2 - background.get_width() / 2
+        screen.blit(background, (ship_left, ship_top))
+
         text = font.render("Choisissez 3 personnages :", True, (0, 0, 0))
         screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 50))
 

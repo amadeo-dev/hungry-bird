@@ -2,7 +2,8 @@ import pygame
 import pymunk
 import random
 import time
-
+from Constantes import *
+from perso import *
 
 pygame.init()
 pygame.font.init()
