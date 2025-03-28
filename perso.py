@@ -1,11 +1,11 @@
 import pygame
 import pymunk
 from Constantes import *
-from PIL import Image
+
 
 bird_images = {}
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
-
+menu_running = False
 
 pygame.font.init()
 
@@ -27,7 +27,7 @@ class Bird:
         self.body.position = position
         self.name = name
         self.image = pygame.image.load(image).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (150, 50))
+        self.image = pygame.transform.scale(self.image, (150, 150))
         self.power = power
 
 
@@ -85,7 +85,7 @@ def select_team():
 
     return ekip
 
-menu_running = True
+
 
 while menu_running:
     create_birds()

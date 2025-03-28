@@ -5,6 +5,7 @@ from perso import select_team
 #pygame.init()
 
 #pygame.display.set_caption("Bouton avec image")
+menu_running = False
 
 fond = pygame.image.load(f"Ressources/image/intro_bck2.png")
 fond = pygame.transform.scale(fond, (1280, 720))
