@@ -2,6 +2,7 @@ import pygame
 
 from Constantes import *
 
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 def create_bordures():
     """Crée les bordures gauche, droite et bas du jeu et les ajoute directement à space."""
