@@ -1,14 +1,11 @@
 import pygame
-
-# Initialisation de Pygame
+from Constantes import *
+from map import *
 #pygame.init()
 
-# Création de la fenêtre
-WIDTH, HEIGHT = 1280, 720
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 #pygame.display.set_caption("Bouton avec image")
 
-fond = pygame.image.load(f"Ressources/image/selec_bckg.jpg")
+fond = pygame.image.load(f"Ressources/image/selec_bck.jpg")
 fond = pygame.transform.scale(fond, (1280, 720))
 
 bouton_1 = pygame.image.load(f"Ressources/image/hotdog.png")
