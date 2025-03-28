@@ -25,7 +25,8 @@ class Bird:
         self.launched = False
         self.body.position = position
         self.name = name
-        self.image = image
+        self.image = pygame.image.load(image).convert_alpha()
+        bird_images[name] = pygame.transform.scale(self.image, (100, 100))
         self.power = power
 
 
@@ -33,9 +34,8 @@ def create_birds():
     ekip.clear()
     selected_names = bird_name[:5]
     for i, name in enumerate(selected_names):
-        image = pygame.image.load(f"Ressources/image/{name}.png")
-        bird_images[name] = pygame.transform.scale(image, (100, 100))
-        power = power_list[i]  # Récupère la capacité correspondante
+        image = f"Ressources/image/{name}.png"
+        power = power_list[i]
         bird = Bird((150 + i * 60, HEIGHT - 60), name, image, power)
         ekip.append(bird)
 
@@ -83,7 +83,7 @@ def select_team():
                 if len(ekip) == 3:
                     selection_running = False
 
-    return team
+    return ekip
 
 menu_running = True
 
