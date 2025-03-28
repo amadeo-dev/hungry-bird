@@ -5,7 +5,7 @@ from map import *
 
 #pygame.display.set_caption("Bouton avec image")
 
-fond = pygame.image.load(f"Ressources/image/selec_bck.jpg")
+fond = pygame.image.load(f"Ressources/image/Intro_bckg.jpg")
 fond = pygame.transform.scale(fond, (1280, 720))
 
 bouton_Tutoriel = pygame.image.load(f"Ressources/image/hotdog.png")
@@ -46,9 +46,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if button_rect2.collidepoint(event.pos):
-                print("Bouton cliqué !")
 
     pygame.display.flip()
 
