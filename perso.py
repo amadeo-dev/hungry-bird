@@ -1,6 +1,7 @@
 import pygame
 import pymunk
 from Constantes import *
+from PIL import Image
 
 bird_images = {}
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
@@ -26,7 +27,7 @@ class Bird:
         self.body.position = position
         self.name = name
         self.image = pygame.image.load(image).convert_alpha()
-        bird_images[name] = pygame.transform.scale(self.image, (100, 100))
+        self.image = pygame.transform.scale(self.image, (150, 50))
         self.power = power
 
 
@@ -38,7 +39,6 @@ def create_birds():
         power = power_list[i]
         bird = Bird((150 + i * 60, HEIGHT - 60), name, image, power)
         ekip.append(bird)
-
 
 def select_team():
     team = []
