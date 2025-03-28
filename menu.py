@@ -8,27 +8,27 @@ from map import *
 fond = pygame.image.load(f"Ressources/image/selec_bck.jpg")
 fond = pygame.transform.scale(fond, (1280, 720))
 
-bouton_1 = pygame.image.load(f"Ressources/image/hotdog.png")
-bouton_1 = pygame.transform.scale(bouton_1, (150, 50))
-button_rect = bouton_1.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
+bouton_Tutoriel = pygame.image.load(f"Ressources/image/hotdog.png")
+bouton_Tutoriel = pygame.transform.scale(bouton_Tutoriel, (150, 50))
+button_rect = bouton_Tutoriel.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
 
 
-bouton_2 = pygame.image.load(f"Ressources/image/Nicolas.png")
-bouton_2 = pygame.transform.scale(bouton_2, (150, 50))
-button_rect2 = bouton_2.get_rect(center=(WIDTH // 2, HEIGHT //2))
+bouton_Nv1 = pygame.image.load(f"Ressources/image/Nicolas.png")
+bouton_Nv1 = pygame.transform.scale(bouton_Nv1, (150, 50))
+button_rect2 = bouton_Nv1.get_rect(center=(WIDTH // 2, HEIGHT //2))
 
 
-bouton_3 = pygame.image.load(f"Ressources/image/burger.png")
-bouton_3 = pygame.transform.scale(bouton_3, (150, 50))
-button_rect3 = bouton_3.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
+bouton_Nv2 = pygame.image.load(f"Ressources/image/burger.png")
+bouton_Nv2 = pygame.transform.scale(bouton_Nv2, (150, 50))
+button_rect3 = bouton_Nv2.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
 
-bouton_4 = pygame.image.load(f"Ressources/image/Amadeo.png")
-bouton_4 = pygame.transform.scale(bouton_4, (150, 50))
-button_rect4 = bouton_4.get_rect(center=(WIDTH // 1 - 60, HEIGHT // 8 - 50))
+bouton_Nv3 = pygame.image.load(f"Ressources/image/Ash.png")
+bouton_Nv3 = pygame.transform.scale(bouton_Nv3, (150, 50))
+button_rect4 = bouton_Nv3.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 200))
 
-bouton_5 = pygame.image.load(f"Ressources/image/Ash.png")
-bouton_5 = pygame.transform.scale(bouton_5, (150, 50))
-button_rect5 = bouton_5.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 200))
+bouton_Reglage = pygame.image.load(f"Ressources/image/Amadeo.png")
+bouton_Reglage = pygame.transform.scale(bouton_Reglage, (150, 50))
+button_rect5 = bouton_Reglage.get_rect(center=(WIDTH // 1 - 150, HEIGHT // 8 - 10))
 
 
 
@@ -36,11 +36,11 @@ running = True
 while running:
     screen.fill((50, 50, 50))
     screen.blit(fond, (0,0))
-    screen.blit(bouton_1, button_rect)
-    screen.blit(bouton_2, button_rect2)
-    screen.blit(bouton_3, button_rect3)
-    screen.blit(bouton_4, button_rect4)
-    screen.blit(bouton_5, button_rect5)
+    screen.blit(bouton_Tutoriel, button_rect)
+    screen.blit(bouton_Nv1, button_rect2)
+    screen.blit(bouton_Nv2, button_rect3)
+    screen.blit(bouton_Reglage, button_rect5)
+    screen.blit(bouton_Nv3, button_rect4)
 
     # Gestion des événements
     for event in pygame.event.get():
