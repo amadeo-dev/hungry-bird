@@ -1,11 +1,11 @@
 import pygame
 import pymunk
+from Constantes import *
 
 bird_images = {}
-bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo' ]
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
 
-WIDTH, HEIGHT = 1280, 720
+
 pygame.font.init()
 
 space = pymunk.Space()
@@ -35,18 +35,17 @@ def create_birds():
     for i, name in enumerate(selected_names):
         image = pygame.image.load(f"Ressources/image/{name}.png")
         bird_images[name] = pygame.transform.scale(image, (100, 100))
-        power = power_list[i]
+        power = power_list[i]  # Récupère la capacité correspondante
         bird = Bird((150 + i * 60, HEIGHT - 60), name, image, power)
         ekip.append(bird)
 
 
 def select_team():
     team = []
-
     selection_running = True
 
     while selection_running:
-        background = pygame.image.load("Ressources/image/selec_bckg.jpg")
+        background = pygame.image.load("Ressources/image/selec_bck.jpg")
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
         ship_top = screen.get_height() - background.get_height()
         ship_left = screen.get_width() / 2 - background.get_width() / 2
@@ -57,6 +56,7 @@ def select_team():
 
         for bird in ekip:
             x, y = 100 + bird_name.index(bird.name) * 250, 200
+
             screen.blit(bird.image, (x, y))
 
             text_name = font.render(bird.name, True, (0, 0, 0))
