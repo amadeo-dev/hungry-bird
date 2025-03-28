@@ -5,7 +5,7 @@ from map import *
 
 #pygame.display.set_caption("Bouton avec image")
 
-fond = pygame.image.load(f"Ressources/image/Intro_bckg.jpg")
+fond = pygame.image.load(f"Ressources/image/intro_bck2.png")
 fond = pygame.transform.scale(fond, (1280, 720))
 
 bouton_Tutoriel = pygame.image.load(f"Ressources/image/hotdog.png")
