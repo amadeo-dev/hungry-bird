@@ -1,52 +1,64 @@
 import pygame
-from Constantes import *
-from map import *
+
+# Initialisation de Pygame
 #pygame.init()
 
+# Création de la fenêtre
+WIDTH, HEIGHT = 1280, 720
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 #pygame.display.set_caption("Bouton avec image")
 
-fond = pygame.image.load(f"Ressources/image/intro_bck2.png")
+fond = pygame.image.load(f"Ressources/image/selec_bckg.jpg")
 fond = pygame.transform.scale(fond, (1280, 720))
 
-bouton_Tutoriel = pygame.image.load(f"Ressources/image/hotdog.png")
-bouton_Tutoriel = pygame.transform.scale(bouton_Tutoriel, (150, 50))
-button_rect = bouton_Tutoriel.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
+#créaion bouton
+niveau_1 = pygame.image.load(f"Ressources/image/hotdog.png")
+niveau_1 = pygame.transform.scale(niveau_1, (150, 50))
+button_rect = niveau_1.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
 
 
-bouton_Nv1 = pygame.image.load(f"Ressources/image/Nicolas.png")
-bouton_Nv1 = pygame.transform.scale(bouton_Nv1, (150, 50))
-button_rect2 = bouton_Nv1.get_rect(center=(WIDTH // 2, HEIGHT //2))
+niveau_2 = pygame.image.load(f"Ressources/image/Nicolas.png")
+niveau_2 = pygame.transform.scale(niveau_2, (150, 50))
+button_rect2 = niveau_2.get_rect(center=(WIDTH // 2, HEIGHT //2))
 
 
-bouton_Nv2 = pygame.image.load(f"Ressources/image/burger.png")
-bouton_Nv2 = pygame.transform.scale(bouton_Nv2, (150, 50))
-button_rect3 = bouton_Nv2.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
+niveau_3 = pygame.image.load(f"Ressources/image/burger.png")
+niveau_3 = pygame.transform.scale(niveau_3, (150, 50))
+button_rect3 = niveau_3.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
 
-bouton_Nv3 = pygame.image.load(f"Ressources/image/Ash.png")
-bouton_Nv3 = pygame.transform.scale(bouton_Nv3, (150, 50))
-button_rect4 = bouton_Nv3.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 200))
+quitter = pygame.image.load(f"Ressources/image/Amadeo.png")
+quitter = pygame.transform.scale(quitter, (150, 50))
+button_rect4 = quitter.get_rect(center=(WIDTH // 1 - 60, HEIGHT // 8 - 50))
 
-bouton_Reglage = pygame.image.load(f"Ressources/image/Amadeo.png")
-bouton_Reglage = pygame.transform.scale(bouton_Reglage, (150, 50))
-button_rect5 = bouton_Reglage.get_rect(center=(WIDTH // 1 - 150, HEIGHT // 8 - 10))
+menu = pygame.image.load(f"Ressources/image/Ash.png")
+menu = pygame.transform.scale(menu, (150, 50))
+button_rect5 = menu.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 200))
 
 
-
+#
 running = True
 while running:
     screen.fill((50, 50, 50))
     screen.blit(fond, (0,0))
-    screen.blit(bouton_Tutoriel, button_rect)
-    screen.blit(bouton_Nv1, button_rect2)
-    screen.blit(bouton_Nv2, button_rect3)
-    screen.blit(bouton_Reglage, button_rect5)
-    screen.blit(bouton_Nv3, button_rect4)
+    screen.blit(niveau_1, button_rect)
+    screen.blit(niveau_2, button_rect2)
+    screen.blit(niveau_3, button_rect3)
+    screen.blit(quitter, button_rect4)
+    screen.blit(menu, button_rect5)
 
-    # Gestion des événements
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+# Gestion des événements
+for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if quitter.collidepoint(event.pos):
+            pygame.quit()
+            exit()
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if button_rect2.collidepoint(event.pos):
+            print("Bouton cliqué !")
 
-    pygame.display.flip()
+pygame.display.flip()
 
 pygame.quit()
