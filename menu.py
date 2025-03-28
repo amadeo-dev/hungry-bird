@@ -1,7 +1,7 @@
 import pygame
 from Constantes import *
 from map import *
-from perso import select_team
+#from perso import select_team
 #pygame.init()
 
 #pygame.display.set_caption("Bouton avec image")
@@ -59,10 +59,9 @@ while running:
             if button_rect6.collidepoint(event.pos):
                 pygame.quit()
                 exit()
-            if button_rect5.collidepoint(event.pos):
-                select_team()
-                exit()
-
+            #if button_rect5.collidepoint(event.pos):
+             #   select_team()
+              #  exit()
 
 
 
