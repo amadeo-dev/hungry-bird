@@ -5,7 +5,7 @@ from Constantes import *
 
 bird_images = {}
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
-menu_running = False
+menu_running = True
 
 pygame.font.init()
 
@@ -41,7 +41,7 @@ def create_birds():
         ekip.append(bird)
 
 def select_team():
-    team = []
+    selec_trois = []
     selection_running = True
 
     while selection_running:
@@ -51,8 +51,8 @@ def select_team():
         ship_left = screen.get_width() / 2 - background.get_width() / 2
         screen.blit(background, (ship_left, ship_top))
 
-        text = font.render("Choisissez 3 personnages :", True, (0, 0, 0))
-        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 50))
+        choix = pygame.image.load("Ressources/image/choix.png")
+        screen.blit(choix, (WIDTH // 2 - choix.get_width() // 2, 50))
 
         for bird in ekip:
             x, y = 100 + bird_name.index(bird.name) * 250, 200
@@ -65,11 +65,11 @@ def select_team():
             text_power = font.render(bird.power, True, (150, 0, 0))
             screen.blit(text_power, (x, y + 140))
 
-            if pygame.Rect(x, y, 100, 100).collidepoint(pygame.mouse.get_pos()):
-                pygame.draw.rect(screen, (0, 200, 0), (x, y, 100, 100), 5)
+            if pygame.Rect(x, y, 150, 150).collidepoint(pygame.mouse.get_pos()):
+                pygame.draw.rect(screen, (0, 200, 200), (x, y, 150, 150), 5)
 
         pygame.display.flip()
-
+        print(len(selec_trois))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -77,13 +77,14 @@ def select_team():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for bird in ekip:
                     x, y = 100 + bird_name.index(bird.name) * 250, 200
-                    if pygame.Rect(x, y, 100, 100).collidepoint(event.pos) and len(ekip) < 3:
-                        ekip.append(bird.name)
+                    rect = pygame.Rect(x, y, 150, 150)
+                    if rect.collidepoint(event.pos) and bird not in selec_trois:
+                        selec_trois.append(bird)
 
-                if len(ekip) == 3:
+                if len(selec_trois) == 3:
                     selection_running = False
 
-    return ekip
+    return selec_trois
 
 
 
@@ -91,4 +92,3 @@ while menu_running:
     create_birds()
     select_team()
 
-pygame.quit()

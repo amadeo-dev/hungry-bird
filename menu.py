@@ -37,40 +37,38 @@ bouton_quitter = pygame.transform.scale(bouton_quitter, (150, 50))
 button_rect6 = bouton_quitter.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 300))
 
 
+def menu():
+    running = True
+    while running:
+        screen.fill((50, 50, 50))
+        screen.blit(fond, (0,0))
+        screen.blit(bouton_Tutoriel, button_rect)
+        screen.blit(bouton_Nv1, button_rect2)
+        screen.blit(bouton_Nv2, button_rect3)
+        screen.blit(bouton_Reglage, button_rect5)
+        screen.blit(bouton_Nv3, button_rect4)
+        screen.blit(bouton_quitter, button_rect6)
 
-running = True
-while running:
-    screen.fill((50, 50, 50))
-    screen.blit(fond, (0,0))
-    screen.blit(bouton_Tutoriel, button_rect)
-    screen.blit(bouton_Nv1, button_rect2)
-    screen.blit(bouton_Nv2, button_rect3)
-    screen.blit(bouton_Reglage, button_rect5)
-    screen.blit(bouton_Nv3, button_rect4)
-    screen.blit(bouton_quitter, button_rect6)
+    # Gestion des événements
 
-# Gestion des événements
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if button_rect6.collidepoint(event.pos):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            if button_rect5.collidepoint(event.pos):
-                select_team()
-                exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if button_rect6.collidepoint(event.pos):
+                    pygame.quit()
+                    exit()
+                if button_rect5.collidepoint(event.pos):
+                    select_team()
+                    exit()
 
 
 
+        #for event in pygame.event.get():
+         #   if event.type == pygame.QUIT:
+          #      running = False
 
+        pygame.display.flip()
 
-    #for event in pygame.event.get():
-     #   if event.type == pygame.QUIT:
-      #      running = False
-
-    pygame.display.flip()
-
-pygame.quit()
+    pygame.quit()
