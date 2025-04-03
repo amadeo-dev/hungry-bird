@@ -6,6 +6,7 @@ from Constantes import *
 bird_images = {}
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
 menu_running = True
+selec_trois = []
 
 pygame.font.init()
 
@@ -41,10 +42,12 @@ def create_birds():
         ekip.append(bird)
 
 def select_team():
-    selec_trois = []
+    global selec_trois
     selection_running = True
 
     while selection_running:
+        screen.fill((255, 255, 255))
+
         background = pygame.image.load("Ressources/image/selec_bck.jpg")
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
         ship_top = screen.get_height() - background.get_height()
@@ -54,8 +57,11 @@ def select_team():
         choix = pygame.image.load("Ressources/image/choix.png")
         screen.blit(choix, (WIDTH // 2 - choix.get_width() // 2, 50))
 
-        for bird in ekip:
-            x, y = 100 + bird_name.index(bird.name) * 250, 200
+        bird_rects = []  # Liste des (rectangle, bird) pour gestion des clics
+        for i, bird in enumerate(ekip):
+            x, y = 100 + i * 250, 200
+            rect = pygame.Rect(x, y, 150, 150)  # Rectangle interactif
+            bird_rects.append((rect, bird))  # Stocke chaque oiseau avec son rectangle
 
             screen.blit(bird.image, (x, y))
 
@@ -65,30 +71,37 @@ def select_team():
             text_power = font.render(bird.power, True, (150, 0, 0))
             screen.blit(text_power, (x, y + 140))
 
-            if pygame.Rect(x, y, 150, 150).collidepoint(pygame.mouse.get_pos()):
-                pygame.draw.rect(screen, (0, 200, 200), (x, y, 150, 150), 5)
+            # Affichage du cadre en fonction de la sélection
+            if bird in selec_trois:
+                pygame.draw.rect(screen, (0, 255, 0), rect, 5)  # Vert si sélectionné
+            elif rect.collidepoint(pygame.mouse.get_pos()):
+                pygame.draw.rect(screen, (0, 200, 200), rect, 5)  # Bleu au survol
 
         pygame.display.flip()
-        print(len(selec_trois))
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                for bird in ekip:
-                    x, y = 100 + bird_name.index(bird.name) * 250, 200
-                    rect = pygame.Rect(x, y, 150, 150)
-                    if rect.collidepoint(event.pos) and bird not in selec_trois:
-                        selec_trois.append(bird)
+                for rect, bird in bird_rects:
+                    if rect.collidepoint(event.pos):
+                        if bird in selec_trois:
+                            selec_trois.remove(bird)  # Désélection
+                        elif len(selec_trois) < 3:
+                            selec_trois.append(bird)  # Sélection
 
+                # Vérifie si on a bien sélectionné 3 oiseaux pour sortir de la boucle
                 if len(selec_trois) == 3:
-                    selection_running = False
+                    selection_running = False  # FIN de la sélection
 
     return selec_trois
 
 
-
 while menu_running:
     create_birds()
-    select_team()
+    selec_trois = select_team()
+    menu_running = False
+    print(f"Équipe sélectionnée ({len(selec_trois)}/3) : {[b.name for b in selec_trois]}")
 

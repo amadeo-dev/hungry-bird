@@ -16,9 +16,10 @@ pygame.display.set_caption("Hungry Bird")
 
 def main():
     while True:
+        menu()
         create_birds()
         select_team()
-        menu()
+
 
 if __name__ == "__main__":
     main()
