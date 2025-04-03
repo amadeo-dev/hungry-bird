@@ -5,7 +5,7 @@ from Constantes import *
 
 bird_images = {}
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
-menu_running = False
+menu_running = True
 
 pygame.font.init()
 
