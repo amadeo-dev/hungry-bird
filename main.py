@@ -18,7 +18,7 @@ def main():
     while True:
         menu()
         create_birds()
-        select_team()
+        team = select_team()
 
 
 if __name__ == "__main__":

@@ -99,9 +99,9 @@ def select_team():
     return selec_trois
 
 
-while menu_running:
-    create_birds()
-    selec_trois = select_team()
-    menu_running = False
-    print(f"Équipe sélectionnée ({len(selec_trois)}/3) : {[b.name for b in selec_trois]}")
+#while menu_running:
+#    create_birds()
+#    selec_trois = select_team()
+#    menu_running = False
+#    print(f"Équipe sélectionnée ({len(selec_trois)}/3) : {[b.name for b in selec_trois]}")
 
