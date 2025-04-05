@@ -6,8 +6,6 @@ from perso import *
 from Constantes import *
 from menu import *
 import pygame
-from moviepy.editor import VideoFileClip
-import time
 
 pygame.init()
 pygame.font.init()
@@ -19,9 +17,8 @@ pygame.display.set_caption("Hungry Bird")
 
 
 def main():
+
     while True:
-        clip = VideoFileClip('Ressources/image/intro.mp4')
-        clip.preview(fullscreen=True)
         action = menu()  # récupère l'action choisie dans le menu
 
         if action == "select_team":
