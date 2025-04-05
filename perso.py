@@ -1,20 +1,16 @@
 import pygame
 import pymunk
 from Constantes import *
+from main import *
 
 
-bird_images = {}
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
-selection_running = False
-selec_trois = []
-
-pygame.font.init()
-
-space = pymunk.Space()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+ekip = []   #liste de tous les oiseaux à disposition
+selec_trois = []  #selection des trois oiseaux du joueur
 font = pygame.font.Font(None, 58)
 
-ekip = []
+selection_running = False
+
 
 class Bird:
     def __init__(self, position, name, image, power):
@@ -42,7 +38,7 @@ def create_birds():
         ekip.append(bird)
 
 def select_team():
-    global selec_trois
+    global selec_trois, selection_running
     selection_running = True
 
     while selection_running:
@@ -98,9 +94,4 @@ def select_team():
 
     return selec_trois
 
-
-while selection_running:
-    create_birds()
-    selec_trois = select_team()
-    print(f"Équipe sélectionnée ({len(selec_trois)}/3) : {[b.name for b in selec_trois]}")
 

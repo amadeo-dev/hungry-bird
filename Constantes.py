@@ -9,15 +9,10 @@ physique = pymunk.Space()
 physique.gravity = (0, 900)
 WHITE, RED, GREEN, BLACK = (255, 255, 255), (255, 0, 0), (0, 200, 0), (0, 0, 0)
 
-# Noms des oiseaux
+# Noms des oiseaux, equipe selectionnée
 bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo']
 
 # Images
-HOTDOG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
-BURGER = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
-BROCOLI = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.png"), (40, 40))
-DINDE = pygame.transform.scale(pygame.image.load("Ressources/image/Dinde_Royale.png"), (60, 60))
-RESTART = pygame.transform.scale(pygame.image.load("Ressources/image/Restart.png"), (50, 50))
 DECORS = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
 fond = pygame.image.load(f"Ressources/image/intro_bck2.png")
 

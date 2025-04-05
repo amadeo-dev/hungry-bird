@@ -4,7 +4,6 @@ from map import *
 from perso import *
 
 pygame.display.set_caption("Bouton avec image")
-menu_running = False
 
 fond = pygame.transform.scale(fond, (1280, 720))
 
@@ -19,8 +18,7 @@ bouton_quitter, button_rect3 = create_button('exit', WIDTH // 2, HEIGHT // 2 + 1
 bouton_Reglage, button_rect4 = create_button('reglage_ic', WIDTH - 100, 50, tx=96, ty=96)
 
 def menu():
-    running = True
-    while running:
+    while True:
         screen.blit(fond, (0, 0))
         screen.blit(bouton_Tutoriel, button_rect1)
         screen.blit(bouton_SelectTeam, button_rect2)
@@ -29,12 +27,13 @@ def menu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                return "quitter"
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if button_rect3.collidepoint(event.pos):  # Quitter
-                    running = False
-                elif button_rect2.collidepoint(event.pos):  # Sélection équipe
-                    select_team()
+                if button_rect2.collidepoint(event.pos):
+                    return "select_team"
+                elif button_rect3.collidepoint(event.pos):
+                    return "quitter"
+                elif button_rect4.collidepoint(event.pos):
+                    return "reglage"
 
         pygame.display.flip()
-    pygame.quit()
