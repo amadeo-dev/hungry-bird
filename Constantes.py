@@ -19,6 +19,7 @@ BROCOLI = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.pn
 DINDE = pygame.transform.scale(pygame.image.load("Ressources/image/Dinde_Royale.png"), (60, 60))
 RESTART = pygame.transform.scale(pygame.image.load("Ressources/image/Restart.png"), (50, 50))
 DECORS = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
+fond = pygame.image.load(f"Ressources/image/intro_bck2.png")
 
 # Paramètres du jeu
 BIRD_SIZE_DEFAULT = 50

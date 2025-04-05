@@ -5,7 +5,7 @@ from Constantes import *
 
 bird_images = {}
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
-menu_running = True
+selection_running = False
 selec_trois = []
 
 pygame.font.init()
@@ -99,9 +99,8 @@ def select_team():
     return selec_trois
 
 
-#while menu_running:
-#    create_birds()
-#    selec_trois = select_team()
-#    menu_running = False
-#    print(f"Équipe sélectionnée ({len(selec_trois)}/3) : {[b.name for b in selec_trois]}")
+while selection_running:
+    create_birds()
+    selec_trois = select_team()
+    print(f"Équipe sélectionnée ({len(selec_trois)}/3) : {[b.name for b in selec_trois]}")
 
