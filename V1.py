@@ -196,6 +196,11 @@ def game_loop():
     global running, score, current_level, current_bird_index, start_pos, game_over, end_game_time
     dt = 1 / 60.0
 
+    # Chargement des sons (à déplacer en dehors si tu veux éviter de les recharger à chaque partie)
+    miam_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - slurp 2.wav")
+    lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
+    menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
+
     while running:
         screen.blit(DECORS_IMG, (0, 0))
 
@@ -232,7 +237,9 @@ def game_loop():
                     current_bird_index += 1
                     start_pos = None
 
-        # Affiche le viseur pendant que l'utilisateur vise (depuis l'oiseau)
+                    lance_sound.play()  # Son de lancement
+
+        # Affichage du viseur
         if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(birds):
             current_mouse_pos = pygame.mouse.get_pos()
             bird_index = 2 - current_bird_index
@@ -253,7 +260,28 @@ def game_loop():
 
         space.step(dt)
         limit_speed()
-        check_collision()
+
+        # Collision + sons
+        for bird in birds:
+            if not bird.launched:
+                continue
+
+            for lst, points, size in [
+                (hotdog_positions, 1, 8),
+                (burger_positions, 3, 15),
+                (brocoli_positions, -2, -5),
+                (dinde_positions, 10, 20)
+            ]:
+                for item in lst[:]:
+                    if bird.body.position.get_distance(item) < 40:
+                        score += points
+                        bird.size = max(30, bird.size + size)
+                        lst.remove(item)
+                        miam_sound.play()  # Son de manger
+
+        if len(hotdog_positions) == 0 and len(burger_positions) == 0 and len(brocoli_positions) == 0 and len(dinde_positions) == 0:
+            if end_game_time is None:
+                end_game_time = time.time()
 
         for bird in birds:
             if bird.name in bird_images:
@@ -281,12 +309,13 @@ def game_loop():
             if end_game_time is None:
                 end_game_time = time.time()
             if time.time() - end_game_time >= (2 if len(hotdog_positions) == 0 else 4):
+                if not game_over:
+                    menu_sound.play()  # Son de fin de niveau
                 game_over = True
                 draw_end_menu()
 
         pygame.display.flip()
         pygame.time.delay(int(dt * 1000))
-
 def select_team():
     """Affiche l'écran de sélection des personnages."""
     selected_characters = []
