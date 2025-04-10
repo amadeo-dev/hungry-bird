@@ -6,6 +6,7 @@ import pygame
 
 from perso import *
 from Constantes import *
+from globals import*
 from menu import *
 from jeu import *
 
@@ -14,7 +15,7 @@ pygame.font.init()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 space = pymunk.Space()
-font = pygame.font.Font(None, 58)
+
 
 fond = pygame.image.load("Ressources/image/intro_bck2.png")
 fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))

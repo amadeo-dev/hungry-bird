@@ -17,3 +17,5 @@ bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo']
 BIRD_SIZE_DEFAULT = 50
 MAX_SPEED = 1000
 MIN_DISTANCE = 50
+
+
