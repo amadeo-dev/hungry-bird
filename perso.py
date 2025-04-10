@@ -1,14 +1,13 @@
 import pygame
 import pymunk
 from Constantes import *
-from globals import*
+from main import *
 
-space = pymunk.Space()  # Option 1 si tu veux créer le space ici (cf. remarque plus bas)
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
 ekip = []   #liste de tous les oiseaux à disposition
 selec_trois = []  #selection des trois oiseaux du joueur
+font = pygame.font.Font(None, 58)
 
 selection_running = False
 
