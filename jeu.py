@@ -6,16 +6,17 @@ from Constantes import *
 from globals import *
 from perso import *
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pygame")
+
 def is_far_enough(pos, others):
     """Vérifie si une position est suffisamment éloignée des autres."""
     return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE for o in others)
 
 def create_food(level):
-    """Crée les aliments à des positions aléatoires en fonction du niveau."""
     food_positions = []
 
     def random_pos():
-        """Génère une position aléatoire pour un aliment."""
         max_attempts = 100
         for _ in range(max_attempts):
             pos = (random.randint(WIDTH // 2, WIDTH - 100), random.randint(HEIGHT - 300, HEIGHT - 150))
@@ -30,6 +31,9 @@ def create_food(level):
         return [random_pos() for _ in range(5)], [random_pos() for _ in range(2)], [random_pos() for _ in range(3)], [random_pos() for _ in range(1)]
     elif level == 3:
         return [random_pos() for _ in range(7)], [random_pos() for _ in range(3)], [random_pos() for _ in range(4)], [random_pos() for _ in range(2)]
+    else:
+        # Valeur par défaut si niveau invalide
+        return [], [], [], []
 
 def create_ground():
     """Crée le sol du jeu."""
@@ -90,7 +94,7 @@ def restart_game():
     for bird in birds:
         space.remove(bird.body, bird.shape)
 
-    hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(level)
+    hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(1)
     score = 0
     current_bird_index = 0
     game_over = False
@@ -128,7 +132,8 @@ def draw_end_menu():
 
 def draw_restart_button():
     """Dessine le bouton Restart avec une image."""
-    screen.blit('Ressources/image/Restart.png', (WIDTH - 150, 20))
+    restart_img = pygame.image.load('Ressources/image/Restart.png').convert_alpha()
+    screen.blit(RESTART_IMG, (WIDTH - 150, 20))
 
 def draw_menu_button():
     """Dessine le bouton Menu."""
@@ -143,7 +148,10 @@ def game_loop():
     dt = 1 / 60.0
 
     while running:
-        screen.blit('Ressources/image/decor.png', (0, 0))
+        selection_running = False
+        background = pygame.image.load('Ressources/image/decor.png')
+        background = pygame.transform.scale(background,(WIDTH, HEIGHT))  # Redimensionner l'image à la taille de la fenêtre
+        screen.blit(background, (0, 0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -237,46 +245,37 @@ def show_menu():
     quit_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 140, 200, 50)
 
     while menu_running:
-        screen.fill(WHITE)
-        title = font.render("Hungry Bird", True, BLACK)
-        screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4))
-
-        for i, button in enumerate(level_buttons):
-            pygame.draw.rect(screen, GREEN, button)
-            text = font.render(f"Niveau {i + 1}", True, WHITE)
-            screen.blit(text, (button.x + 50, button.y + 5))
-
-        pygame.draw.rect(screen, RED, quit_button)
-        quit_text = font.render("Quitter", True, WHITE)
-        screen.blit(quit_text, (quit_button.x + 50, quit_button.y + 5))
-
-        pygame.display.flip()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                return "quitter"
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if quit_button.collidepoint(event.pos):
+                if level_buttons[0].collidepoint(event.pos):
+                    return "niveau1"
+                elif level_buttons[1].collidepoint(event.pos):
+                    return "niveau2"
+                elif level_buttons[2].collidepoint(event.pos):
+                    return "niveau3"
+                elif quit_button.collidepoint(event.pos):
                     pygame.quit()
-                    exit()
-                for i, button in enumerate(level_buttons):
-                    if button.collidepoint(event.pos):
-                        selected_team = select_team()
-                        print("Équipe sélectionnée :", selected_team)
-                        menu_running = False
-                        return i + 1
+                    return "quitter"
+
+        # Dessiner le fond et les boutons
+        screen.blit(fond, (0, 0))
+        pygame.display.flip()
+        pygame.time.delay(30)
+
 
 def jeu(level):
     """Fonction principale du programme."""
     global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index
-
+    create_birds()
+    ekip = select_team()
     while True:
         current_level = show_menu()
         clear_space()
-        create_birds()
-        ekip = select_team()
-        hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
+
+        hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(level)
         create_ground()
         create_borders()
         running, score, current_bird_index = True, 0, 0
