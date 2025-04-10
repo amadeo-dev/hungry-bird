@@ -235,7 +235,7 @@ def game_loop():
         # Affiche le viseur pendant que l'utilisateur vise (depuis l'oiseau)
         if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(birds):
             current_mouse_pos = pygame.mouse.get_pos()
-            bird_index = 2 - current_bird_index  # Conversion d'index inversé comme dans le lancer
+            bird_index = 2 - current_bird_index
             bird = birds[bird_index]
             bird_pos = (int(bird.body.position[0]), int(bird.body.position[1]))
 
@@ -248,16 +248,8 @@ def game_loop():
                 dx *= factor
                 dy *= factor
 
-            pygame.draw.line(screen, (0, 255, 0), bird_pos, (bird_pos[0] + dx * 0.05, bird_pos[1] + dy * 0.05), 3)
+            pygame.draw.line(screen, (0, 255, 0), bird_pos, (bird_pos[0] + dx * 0.1, bird_pos[1] + dy * 0.1), 4)
             pygame.draw.circle(screen, (0, 255, 0), bird_pos, 10, 2)
-
-            simulated_pos = [bird_pos[0], bird_pos[1]]
-            velocity = [dx / 10, dy / 10]
-            for _ in range(30):
-                velocity[1] += GRAVITY[1] * 0.05
-                simulated_pos[0] += velocity[0] * 0.05
-                simulated_pos[1] += velocity[1] * 0.05
-                pygame.draw.circle(screen, (0, 200, 255), (int(simulated_pos[0]), int(simulated_pos[1])), 3)
 
         space.step(dt)
         limit_speed()
