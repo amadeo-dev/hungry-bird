@@ -90,7 +90,7 @@ def restart_game():
     for bird in birds:
         space.remove(bird.body, bird.shape)
 
-    hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(level)
+    hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
     score = 0
     current_bird_index = 0
     game_over = False
@@ -145,6 +145,7 @@ def game_loop():
 
     while running:
         DECOR_IMG = pygame.image.load("Ressources/image/decor.png")
+        DECOR_IMG = pygame.transform.scale(DECOR_IMG, (WIDTH, HEIGHT))
         screen.blit(DECOR_IMG, (0, 0))
 
         for event in pygame.event.get():
@@ -185,8 +186,8 @@ def game_loop():
         check_collision()
 
         for bird in birds:
-            if bird.name in bird_images:
-                BIRD_IMG_RESIZED = pygame.transform.scale(bird.image, (bird.size, bird.size))
+            if bird.name in bird_images:  # Tu n'as plus besoin de cette condition
+                BIRD_IMG_RESIZED = pygame.transform.scale(bird.image,(bird.size, bird.size))  # Utilise bird.image directement
                 bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
                 screen.blit(BIRD_IMG_RESIZED, bird_rect)
 
@@ -273,10 +274,14 @@ def jeu(level):
     """Fonction principale du programme sans écran de sélection de niveaux."""
     global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index
 
-    current_level = 1  # Lancement direct du niveau 1
     clear_space()
+    current_level = level
 
     birds = select_team()
+    # Repositionner les oiseaux sélectionnés pour le niveau
+    for i, bird in enumerate(birds):
+        bird.body.position = (150, HEIGHT - 100)  # position de départ à gauche
+        bird.launched = False
     hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
     create_ground()
     create_borders()
