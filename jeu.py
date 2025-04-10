@@ -186,10 +186,10 @@ def game_loop():
         check_collision()
 
         for bird in birds:
-            if bird.name in bird_images:  # Tu n'as plus besoin de cette condition
-                BIRD_IMG_RESIZED = pygame.transform.scale(bird.image,(bird.size, bird.size))  # Utilise bird.image directement
-                bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
-                screen.blit(BIRD_IMG_RESIZED, bird_rect)
+            # Utilisation de l'image de l'oiseau directement à partir de sa classe
+            BIRD_IMG_RESIZED = pygame.transform.scale(bird.image, (bird.size, bird.size))  # Utilisation de l'image spécifique à chaque oiseau
+            bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
+            screen.blit(BIRD_IMG_RESIZED, bird_rect)
 
         for img, positions in [
             (HOTDOG_IMG, hotdog_positions),
