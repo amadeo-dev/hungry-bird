@@ -10,6 +10,7 @@ from globals import*
 from menu import *
 from jeu import *
 
+
 pygame.init()
 pygame.font.init()
 

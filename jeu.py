@@ -4,7 +4,7 @@ import time
 
 from Constantes import *
 from globals import *
-from perso import *
+from perso import select_team
 
 def is_far_enough(pos, others):
     """Vérifie si une position est suffisamment éloignée des autres."""
@@ -128,7 +128,8 @@ def draw_end_menu():
 
 def draw_restart_button():
     """Dessine le bouton Restart avec une image."""
-    screen.blit('Ressources/image/Restart.png', (WIDTH - 150, 20))
+
+    screen.blit(RESTART_IMG, (WIDTH - 150, 20))
 
 def draw_menu_button():
     """Dessine le bouton Menu."""
@@ -143,7 +144,8 @@ def game_loop():
     dt = 1 / 60.0
 
     while running:
-        screen.blit('Ressources/image/decor.png', (0, 0))
+        DECOR_IMG = pygame.image.load("Ressources/image/decor.png")
+        screen.blit(DECOR_IMG, (0, 0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -184,7 +186,7 @@ def game_loop():
 
         for bird in birds:
             if bird.name in bird_images:
-                BIRD_IMG_RESIZED = pygame.transform.scale(bird_images[bird.name], (bird.size, bird.size))
+                BIRD_IMG_RESIZED = pygame.transform.scale(bird.image, (bird.size, bird.size))
                 bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
                 screen.blit(BIRD_IMG_RESIZED, bird_rect)
 
@@ -268,16 +270,15 @@ def show_menu():
                         return i + 1
 
 def jeu(level):
-    """Fonction principale du programme."""
+    """Fonction principale du programme sans écran de sélection de niveaux."""
     global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index
 
-    while True:
-        current_level = show_menu()
-        clear_space()
-        create_birds()
-        ekip = select_team()
-        hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
-        create_ground()
-        create_borders()
-        running, score, current_bird_index = True, 0, 0
-        game_loop()
+    current_level = 1  # Lancement direct du niveau 1
+    clear_space()
+
+    birds = select_team()
+    hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
+    create_ground()
+    create_borders()
+    running, score, current_bird_index = True, 0, 0
+    game_loop()

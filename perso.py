@@ -1,7 +1,7 @@
 import pygame
 import pymunk
 from Constantes import *
-from main import *
+from globals import *
 
 
 power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
@@ -40,7 +40,7 @@ def create_birds():
 def select_team():
     global selec_trois, selection_running
     selection_running = True
-
+    create_birds()
     while selection_running:
         screen.fill((255, 255, 255))
 

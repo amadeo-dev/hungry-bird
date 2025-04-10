@@ -24,7 +24,7 @@ fond = pygame.image.load("Ressources/image/intro_bck2.png")
 fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))
 
 DECORS = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
-
+RESTART_IMG = pygame.image.load('Ressources/image/Restart.png')
 
 #temporaire
 WIDTH, HEIGHT = 1280, 720
