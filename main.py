@@ -39,7 +39,6 @@ def main():
         elif action == "quitter":
             break
 
-
     pygame.quit()
 
 if __name__ == "__main__":
