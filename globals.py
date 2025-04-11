@@ -25,6 +25,10 @@ fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))
 
 DECORS = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
 RESTART_IMG = pygame.image.load('Ressources/image/Restart.png')
+#SON
+miam_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - slurp 2.wav")
+lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
+menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
 
 #temporaire
 WIDTH, HEIGHT = 1280, 720
