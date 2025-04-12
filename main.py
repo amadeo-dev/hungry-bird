@@ -18,7 +18,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 space = pymunk.Space()
 
 
-fond = pygame.image.load("Ressources/image/intro_bck2.png")
+fond = pygame.image.load("Ressources/image/intro_bckg.jpg")
 fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))
 DECORS = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
 
