@@ -13,7 +13,8 @@ selection_running = False
 
 
 class Bird:
-    def __init__(self, position, name, image, power):
+    def __init__(self, position, name, image, image_o, power):
+        self.size = BIRD_SIZE_DEFAULT
         self.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 15))
         self.shape = pymunk.Circle(self.body, 15)
         space.add(self.body, self.shape)
@@ -25,6 +26,10 @@ class Bird:
         self.name = name
         self.image = pygame.image.load(image).convert_alpha()
         self.image = pygame.transform.scale(self.image, (150, 150))
+
+        self.image_o = pygame.image.load(image_o).convert_alpha()
+        self.image_o = pygame.transform.scale(self.image_o, (150, 150))
+
         self.power = power
 
 
@@ -33,8 +38,9 @@ def create_birds():
     selected_names = bird_name[:5]
     for i, name in enumerate(selected_names):
         image = f"Ressources/image/{name}_n.png"
+        image_o = f"Ressources/image/{name}_o.png"
         power = power_list[i]
-        bird = Bird((150 + i * 60, HEIGHT - 60), name, image, power)
+        bird = Bird((150 + i * 60, HEIGHT - 60), name, image,image_o, power)
         ekip.append(bird)
 
 def select_team():
@@ -53,11 +59,11 @@ def select_team():
         choix = pygame.image.load("Ressources/image/choix.png")
         screen.blit(choix, (WIDTH // 2 - choix.get_width() // 2, 50))
 
-        bird_rects = []  # Liste des (rectangle, bird) pour gestion des clics
+        bird_rects = []
         for i, bird in enumerate(ekip):
             x, y = 100 + i * 250, 200
-            rect = pygame.Rect(x, y, 150, 150)  # Rectangle interactif
-            bird_rects.append((rect, bird))  # Stocke chaque oiseau avec son rectangle
+            rect = pygame.Rect(x, y, 150, 150)
+            bird_rects.append((rect, bird))
 
             screen.blit(bird.image, (x, y))
 
@@ -67,11 +73,10 @@ def select_team():
             text_power = font.render(bird.power, True, (150, 0, 0))
             screen.blit(text_power, (x, y + 140))
 
-            # Affichage du cadre en fonction de la sélection
             if bird in selec_trois:
-                pygame.draw.rect(screen, (0, 255, 0), rect, 5)  # Vert si sélectionné
+                bird.image = pygame.transform.scale(bird.image_o, (150, 150))
             elif rect.collidepoint(pygame.mouse.get_pos()):
-                pygame.draw.rect(screen, (0, 200, 200), rect, 5)  # Bleu au survol
+                pygame.draw.rect(screen, (0, 200, 200), rect, 5)
 
         pygame.display.flip()
 

@@ -333,7 +333,7 @@ def select_team():
     for i in range(len(bird_name)):
         name = bird_name[i]
         print(name)
-        bird = pygame.image.load(f"Ressources/image/{name}.png")
+        bird = pygame.image.load(f"Ressources/image/{name.lower()}_n.png")
         bird_images[name] = pygame.transform.scale(bird, (100, 100))
 
 

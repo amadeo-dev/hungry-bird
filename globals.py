@@ -39,6 +39,7 @@ MIN_DISTANCE = 50
 
 bird_images = {}
 bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo' ]
+BIRD_SIZE_DEFAULT = 50
 
 HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
 BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))

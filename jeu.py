@@ -34,7 +34,7 @@ def create_food(level):
 def create_ground():
     """Crée le sol du jeu."""
     body = pymunk.Body(body_type=pymunk.Body.STATIC)
-    body.position = (WIDTH // 2, HEIGHT - 20)
+    body.position = (WIDTH // 2, HEIGHT - 50)
     shape = pymunk.Poly.create_box(body, (WIDTH, 40))
     shape.elasticity = 0.3
     shape.friction = 1.5
@@ -53,7 +53,7 @@ def create_borders():
 
 def limit_speed():
     """Limite la vitesse des oiseaux pour éviter des mouvements trop rapides."""
-    for bird in birds:
+    for bird in selected_team:
         vx, vy = bird.body.velocity
         speed = (vx ** 2 + vy ** 2) ** 0.5
         if speed > MAX_SPEED:
@@ -64,7 +64,7 @@ def check_collision():
     """Vérifie les collisions entre les oiseaux et les aliments."""
     global score, end_game_time
 
-    for bird in birds:
+    for bird in selected_team:
         if not bird.launched:
             continue
 
@@ -86,8 +86,8 @@ def check_collision():
 
 def restart_game():
     """Réinitialise le jeu."""
-    global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, score, current_bird_index, game_over, end_game_time
-    for bird in birds:
+    global selected_team, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, score, current_bird_index, game_over, end_game_time
+    for bird in selected_team:
         space.remove(bird.body, bird.shape)
 
     hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
@@ -161,9 +161,9 @@ def game_loop():
                         restart_game()
                     elif WIDTH - 150 <= event.pos[0] <= WIDTH - 20 and 80 <= event.pos[1] <= 130:
                         return
-                    elif current_bird_index < len(birds):
+                    elif current_bird_index < len(selected_team):
                         start_pos = pygame.mouse.get_pos()
-            elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
+            elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(selected_team):
                 end_pos = pygame.mouse.get_pos()
                 if start_pos:
                     if current_bird_index == 0:
@@ -173,19 +173,25 @@ def game_loop():
                     elif current_bird_index == 2:
                         bird_index = 0
 
-                    birds[bird_index].body.apply_impulse_at_local_point(
+                    selected_bird = selected_team[bird_index]
+
+                    # Téléportation et activation
+                    selected_bird.body.body_type = pymunk.Body.DYNAMIC
+                    selected_bird.body.position = CATAPULT_POS  # définie en constante par exemple
+
+                    selected_team[bird_index].body.apply_impulse_at_local_point(
                         ((start_pos[0] - end_pos[0]) * 5, (start_pos[1] - end_pos[1]) * 5))
-                    birds[bird_index].launched = True
+                    selected_team[bird_index].launched = True
                     current_bird_index += 1
                     start_pos = None
 
                     lance_sound.play()  # Son de lancement
 
         # Affichage du viseur
-        if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(birds):
+        if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(selected_team):
             current_mouse_pos = pygame.mouse.get_pos()
             bird_index = 2 - current_bird_index
-            bird = birds[bird_index]
+            bird = selected_team[bird_index]
             bird_pos = (int(bird.body.position[0]), int(bird.body.position[1]))
 
             dx = (start_pos[0] - current_mouse_pos[0]) * 5
@@ -204,7 +210,7 @@ def game_loop():
         limit_speed()
 
         # Collision + sons
-        for bird in birds:
+        for bird in selected_team:
             if not bird.launched:
                 continue
 
@@ -225,7 +231,7 @@ def game_loop():
             if end_game_time is None:
                 end_game_time = time.time()
 
-        for bird in birds:
+        for bird in selected_team:
 
             BIRD_IMG_RESIZED = pygame.transform.scale(bird.image, (bird.size, bird.size))  # Utilisation de l'image spécifique à chaque oiseau
             bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
@@ -247,7 +253,7 @@ def game_loop():
         draw_restart_button()
         draw_menu_button()
 
-        if current_bird_index >= len(birds) or (end_game_time is not None and time.time() - end_game_time >= 2):
+        if current_bird_index >= len(selected_team) or (end_game_time is not None and time.time() - end_game_time >= 2):
             if end_game_time is None:
                 end_game_time = time.time()
             if time.time() - end_game_time >= (2 if len(hotdog_positions) == 0 else 4):
@@ -260,60 +266,21 @@ def game_loop():
         pygame.time.delay(int(dt * 1000))
 
 
-def show_menu():
-    """Affiche le menu principal et permet de sélectionner les niveaux."""
-    menu_running = True
-    font = pygame.font.Font(None, 60)
-    level_buttons = [
-        pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 100, 200, 50),
-        pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 20, 200, 50),
-        pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 60, 200, 50),
-    ]
-    quit_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 140, 200, 50)
-
-    while menu_running:
-        screen.fill(WHITE)
-        title = font.render("Hungry Bird", True, BLACK)
-        screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4))
-
-        for i, button in enumerate(level_buttons):
-            pygame.draw.rect(screen, GREEN, button)
-            text = font.render(f"Niveau {i + 1}", True, WHITE)
-            screen.blit(text, (button.x + 50, button.y + 5))
-
-        pygame.draw.rect(screen, RED, quit_button)
-        quit_text = font.render("Quitter", True, WHITE)
-        screen.blit(quit_text, (quit_button.x + 50, quit_button.y + 5))
-
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if quit_button.collidepoint(event.pos):
-                    pygame.quit()
-                    exit()
-                for i, button in enumerate(level_buttons):
-                    if button.collidepoint(event.pos):
-                        selected_team = select_team()
-                        print("Équipe sélectionnée :", selected_team)
-                        menu_running = False
-                        return i + 1
 
 def jeu(level):
     """Fonction principale du programme sans écran de sélection de niveaux."""
-    global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index
+    global selected_team, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index
 
     clear_space()
     current_level = level
 
-    birds = select_team()
-    # Repositionner les oiseaux sélectionnés pour le niveau
-    for i, bird in enumerate(birds):
-        bird.body.position = (150, HEIGHT - 100)  # position de départ à gauche
+    selected_team = select_team()
+
+    for i, bird in enumerate(selected_team):
+        bird.body.body_type = pymunk.Body.KINEMATIC
+        bird.body.position = (-1000, -1000)  # Position très loin pour ne pas les voir
         bird.launched = False
+
     hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
     create_ground()
     create_borders()
