@@ -8,16 +8,16 @@ pygame.display.set_caption("Bouton avec image")
 fond = pygame.transform.scale(fond, (1280, 720))
 
 def create_button(nom, x, y, tx=150, ty=50):
-    bouton = pygame.image.load(f"Ressources/image/{nom}.png")
+    bouton = pygame.image.load(f"Ressources/image/Menu/{nom}.png")
     return pygame.transform.scale(bouton, (tx, ty)), bouton.get_rect(center=(x, y))
 
 # Boutons
-bouton_Tutoriel, button_rect1 = create_button('hotdog', WIDTH // 2, HEIGHT // 2 - 150)
-bouton_niveau1, button_rect2 = create_button('lvl1', WIDTH // 2, HEIGHT // 2 -200)
-bouton_niveau2, button_rect3 = create_button('lvl2', WIDTH // 2, HEIGHT // 2)
-bouton_niveau3, button_rect4 = create_button('lvl3', WIDTH // 2, HEIGHT // 2 +200)
-bouton_quitter, button_rect5 = create_button('exit', WIDTH - 100, HEIGHT -50)
-bouton_Reglage, button_rect6 = create_button('reglage_ic', WIDTH - 100, 50, tx=96, ty=96)
+bouton_Tutoriel, button_rect1 = create_button('Tutoriel', WIDTH // 2, HEIGHT // 2 - 150)
+bouton_niveau1, button_rect2 = create_button('Nv1', WIDTH // 2, HEIGHT // 2 -200)
+bouton_niveau2, button_rect3 = create_button('Nv2', WIDTH // 2, HEIGHT // 2)
+bouton_niveau3, button_rect4 = create_button('Nv3', WIDTH // 2, HEIGHT // 2 +200)
+bouton_quitter, button_rect5 = create_button('Quitter', WIDTH - 100, HEIGHT -50)
+bouton_Reglage, button_rect6 = create_button('Reglages', WIDTH - 100, 50, tx=96, ty=96)
 
 def menu():
     while True:

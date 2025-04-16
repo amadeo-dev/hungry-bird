@@ -37,8 +37,8 @@ def create_birds():
     ekip.clear()
     selected_names = bird_name[:5]
     for i, name in enumerate(selected_names):
-        image = f"Ressources/image/{name}_n.png"
-        image_o = f"Ressources/image/{name}_o.png"
+        image = f"Ressources/image/Personnages/{name}_n.png"
+        image_o = f"Ressources/image/Personnages/{name}_o.png"
         power = power_list[i]
         bird = Bird((150 + i * 60, HEIGHT - 60), name, image,image_o, power)
         ekip.append(bird)
