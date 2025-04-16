@@ -20,7 +20,7 @@ font = pygame.font.Font(None, 58)
 
 
 # Fonds d'écran
-fond = pygame.image.load("Ressources/image/intro_bckg.jpg")
+fond = pygame.image.load("Ressources/image/Menu/Decors.png")
 fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))
 
 
