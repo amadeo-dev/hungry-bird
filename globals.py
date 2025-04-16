@@ -20,7 +20,7 @@ font = pygame.font.Font(None, 58)
 
 
 # Fonds d'écran
-fond = pygame.image.load("Ressources/image/Menu/Decors.png")
+fond = pygame.image.load("Ressources/image/Menu/Decors Avec Bouton Wola.png")
 fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))
 
 
@@ -49,8 +49,7 @@ RESTART_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Restart
 
 DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/bck_lvl1.jpg"), (WIDTH, HEIGHT))
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Hungry Bird")
+screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
 space = pymunk.Space()
 space.gravity = GRAVITY
