@@ -4,7 +4,7 @@ from Constantes import *
 from globals import *
 
 
-power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","Jacky", "Pouvoir mystère"]
+power_list = ["Aucun pouvoir","Pouvoir X","Pouvoir Y","Pouvoir Z","convocation", "Pouvoir mystère"]
 ekip = []   #liste de tous les oiseaux à disposition
 selec_trois = []  #selection des trois oiseaux du joueur
 font = pygame.font.Font(None, 58)
@@ -24,12 +24,13 @@ class Bird:
         self.launched = False
         self.body.position = position
         self.name = name
-        self.image = pygame.image.load(image).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (150, 150))
+        self.image_n = pygame.image.load(image).convert_alpha()
+        self.image_n = pygame.transform.smoothscale(self.image_n, (250, 250))
 
         self.image_o = pygame.image.load(image_o).convert_alpha()
-        self.image_o = pygame.transform.scale(self.image_o, (150, 150))
+        self.image_o = pygame.transform.smoothscale(self.image_o, (250, 250))
 
+        self.image = self.image_n
         self.power = power
 
 
@@ -47,39 +48,54 @@ def select_team():
     global selec_trois, selection_running
     selection_running = True
     create_birds()
+
+    # Font plus petite
+    small_font = pygame.font.SysFont(None, 40)
+
     while selection_running:
         screen.fill((255, 255, 255))
 
         background = pygame.image.load("Ressources/image/selec_bck.jpg")
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
         ship_top = screen.get_height() - background.get_height()
-        ship_left = screen.get_width() / 2 - background.get_width() / 2
+        ship_left = screen.get_width() // 2 - background.get_width() // 2
         screen.blit(background, (ship_left, ship_top))
 
         choix = pygame.image.load("Ressources/image/choix.png")
         screen.blit(choix, (WIDTH // 2 - choix.get_width() // 2, 50))
 
         bird_rects = []
+
+        bird_width = 250
+        bird_height = 250
+        spacing = 100
+        total_width = len(ekip) * bird_width + (len(ekip) - 1) * spacing
+        start_x = (WIDTH - total_width) // 2
+        y = 400
+
         for i, bird in enumerate(ekip):
-            x, y = 100 + i * 250, 200
-            rect = pygame.Rect(x, y, 150, 150)
+            x = start_x + i * (bird_width + spacing)
+            rect = pygame.Rect(x, y, bird_width, bird_height)
             bird_rects.append((rect, bird))
+
+
+            # Afficher nom
+            text_name = small_font.render(bird.name, True, (0, 0, 0))
+            screen.blit(text_name, (x + 100, y + bird_height + 10))
+
+            # Afficher pouvoir
+            text_power = small_font.render(bird.power, True, (150, 0, 0))
+            screen.blit(text_power, (x, y + bird_height + 30))
+
+            # Surbrillance si hover
+            if bird in selec_trois:
+                bird.image = bird.image_o
+            else:
+                bird.image = bird.image_n
 
             screen.blit(bird.image, (x, y))
 
-            text_name = font.render(bird.name, True, (0, 0, 0))
-            screen.blit(text_name, (x + 10, y + 110))
-
-            text_power = font.render(bird.power, True, (150, 0, 0))
-            screen.blit(text_power, (x, y + 140))
-
-            if bird in selec_trois:
-                bird.image = pygame.transform.scale(bird.image_o, (150, 150))
-            elif rect.collidepoint(pygame.mouse.get_pos()):
-                pygame.draw.rect(screen, (0, 200, 200), rect, 5)
-
         pygame.display.flip()
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -89,14 +105,12 @@ def select_team():
                 for rect, bird in bird_rects:
                     if rect.collidepoint(event.pos):
                         if bird in selec_trois:
-                            selec_trois.remove(bird)  # Désélection
+                            selec_trois.remove(bird)
                         elif len(selec_trois) < 3:
-                            selec_trois.append(bird)  # Sélection
+                            selec_trois.append(bird)
 
-                # Vérifie si on a bien sélectionné 3 oiseaux pour sortir de la boucle
                 if len(selec_trois) == 3:
-                    selection_running = False  # FIN de la sélection
+                    selection_running = False
 
     return selec_trois
-
 
