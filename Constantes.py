@@ -1,7 +1,7 @@
 
 
 # Dimensions de la fenêtre
-WIDTH, HEIGHT = 1280, 720
+WIDTH, HEIGHT = 1920, 1080
 
 
 # Couleurs

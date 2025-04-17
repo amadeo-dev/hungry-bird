@@ -15,31 +15,19 @@ pygame.display.set_caption("Hungry Bird")
 space = pymunk.Space()
 space.gravity = (0, 900)
 
-# Font principale
-font = pygame.font.Font(None, 58)
-
-
-# Fonds d'écran
-fond = pygame.image.load("Ressources/image/Menu/Decors Avec Bouton Wola.png")
-fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))
-
 
 #SON
 miam_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - slurp 2.wav")
 lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
 menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
 
-#temporaire
-WIDTH, HEIGHT = 1280, 720
 WHITE, RED, GREEN, BLACK = (255, 255, 255), (255, 0, 0), (0, 200, 0), (0, 0, 0)
 BIRD_SIZE_DEFAULT = 50
 MAX_SPEED = 1000
 GRAVITY = (0, 900)
 MIN_DISTANCE = 50
 
-bird_images = {}
-bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo' ]
-BIRD_SIZE_DEFAULT = 50
+#temporaire vs me degagez ça
 
 HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
 BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
@@ -51,8 +39,7 @@ DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/bck_lvl1
 
 screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
-space = pymunk.Space()
-space.gravity = GRAVITY
+
 
 birds = []
 hotdog_positions = []
