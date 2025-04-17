@@ -1,12 +1,12 @@
 import pygame
 from Constantes import *
-from globals import*
+from globals import *
 from perso import *
 
 pygame.display.set_caption("Menu")
 
 fond = pygame.image.load("Ressources/image/Menu/Decors.png")
-fond = pygame.transform.scale(fond, (WIDTH, HEIGHT))
+fond = pygame.transform.scale(fond, (screen_width, screen_height))
 
 def create_button(nom, x, y, tx, ty):
     bouton = pygame.image.load(f"Ressources/image/Menu/{nom}.png")

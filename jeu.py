@@ -19,11 +19,11 @@ def create_food(level):
         """Génère une position aléatoire pour un aliment."""
         max_attempts = 100
         for _ in range(max_attempts):
-            pos = (random.randint(WIDTH // 2, WIDTH - 100), random.randint(HEIGHT - 300, HEIGHT - 150))
+            pos = (random.randint(screen_width // 2, screen_width - 100), random.randint(screen_height - 300, screen_height - 150))
             if is_far_enough(pos, food_positions):
                 food_positions.append(pos)
                 return pos
-        return (random.randint(WIDTH // 2, WIDTH - 100), random.randint(HEIGHT - 300, HEIGHT - 150))
+        return (random.randint(screen_width // 2, screen_width - 100), random.randint(screen_height - 300, screen_height - 150))
 
     if level == 1:
         return [random_pos() for _ in range(3)], [random_pos() for _ in range(1)], [random_pos() for _ in range(2)], [random_pos() for _ in range(1)]
@@ -35,8 +35,8 @@ def create_food(level):
 def create_ground():
     """Crée le sol du jeu."""
     body = pymunk.Body(body_type=pymunk.Body.STATIC)
-    body.position = (WIDTH // 2, HEIGHT - 20)
-    shape = pymunk.Poly.create_box(body, (WIDTH, 40))
+    body.position = (screen_width // 2, screen_height - 20)
+    shape = pymunk.Poly.create_box(body, (screen_width, 40))
     shape.elasticity = 0.3
     shape.friction = 1.5
     space.add(body, shape)
@@ -44,9 +44,9 @@ def create_ground():
 def create_borders():
     """Crée les bordures du jeu."""
     borders = [
-        pymunk.Segment(space.static_body, (0, 0), (0, HEIGHT), 5),
-        pymunk.Segment(space.static_body, (WIDTH, 0), (WIDTH, HEIGHT), 5),
-        pymunk.Segment(space.static_body, (0, 0), (WIDTH, 0), 5)
+        pymunk.Segment(space.static_body, (0, 0), (0, screen_height), 5),
+        pymunk.Segment(space.static_body, (screen_width, 0), (screen_width, screen_height), 5),
+        pymunk.Segment(space.static_body, (0, 0), (screen_width, 0), 5)
     ]
     for border in borders:
         border.elasticity = 0.8
@@ -110,11 +110,11 @@ def draw_end_menu():
     """Dessine le menu de fin de jeu."""
     font = pygame.font.Font(None, 74)
     text = font.render("Bravo !", True, GREEN)
-    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 100))
+    text_rect = text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
     screen.blit(text, text_rect)
 
-    restart_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
-    menu_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 80, 200, 50)
+    restart_button = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
+    menu_button = pygame.Rect(screen_width // 2 - 100, screen_height // 2 + 80, 200, 50)
 
     pygame.draw.rect(screen, GREEN, restart_button)
     pygame.draw.rect(screen, RED, menu_button)
@@ -129,14 +129,14 @@ def draw_end_menu():
 
 def draw_restart_button():
     """Dessine le bouton Restart avec une image."""
-    screen.blit(RESTART_IMG, (WIDTH - 150, 20))
+    screen.blit(RESTART_IMG, (screen_width - 150, 20))
 
 def draw_menu_button():
     """Dessine le bouton Menu."""
-    pygame.draw.rect(screen, RED, (WIDTH - 150, 80, 130, 50))
+    pygame.draw.rect(screen, RED, (screen_width - 150, 80, 130, 50))
     font = pygame.font.Font(None, 36)
     text = font.render("Menu", True, WHITE)
-    screen.blit(text, (WIDTH - 120, 90))
+    screen.blit(text, (screen_width - 120, 90))
 
 def game_loop():
     """Boucle principale du jeu."""
@@ -157,9 +157,9 @@ def game_loop():
                     elif menu_button.collidepoint(event.pos):
                         return
                 else:
-                    if WIDTH - 150 <= event.pos[0] <= WIDTH - 20 and 20 <= event.pos[1] <= 70:
+                    if screen_width - 150 <= event.pos[0] <= screen_width - 20 and 20 <= event.pos[1] <= 70:
                         restart_game()
-                    elif WIDTH - 150 <= event.pos[0] <= WIDTH - 20 and 80 <= event.pos[1] <= 130:
+                    elif screen_width - 150 <= event.pos[0] <= screen_width - 20 and 80 <= event.pos[1] <= 130:
                         return
                     elif current_bird_index < len(birds):
                         start_pos = pygame.mouse.get_pos()

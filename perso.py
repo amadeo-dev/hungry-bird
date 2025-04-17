@@ -14,13 +14,12 @@ selection_running = False
 
 class Bird:
     def __init__(self, position, name, image, image_o, power):
-        self.size = BIRD_SIZE_DEFAULT
         self.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 15))
         self.shape = pymunk.Circle(self.body, 15)
         space.add(self.body, self.shape)
         self.shape.elasticity = 0.8
         self.shape.friction = 0.5
-        self.size = 50
+        self.size = 80
         self.launched = False
         self.body.position = position
         self.name = name
@@ -41,7 +40,7 @@ def create_birds():
         image = f"Ressources/image/Personnages/{name}_n.png"
         image_o = f"Ressources/image/Personnages/{name}_o.png"
         power = power_list[i]
-        bird = Bird((150 + i * 60, HEIGHT - 60), name, image,image_o, power)
+        bird = Bird((150 + i * 60, screen_height - 60), name, image,image_o, power)
         ekip.append(bird)
 
 def select_team():
@@ -56,13 +55,13 @@ def select_team():
         screen.fill((255, 255, 255))
 
         background = pygame.image.load("Ressources/image/selec_bck.jpg")
-        background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+        background = pygame.transform.scale(background, (screen_width, screen_height))
         ship_top = screen.get_height() - background.get_height()
         ship_left = screen.get_width() // 2 - background.get_width() // 2
         screen.blit(background, (ship_left, ship_top))
 
         choix = pygame.image.load("Ressources/image/choix.png")
-        screen.blit(choix, (WIDTH // 2 - choix.get_width() // 2, 50))
+        screen.blit(choix, (screen_width // 2 - choix.get_width() // 2, 50))
 
         bird_rects = []
 
@@ -70,7 +69,7 @@ def select_team():
         bird_height = 250
         spacing = 100
         total_width = len(ekip) * bird_width + (len(ekip) - 1) * spacing
-        start_x = (WIDTH - total_width) // 2
+        start_x = (screen_width - total_width) // 2
         y = 400
 
         for i, bird in enumerate(ekip):
@@ -87,7 +86,7 @@ def select_team():
             text_power = small_font.render(bird.power, True, (150, 0, 0))
             screen.blit(text_power, (x, y + bird_height + 30))
 
-            # Surbrillance si hover
+            # ouvre la bouche
             if bird in selec_trois:
                 bird.image = bird.image_o
             else:

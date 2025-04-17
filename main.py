@@ -10,11 +10,6 @@ from globals import*
 from menu import *
 from jeu import *
 
-
-pygame.init()
-pygame.font.init()
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 space = pymunk.Space()
 
 
