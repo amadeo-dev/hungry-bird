@@ -10,6 +10,11 @@ screen_width, screen_height = info.current_w, info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("Hungry Bird")
 
+def ajustx(x):
+    return (x*screen_width)/1920
+def ajusty(y):
+     return (y * screen_height) / 1080
+
 # Espace physique
 space = pymunk.Space()
 space.gravity = (0, 900)

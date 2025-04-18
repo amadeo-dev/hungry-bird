@@ -3,6 +3,7 @@ import random
 import time
 import math
 
+from main import *
 from Constantes import *
 from globals import *
 from perso import select_team
@@ -155,7 +156,7 @@ def game_loop():
                     if restart_button.collidepoint(event.pos):
                         restart_game()
                     elif menu_button.collidepoint(event.pos):
-                        return
+                        main()
                 else:
                     if screen_width - 150 <= event.pos[0] <= screen_width - 20 and 20 <= event.pos[1] <= 70:
                         restart_game()

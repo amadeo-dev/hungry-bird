@@ -65,8 +65,8 @@ def select_team():
 
         bird_rects = []
 
-        bird_width = 250
-        bird_height = 250
+        bird_width = ajustx(250)
+        bird_height = ajusty(250)
         spacing = 100
         total_width = len(ekip) * bird_width + (len(ekip) - 1) * spacing
         start_x = (screen_width - total_width) // 2
@@ -74,17 +74,16 @@ def select_team():
 
         for i, bird in enumerate(ekip):
             x = start_x + i * (bird_width + spacing)
-            rect = pygame.Rect(x, y, bird_width, bird_height)
+            rect = pygame.Rect(ajustx(x), ajusty(y), bird_width, bird_height)
             bird_rects.append((rect, bird))
-
 
             # Afficher nom
             text_name = small_font.render(bird.name, True, (0, 0, 0))
-            screen.blit(text_name, (x + 100, y + bird_height + 10))
+            screen.blit(text_name, (ajustx(x)+ 100, ajusty(y + bird_height )+ 10))
 
             # Afficher pouvoir
             text_power = small_font.render(bird.power, True, (150, 0, 0))
-            screen.blit(text_power, (x, y + bird_height + 30))
+            screen.blit(text_power, (ajustx(x), ajusty(y + bird_height + 30)))
 
             # ouvre la bouche
             if bird in selec_trois:
@@ -92,7 +91,7 @@ def select_team():
             else:
                 bird.image = bird.image_n
 
-            screen.blit(bird.image, (x, y))
+            screen.blit(bird.image, (ajustx(x), ajusty(y)))
 
         pygame.display.flip()
 
