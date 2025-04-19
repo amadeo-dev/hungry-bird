@@ -2,6 +2,7 @@ import pygame
 from Constantes import *
 from globals import *
 from perso import *
+from tutoriel import lancer_tutoriel
 
 pygame.display.set_caption("Menu")
 
@@ -49,7 +50,6 @@ boutons = {
 
 def menu():
     clock = pygame.time.Clock()
-    bouton_clique = None
     mouse_was_down = False
 
     while True:
@@ -69,16 +69,29 @@ def menu():
         if mouse_was_down and not mouse_pressed:
             for nom, bouton in boutons.items():
                 if bouton.rect.collidepoint(mouse_pos):
-                    # Relâchement détecté sur le bouton -> jouer animation retour
-                    for _ in range(5):  # laisse le bouton grossir un peu
+                    # Animation du bouton
+                    for _ in range(5):
                         screen.blit(fond, (0, 0))
                         for n, b in boutons.items():
-                            img, rect = b.update(mouse_pos, False)  # plus de clic
+                            img, rect = b.update(mouse_pos, False)
                             screen.blit(img, rect)
                         pygame.display.flip()
                         clock.tick(60)
                     pygame.time.delay(100)
-                    return nom
+
+                    # Action selon le bouton
+                    if nom == "tutoriel":
+                        lancer_tutoriel(screen)
+                    elif nom == "quitter":
+                        return "quitter"
+                    elif nom == "niveau1":
+                        return "niveau1"
+                    elif nom == "niveau2":
+                        return "niveau2"
+                    elif nom == "niveau3":
+                        return "niveau3"
+                    elif nom == "reglage":
+                        return "reglage"
 
         mouse_was_down = mouse_pressed
 
