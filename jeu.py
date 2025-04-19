@@ -11,6 +11,27 @@ from globals import *
 from perso import select_team
 from power import *
 
+def reset_globals():
+    global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions
+    global score, current_level, current_bird_index, game_over, end_game_time, space, running
+
+    # Réinitialiser les variables globales
+    birds = []
+    hotdog_positions = []
+    burger_positions = []
+    brocoli_positions = []
+    dinde_positions = []
+    score = 0
+    current_level = 1
+    current_bird_index = 0
+    game_over = False
+    end_game_time = None
+    running = True
+
+    # Réinitialiser l'espace physique
+    space = pymunk.Space()
+    space.gravity = GRAVITY
+
 
 def is_far_enough(pos, others):
     return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE for o in others)
@@ -110,16 +131,16 @@ def check_collision():
 
 
 def clear_space():
-    static_bodies = [body for body in space.bodies if body.body_type == pymunk.Body.STATIC]
-
+    global space
     for body in space.bodies[:]:
-        if body not in static_bodies:
-            space.remove(body)
-
+        space.remove(body)
     for shape in space.shapes[:]:
         space.remove(shape)
     for constraint in space.constraints[:]:
         space.remove(constraint)
+    # Réinitialiser l'espace proprement
+    space = pymunk.Space()
+    space.gravity = GRAVITY
 
 
 def restart_game():
@@ -243,6 +264,7 @@ def game_loop():
                     if restart_button.collidepoint(event.pos):
                         restart_game()
                     elif menu_button.collidepoint(event.pos):
+                        clear_space()  # Nettoyer les ressources physiques
                         main()
                 else:
                     if screen_width - 150 <= event.pos[0] <= screen_width - 20 and 20 <= event.pos[1] <= 70:
@@ -320,6 +342,8 @@ def game_loop():
 
 
 def jeu(level):
+    reset_globals()
+
     global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index, space
 
     space = pymunk.Space()
