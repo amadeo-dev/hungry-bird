@@ -9,6 +9,7 @@ pygame.display.set_caption("Menu")
 fond = pygame.image.load("Ressources/image/Menu/Decors.png")
 fond = pygame.transform.scale(fond, (screen_width, screen_height))
 
+
 class BoutonInteractif:
     def __init__(self, nom, x, y, tx, ty):
         self.image_orig = pygame.image.load(f"Ressources/image/Menu/{nom}.png").convert_alpha()
@@ -16,28 +17,37 @@ class BoutonInteractif:
         self.x, self.y = x, y
         self.base_size = pygame.Vector2(tx, ty)
         self.current_size = self.base_size.copy()
-        self.target_size = self.base_size.copy()
         self.rect = self.image_orig.get_rect(center=(x, y))
-        self.state = "normal"  # 'normal', 'hover', 'pressed'
+        self.animation_timer = 0
 
     def update(self, mouse_pos, mouse_pressed):
-        if self.rect.collidepoint(mouse_pos):
-            if mouse_pressed:
-                self.state = "pressed"
-                self.target_size = self.base_size * 0.70
-            else:
-                self.state = "hover"
-                self.target_size = self.base_size * 1.05
+        # Détection survol et clic
+        hover = self.rect.collidepoint(mouse_pos)
+        clicked = hover and mouse_pressed
+
+        # Déclencher l'animation au clic
+        if clicked:
+            self.animation_timer = 10  # 10 frames d'animation
+
+        # Gestion de l'animation
+        if self.animation_timer > 0:
+            self.animation_timer -= 1
+            if self.animation_timer > 5:  # Première moitié: réduction
+                scale = 0.9
+            else:  # Deuxième moitié: retour
+                scale = 1.0
         else:
-            self.state = "normal"
-            self.target_size = self.base_size
+            # État normal ou survol
+            scale = 1.02 if hover else 1.0
 
-        self.current_size += (self.target_size - self.current_size) * 0.1
+        # Application de la taille
+        target_size = self.base_size * scale
+        self.current_size += (target_size - self.current_size) * 0.3
+
+        # Mise à jour de l'image
         image = pygame.transform.smoothscale(self.image_orig, self.current_size)
-        rect = image.get_rect(center=(self.x, self.y))
-        self.rect = rect
-        return image, rect
-
+        self.rect = image.get_rect(center=(self.x, self.y))
+        return image, self.rect
 # Création des boutons
 boutons = {
     "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1450), ajusty(980), ajustx(285), ajusty(203)),
