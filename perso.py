@@ -29,7 +29,6 @@ class Bird:
         self.image_o = pygame.image.load(image_o).convert_alpha()
         self.image_o = pygame.transform.smoothscale(self.image_o, (250, 250))
 
-        self.image = self.image_n
         self.power = power
 
 
