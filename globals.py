@@ -41,6 +41,7 @@ miam_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - slurp 2.wav")
 lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
 menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
 
+Musique_jeu = pygame.mixer.Sound("Ressources/Sons/birds of a feather.mp3")
 # Images mises à l’échelle dynamiquement
 HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
 BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
@@ -108,3 +109,4 @@ class BoutonInteractif:
         image = pygame.transform.smoothscale(self.image_orig, self.current_size)
         self.rect = image.get_rect(center=(self.x, self.y))
         return image, self.rect
+

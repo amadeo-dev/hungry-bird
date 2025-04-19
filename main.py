@@ -25,7 +25,7 @@ def main():
         elif action == "niveau3":
             jeu(3)
         elif action == "reglage":
-            Reglage
+            reglages()
 
         elif action == "quitter":
             break
