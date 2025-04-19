@@ -189,6 +189,36 @@ def draw_menu_button():
     text = font.render("Menu", True, WHITE)
     screen.blit(text, (screen_width - 120, 90))
 
+def update_bird_angle():
+    for bird in birds:
+        if hasattr(bird, 'body') and bird.body:
+            # Récupérer la vitesse de l'oiseau
+            vx, vy = bird.body.velocity
+
+            # Calculer l'angle pour l'orientation de l'oiseau
+            angle = math.degrees(math.atan2(vy, vx)) if vx != 0 or vy != 0 else 0
+
+            # Charger l'image correcte (near_food ou non)
+            bird_img = pygame.transform.scale(
+                bird.image_o if getattr(bird, 'near_food', False) else bird.image_n,
+                (bird.size, bird.size)
+            )
+
+            # Gestion de l'effet miroir pour les mouvements vers la gauche (vx < 0)
+            if vx < 0:
+                bird_img = pygame.transform.flip(bird_img, True, False)
+                angle = 180 + angle  # Compense l'effet miroir pour garder une inclinaison correcte
+
+            # Ne pas effecter de rotation si la vitesse est trop faible (on garde l'angle 0 par défaut)
+            if abs(vx) > 0.1 or abs(vy) > 0.1:
+                bird_img = pygame.transform.rotate(bird_img, -angle)
+
+            # Centrer l'image sur la position actuelle de l'oiseau
+            bird_rect = bird_img.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
+
+            # Dessiner l'image sur l'écran
+            screen.blit(bird_img, bird_rect)
+
 
 def game_loop():
     global running, score, current_level, current_bird_index, start_pos, game_over, end_game_time
@@ -223,21 +253,18 @@ def game_loop():
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
                 end_pos = pygame.mouse.get_pos()
                 if start_pos:
-                    # Ordre de lancement : droite (0), centre (1), gauche (2)
-                    bird_order = [0, 1, 2]  # Index des oiseaux dans l'ordre de lancement
-                    bird_index = bird_order[current_bird_index]
-
-                    birds[bird_index].body.apply_impulse_at_local_point(
-                        ((start_pos[0] - end_pos[0]) * 5, (start_pos[1] - end_pos[1]) * 5))
-                    birds[bird_index].launched = True
+                    bird_index = current_bird_index  # L'oiseau actuellement lancé
+                    bird = birds[bird_index]
+                    impulse = ((start_pos[0] - end_pos[0]) * 5, (start_pos[1] - end_pos[1]) * 5)
+                    bird.body.apply_impulse_at_local_point(impulse)
+                    bird.launched = True
                     current_bird_index += 1
                     start_pos = None
                     lance_sound.play()
 
         if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(birds):
             current_mouse_pos = pygame.mouse.get_pos()
-            bird_order = [0, 1, 2]
-            bird_index = bird_order[current_bird_index]
+            bird_index = current_bird_index
             bird = birds[bird_index]
             bird_pos = (int(bird.body.position[0]), int(bird.body.position[1]))
 
@@ -257,24 +284,8 @@ def game_loop():
         limit_speed()
         check_collision()
 
-        # Dessiner les oiseaux avec effet miroir si besoin
-        for bird in birds:
-            if hasattr(bird, 'body') and bird.body:
-                vx, vy = bird.body.velocity
-
-                # Choisir l'image selon si l'oiseau est près de la nourriture ou non
-                if hasattr(bird, 'near_food') and bird.near_food:
-                    bird_img = pygame.transform.scale(bird.image_o, (bird.size, bird.size))
-                else:
-                    bird_img = pygame.transform.scale(bird.image_n, (bird.size, bird.size))
-
-                # Appliquer un effet miroir si l'oiseau se déplace vers la gauche
-                if vx < 0:
-                    bird_img = pygame.transform.flip(bird_img, True, False)
-
-                bird_rect = bird_img.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
-
-                screen.blit(bird_img, bird_rect)
+        # Appeler la fonction pour gérer les oiseaux
+        update_bird_angle()
 
         # Dessiner la nourriture
         for img, positions in [
