@@ -50,12 +50,12 @@ class BoutonInteractif:
         return image, self.rect
 # Création des boutons
 boutons = {
-    "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1500), ajusty(920), ajustx(285), ajusty(203)),
+    "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1480), ajusty(940), ajustx(285), ajusty(203)),
     "niveau1":   BoutonInteractif('Nv1',      ajustx(960), ajusty(470), ajustx(520), ajusty(188)),
     "niveau2":   BoutonInteractif('Nv2',      ajustx(1000), ajusty(640), ajustx(520), ajusty(188)),
     "niveau3":   BoutonInteractif('Nv3',      ajustx(960), ajusty(810), ajustx(520), ajusty(188)),
     "quitter":   BoutonInteractif('Quitter',  ajustx(200),  ajusty(710), ajustx(247), ajusty(247)),
-    "reglage":   BoutonInteractif('Reglages', ajustx(570),  ajusty(920), ajustx(325), ajusty(235)),
+    "reglage":   BoutonInteractif('Reglages', ajustx(500),  ajusty(940), ajustx(325), ajusty(235)),
 }
 
 def menu():
