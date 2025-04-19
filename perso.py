@@ -1,6 +1,5 @@
 import pygame
 import pymunk
-from Constantes import *
 from globals import *
 
 

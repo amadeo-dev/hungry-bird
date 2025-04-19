@@ -5,10 +5,10 @@ import time
 import pygame
 
 from perso import *
-from Constantes import *
 from globals import*
 from menu import *
 from jeu import *
+from Reglage import *
 
 space = pymunk.Space()
 
@@ -25,7 +25,7 @@ def main():
         elif action == "niveau3":
             jeu(3)
         elif action == "reglage":
-            print("Afficher les réglages (fonction à coder)")
+            Reglage
 
         elif action == "quitter":
             break

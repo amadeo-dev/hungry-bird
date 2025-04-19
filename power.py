@@ -1,5 +1,4 @@
 from main import *
-from Constantes import *
 from globals import *
 
 

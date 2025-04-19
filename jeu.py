@@ -6,7 +6,6 @@ import pymunk
 import pymunk.pygame_util
 
 from main import *
-from Constantes import *
 from globals import *
 from perso import select_team
 from power import *

@@ -1,8 +1,8 @@
 import pygame
-from Constantes import *
 from globals import *
 from perso import *
 from tutoriel import lancer_tutoriel
+from Reglage import *
 
 pygame.display.set_caption("Menu")
 
@@ -10,44 +10,7 @@ fond = pygame.image.load("Ressources/image/Menu/Decors.png")
 fond = pygame.transform.scale(fond, (screen_width, screen_height))
 
 
-class BoutonInteractif:
-    def __init__(self, nom, x, y, tx, ty):
-        self.image_orig = pygame.image.load(f"Ressources/image/Menu/{nom}.png").convert_alpha()
-        self.nom = nom
-        self.x, self.y = x, y
-        self.base_size = pygame.Vector2(tx, ty)
-        self.current_size = self.base_size.copy()
-        self.rect = self.image_orig.get_rect(center=(x, y))
-        self.animation_timer = 0
 
-    def update(self, mouse_pos, mouse_pressed):
-        # Détection survol et clic
-        hover = self.rect.collidepoint(mouse_pos)
-        clicked = hover and mouse_pressed
-
-        # Déclencher l'animation au clic
-        if clicked:
-            self.animation_timer = 10  # 10 frames d'animation
-
-        # Gestion de l'animation
-        if self.animation_timer > 0:
-            self.animation_timer -= 0.5
-            if self.animation_timer > 5:  # Première moitié: réduction
-                scale = 0.95
-            else:  # Deuxième moitié: retour
-                scale = 1.0
-        else:
-            # État normal ou survol
-            scale = 1.02 if hover else 1.0
-
-        # Application de la taille
-        target_size = self.base_size * scale
-        self.current_size += (target_size - self.current_size) * 0.3
-
-        # Mise à jour de l'image
-        image = pygame.transform.smoothscale(self.image_orig, self.current_size)
-        self.rect = image.get_rect(center=(self.x, self.y))
-        return image, self.rect
 
 # Création des boutons
 boutons = {
@@ -101,7 +64,7 @@ def menu():
                     elif nom == "niveau3":
                         return "niveau3"
                     elif nom == "reglage":
-                        return "reglage"
+                        return reglages()
 
         mouse_was_down = mouse_pressed
 
