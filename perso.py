@@ -4,7 +4,7 @@ from Constantes import *
 from globals import *
 
 
-power_list = ["gros","bouclier","chienem","base","rapido", "rebondo"]
+power_list = ["Chiefetoilé","bavoir","chienem","base","Gourmand"]
 ekip = []   #liste de tous les oiseaux à disposition
 selec_trois = []  #selection des trois oiseaux du joueur
 font = pygame.font.Font(None, 58)

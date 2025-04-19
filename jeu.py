@@ -222,7 +222,8 @@ def update_bird_angle():
             # Charger l'image correcte (near_food ou non)
             bird_img = pygame.transform.scale(
                 bird.image_o if getattr(bird, 'near_food', False) else bird.image_n,
-                (bird.size, bird.size)
+                (bird.size*5, bird.size*5) if bird.power =='Gourmand' and getattr(bird, 'near_food', True) else (bird.size, bird.size)
+
             )
 
             # Gestion de l'effet miroir pour les mouvements vers la gauche (vx < 0)
