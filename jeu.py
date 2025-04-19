@@ -164,12 +164,12 @@ def restart_game():
 
     # Positionnement des oiseaux de droite à gauche
     positions = [
-        (screen_width - 100, screen_height - 100),  # Droite
-        (screen_width // 2, screen_height - 100),  # Centre
-        (100, screen_height - 100)  # Gauche
+        (300, screen_height - 65),  # Troisième oiseau devient le premier
+        (200, screen_height - 65),  # Deuxième oiseau reste au milieu
+        (100, screen_height - 65)  # Premier oiseau devient le dernier
     ]
 
-    for i, bird in enumerate(birds[:3]):  # On ne prend que les 3 premiers pour l'exemple
+    for i, bird in enumerate(birds[:3]):  # On aligne les 3 premiers oiseaux avec l'inversion et rapprochement
         bird.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
         bird.body.position = positions[i]
         bird.shape = pymunk.Circle(bird.body, bird.size / 2)
@@ -362,9 +362,9 @@ def jeu(level):
 
         # Initialisation des oiseaux avec positions de droite à gauche
         positions = [
-            (screen_width - 100, screen_height - 100),  # Droite (premier à lancer)
-            (screen_width // 2, screen_height - 100),  # Centre
-            (100, screen_height - 100)  # Gauche (dernier à lancer)
+            (300, screen_height - 65),  # Troisième oiseau devient le premier
+            (200, screen_height - 65),  # Deuxième oiseau reste au milieu
+            (100, screen_height - 65)  # Premier oiseau devient le dernier
         ]
 
         for i, bird in enumerate(birds[:3]):  # On suppose qu'il y a 3 oiseaux

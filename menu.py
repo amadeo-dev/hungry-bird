@@ -31,9 +31,9 @@ class BoutonInteractif:
 
         # Gestion de l'animation
         if self.animation_timer > 0:
-            self.animation_timer -= 1
+            self.animation_timer -= 0.5
             if self.animation_timer > 5:  # Première moitié: réduction
-                scale = 0.9
+                scale = 0.95
             else:  # Deuxième moitié: retour
                 scale = 1.0
         else:
@@ -48,16 +48,16 @@ class BoutonInteractif:
         image = pygame.transform.smoothscale(self.image_orig, self.current_size)
         self.rect = image.get_rect(center=(self.x, self.y))
         return image, self.rect
+
 # Création des boutons
 boutons = {
     "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1480), ajusty(940), ajustx(285), ajusty(203)),
-    "niveau1":   BoutonInteractif('Nv1',      ajustx(960), ajusty(470), ajustx(520), ajusty(188)),
-    "niveau2":   BoutonInteractif('Nv2',      ajustx(1000), ajusty(640), ajustx(520), ajusty(188)),
-    "niveau3":   BoutonInteractif('Nv3',      ajustx(960), ajusty(810), ajustx(520), ajusty(188)),
-    "quitter":   BoutonInteractif('Quitter',  ajustx(200),  ajusty(710), ajustx(247), ajusty(247)),
-    "reglage":   BoutonInteractif('Reglages', ajustx(500),  ajusty(940), ajustx(325), ajusty(235)),
+    "niveau1":   BoutonInteractif('Nv1',      ajustx(960), ajusty(450), ajustx(520), ajusty(188)),
+    "niveau2":   BoutonInteractif('Nv2',      ajustx(960), ajusty(630), ajustx(520), ajusty(188)),
+    "niveau3":   BoutonInteractif('Nv3',      ajustx(960), ajusty(800), ajustx(520), ajusty(188)),
+    "quitter":   BoutonInteractif('Quitter',  ajustx(200), ajusty(710), ajustx(247), ajusty(247)),
+    "reglage":   BoutonInteractif('Reglages', ajustx(500), ajusty(940), ajustx(325), ajusty(235)),
 }
-
 def menu():
     clock = pygame.time.Clock()
     mouse_was_down = False
