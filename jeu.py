@@ -7,6 +7,7 @@ from main import *
 from Constantes import *
 from globals import *
 from perso import select_team
+from power import *
 
 def is_far_enough(pos, others):
     """Vérifie si une position est suffisamment éloignée des autres."""
@@ -188,6 +189,7 @@ def game_loop():
             bird = birds[bird_index]
             bird_pos = (int(bird.body.position[0]), int(bird.body.position[1]))
 
+
             dx = (start_pos[0] - current_mouse_pos[0]) * 5
             dy = (start_pos[1] - current_mouse_pos[1]) * 5
 
@@ -265,6 +267,7 @@ def jeu(level):
         clear_space()
         current_level = level
         birds = select_team()
+        past_power(birds)
         hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
         create_ground()
         create_borders()
