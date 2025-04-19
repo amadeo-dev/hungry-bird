@@ -1,7 +1,9 @@
 import pygame
+import math
 import random
 import time
-import math
+import pymunk
+import pymunk.pygame_util
 
 from main import *
 from Constantes import *
@@ -9,42 +11,48 @@ from globals import *
 from perso import select_team
 from power import *
 
+
 def is_far_enough(pos, others):
-    """Vérifie si une position est suffisamment éloignée des autres."""
     return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE for o in others)
 
+
 def create_food(level):
-    """Crée les aliments à des positions aléatoires en fonction du niveau."""
     food_positions = []
 
     def random_pos():
-        """Génère une position aléatoire pour un aliment."""
         max_attempts = 100
         for _ in range(max_attempts):
-            pos = (random.randint(screen_width // 2, screen_width - 100), random.randint(screen_height - 300, screen_height - 150))
+            pos = (random.randint(screen_width // 2, screen_width - 100),
+                   random.randint(screen_height - 300, screen_height - 150))
             if is_far_enough(pos, food_positions):
                 food_positions.append(pos)
                 return pos
-        return (random.randint(screen_width // 2, screen_width - 100), random.randint(screen_height - 300, screen_height - 150))
+        return (random.randint(screen_width // 2, screen_width - 100),
+                random.randint(screen_height - 300, screen_height - 150))
 
     if level == 1:
-        return [random_pos() for _ in range(3)], [random_pos() for _ in range(1)], [random_pos() for _ in range(2)], [random_pos() for _ in range(1)]
+        return [random_pos() for _ in range(3)], [random_pos() for _ in range(1)], [random_pos() for _ in range(2)], [
+            random_pos() for _ in range(1)]
     elif level == 2:
-        return [random_pos() for _ in range(5)], [random_pos() for _ in range(2)], [random_pos() for _ in range(3)], [random_pos() for _ in range(1)]
+        return [random_pos() for _ in range(5)], [random_pos() for _ in range(2)], [random_pos() for _ in range(3)], [
+            random_pos() for _ in range(1)]
     elif level == 3:
-        return [random_pos() for _ in range(7)], [random_pos() for _ in range(3)], [random_pos() for _ in range(4)], [random_pos() for _ in range(2)]
+        return [random_pos() for _ in range(7)], [random_pos() for _ in range(3)], [random_pos() for _ in range(4)], [
+            random_pos() for _ in range(2)]
+
 
 def create_ground():
-    """Crée le sol du jeu."""
     body = pymunk.Body(body_type=pymunk.Body.STATIC)
     body.position = (screen_width // 2, screen_height - 20)
     shape = pymunk.Poly.create_box(body, (screen_width, 40))
     shape.elasticity = 0.3
     shape.friction = 1.5
+    shape.collision_type = 3
     space.add(body, shape)
+    return body, shape
+
 
 def create_borders():
-    """Crée les bordures du jeu."""
     borders = [
         pymunk.Segment(space.static_body, (0, 0), (0, screen_height), 5),
         pymunk.Segment(space.static_body, (screen_width, 0), (screen_width, screen_height), 5),
@@ -52,64 +60,105 @@ def create_borders():
     ]
     for border in borders:
         border.elasticity = 0.8
+        border.friction = 1.0
+        border.collision_type = 1
         space.add(border)
+    return borders
+
 
 def limit_speed():
-    """Limite la vitesse des oiseaux pour éviter des mouvements trop rapides."""
     for bird in birds:
-        vx, vy = bird.body.velocity
-        speed = (vx ** 2 + vy ** 2) ** 0.5
-        if speed > MAX_SPEED:
-            factor = MAX_SPEED / speed
-            bird.body.velocity = (vx * factor, vy * factor)
+        if hasattr(bird, 'body') and bird.body:
+            vx, vy = bird.body.velocity
+            speed = (vx ** 2 + vy ** 2) ** 0.5
+            if speed > MAX_SPEED:
+                factor = MAX_SPEED / speed
+                bird.body.velocity = (vx * factor, vy * factor)
+
 
 def check_collision():
-    """Vérifie les collisions entre les oiseaux et les aliments."""
     global score, end_game_time
 
     for bird in birds:
-        if not bird.launched:
+        if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
+        # Vérifier si l'oiseau est proche de la nourriture pour ouvrir la bouche
+        bird.near_food = False  # Réinitialiser l'état de "proximité"
+        for lst in [hotdog_positions, burger_positions, brocoli_positions, dinde_positions]:
+            for item in lst:
+                # Si l'oiseau est à moins de 100 pixels d'un aliment
+                if bird.body.position.get_distance(item) < 100:
+                    bird.near_food = True
+                    break  # Pas besoin de vérifier plus loin
+            if bird.near_food:
+                break
+
+        # Si l'oiseau mange des aliments
         for lst, points, size in [
             (hotdog_positions, 1, 8),
             (burger_positions, 3, 15),
             (brocoli_positions, -2, -5),
             (dinde_positions, 10, 20)
         ]:
-            for item in lst[:]:
-                if bird.body.position.get_distance(item) < 40:
+            for item in lst[:]:  # Crée une copie pour pouvoir enlever des éléments
+                if bird.body.position.get_distance(item) < 40:  # Distance pour "mange"
                     score += points
-                    bird.size = max(30, bird.size + size)
+                    bird.size = max(50, bird.size + size)
                     lst.remove(item)
+                    miam_sound.play()  # Jouer un son lorsqu'on mange
 
-    if len(hotdog_positions) == 0 and len(burger_positions) == 0 and len(brocoli_positions) == 0 and len(dinde_positions) == 0:
-        if end_game_time is None:
-            end_game_time = time.time()
+
+def clear_space():
+    static_bodies = [body for body in space.bodies if body.body_type == pymunk.Body.STATIC]
+
+    for body in space.bodies[:]:
+        if body not in static_bodies:
+            space.remove(body)
+
+    for shape in space.shapes[:]:
+        space.remove(shape)
+    for constraint in space.constraints[:]:
+        space.remove(constraint)
+
 
 def restart_game():
-    """Réinitialise le jeu."""
     global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, score, current_bird_index, game_over, end_game_time
+
+    clear_space()
+
     for bird in birds:
-        space.remove(bird.body, bird.shape)
-    birds = selected_team
+        bird.launched = False
+        bird.size = 60
+        bird.near_food = False
+
     hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
+    create_ground()
+    create_borders()
+
     score = 0
     current_bird_index = 0
     game_over = False
     end_game_time = None
 
-def clear_space():
-    """Vide l'espace physique de tous les objets."""
-    for body in space.bodies:
-        space.remove(body)
-    for shape in space.shapes:
-        space.remove(shape)
-    for constraint in space.constraints:
-        space.remove(constraint)
+    # Positionnement des oiseaux de droite à gauche
+    positions = [
+        (screen_width - 100, screen_height - 100),  # Droite
+        (screen_width // 2, screen_height - 100),  # Centre
+        (100, screen_height - 100)  # Gauche
+    ]
+
+    for i, bird in enumerate(birds[:3]):  # On ne prend que les 3 premiers pour l'exemple
+        bird.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
+        bird.body.position = positions[i]
+        bird.shape = pymunk.Circle(bird.body, bird.size / 2)
+        bird.shape.elasticity = 0.8
+        bird.shape.friction = 0.5
+        bird.shape.collision_type = 2
+        space.add(bird.body, bird.shape)
+
 
 def draw_end_menu():
-    """Dessine le menu de fin de jeu."""
     font = pygame.font.Font(None, 74)
     text = font.render("Bravo !", True, GREEN)
     text_rect = text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
@@ -129,21 +178,27 @@ def draw_end_menu():
 
     return restart_button, menu_button
 
+
 def draw_restart_button():
-    """Dessine le bouton Restart avec une image."""
     screen.blit(RESTART_IMG, (screen_width - 150, 20))
 
+
 def draw_menu_button():
-    """Dessine le bouton Menu."""
     pygame.draw.rect(screen, RED, (screen_width - 150, 80, 130, 50))
     font = pygame.font.Font(None, 36)
     text = font.render("Menu", True, WHITE)
     screen.blit(text, (screen_width - 120, 90))
 
+
 def game_loop():
-    """Boucle principale du jeu."""
     global running, score, current_level, current_bird_index, start_pos, game_over, end_game_time
     dt = 1 / 60.0
+
+    handler = space.add_collision_handler(1, 2)
+    handler.begin = lambda arbiter, space, data: True
+
+    handler = space.add_collision_handler(3, 2)
+    handler.begin = lambda arbiter, space, data: True
 
     while running:
         screen.blit(DECORS_IMG, (0, 0))
@@ -162,33 +217,29 @@ def game_loop():
                     if screen_width - 150 <= event.pos[0] <= screen_width - 20 and 20 <= event.pos[1] <= 70:
                         restart_game()
                     elif screen_width - 150 <= event.pos[0] <= screen_width - 20 and 80 <= event.pos[1] <= 130:
-                        return
+                        main()
                     elif current_bird_index < len(birds):
                         start_pos = pygame.mouse.get_pos()
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
                 end_pos = pygame.mouse.get_pos()
                 if start_pos:
-                    if current_bird_index == 0:
-                        bird_index = 2
-                    elif current_bird_index == 1:
-                        bird_index = 1
-                    elif current_bird_index == 2:
-                        bird_index = 0
+                    # Ordre de lancement : droite (0), centre (1), gauche (2)
+                    bird_order = [0, 1, 2]  # Index des oiseaux dans l'ordre de lancement
+                    bird_index = bird_order[current_bird_index]
 
                     birds[bird_index].body.apply_impulse_at_local_point(
                         ((start_pos[0] - end_pos[0]) * 5, (start_pos[1] - end_pos[1]) * 5))
                     birds[bird_index].launched = True
                     current_bird_index += 1
                     start_pos = None
-
                     lance_sound.play()
 
         if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(birds):
             current_mouse_pos = pygame.mouse.get_pos()
-            bird_index = 2 - current_bird_index
+            bird_order = [0, 1, 2]
+            bird_index = bird_order[current_bird_index]
             bird = birds[bird_index]
             bird_pos = (int(bird.body.position[0]), int(bird.body.position[1]))
-
 
             dx = (start_pos[0] - current_mouse_pos[0]) * 5
             dy = (start_pos[1] - current_mouse_pos[1]) * 5
@@ -204,33 +255,28 @@ def game_loop():
 
         space.step(dt)
         limit_speed()
+        check_collision()
 
+        # Dessiner les oiseaux avec effet miroir si besoin
         for bird in birds:
-            if not bird.launched:
-                continue
+            if hasattr(bird, 'body') and bird.body:
+                vx, vy = bird.body.velocity
 
-            for lst, points, size in [
-                (hotdog_positions, 1, 8),
-                (burger_positions, 3, 15),
-                (brocoli_positions, -2, -5),
-                (dinde_positions, 10, 20)
-            ]:
-                for item in lst[:]:
-                    if bird.body.position.get_distance(item) < 40:
-                        score += points
-                        bird.size = max(30, bird.size + size)
-                        lst.remove(item)
-                        miam_sound.play()  # Son de manger
+                # Choisir l'image selon si l'oiseau est près de la nourriture ou non
+                if hasattr(bird, 'near_food') and bird.near_food:
+                    bird_img = pygame.transform.scale(bird.image_o, (bird.size, bird.size))
+                else:
+                    bird_img = pygame.transform.scale(bird.image_n, (bird.size, bird.size))
 
-        if len(hotdog_positions) == 0 and len(burger_positions) == 0 and len(brocoli_positions) == 0 and len(dinde_positions) == 0:
-            if end_game_time is None:
-                end_game_time = time.time()
+                # Appliquer un effet miroir si l'oiseau se déplace vers la gauche
+                if vx < 0:
+                    bird_img = pygame.transform.flip(bird_img, True, False)
 
-        for bird in birds:
-            BIRD_IMG_RESIZED = pygame.transform.scale(bird.image, (bird.size, bird.size))  # Utilisation de l'image spécifique à chaque oiseau
-            bird_rect = BIRD_IMG_RESIZED.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
-            screen.blit(BIRD_IMG_RESIZED, bird_rect)
+                bird_rect = bird_img.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
 
+                screen.blit(bird_img, bird_rect)
+
+        # Dessiner la nourriture
         for img, positions in [
             (HOTDOG_IMG, hotdog_positions),
             (BURGER_IMG, burger_positions),
@@ -262,14 +308,46 @@ def game_loop():
 
 
 def jeu(level):
-    global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index
+    global birds, hotdog_positions, burger_positions, brocoli_positions, dinde_positions, running, score, current_level, current_bird_index, space
+
+    space = pymunk.Space()
+    space.gravity = (0, 900)
+
     while True:
         clear_space()
         current_level = level
-        birds = select_team()
-        past_power(birds)
+        selected_team = select_team()
+        past_power(selected_team)
+        birds = selected_team.copy()
+
         hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
         create_ground()
         create_borders()
-        running, score, current_bird_index = True, 0, 0
+
+        # Initialisation des oiseaux avec positions de droite à gauche
+        positions = [
+            (screen_width - 100, screen_height - 100),  # Droite (premier à lancer)
+            (screen_width // 2, screen_height - 100),  # Centre
+            (100, screen_height - 100)  # Gauche (dernier à lancer)
+        ]
+
+        for i, bird in enumerate(birds[:3]):  # On suppose qu'il y a 3 oiseaux
+            bird.size = 60
+            bird.launched = False
+            bird.near_food = False
+            bird.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
+            bird.body.position = positions[i]
+            bird.shape = pymunk.Circle(bird.body, bird.size / 2)
+            bird.shape.elasticity = 0.8
+            bird.shape.friction = 0.5
+            bird.shape.collision_type = 2
+            space.add(bird.body, bird.shape)
+
+        running = True
+        score = 0
+        current_bird_index = 0
+        start_pos = None
+        game_over = False
+        end_game_time = None
+
         game_loop()

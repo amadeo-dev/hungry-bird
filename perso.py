@@ -35,66 +35,67 @@ class Bird:
 
 def create_birds():
     ekip.clear()
-    selected_names = bird_name[:5]
+    selected_names = bird_name[:5]  # Par exemple, sélectionne les 5 premiers oiseaux
+
     for i, name in enumerate(selected_names):
         image = f"Ressources/image/Personnages/{name}_n.png"
         image_o = f"Ressources/image/Personnages/{name}_o.png"
         power = power_list[i]
-        bird = Bird((150 + i * 60, screen_height - 60), name, image,image_o, power)
+        # Création de l'oiseau
+        bird = Bird((150 + i * 60, screen_height - 60), name, image, image_o, power)
         ekip.append(bird)
 
+
 def select_team():
+
+
     global selec_trois, selection_running
     selection_running = True
     create_birds()
 
-    # Font plus petite
+    # Chargement d'éléments graphiques une seule fois
+    background = pygame.image.load("Ressources/image/selec_bck.jpg")
+    background = pygame.transform.scale(background, (screen_width, screen_height))
+    choix_image = pygame.image.load("Ressources/image/choix.png")
+
+    # Font plus petite pour texte
     small_font = pygame.font.SysFont(None, 40)
 
     while selection_running:
+        # Affichage du fond
         screen.fill((255, 255, 255))
-
-        background = pygame.image.load("Ressources/image/selec_bck.jpg")
-        background = pygame.transform.scale(background, (screen_width, screen_height))
-        ship_top = screen.get_height() - background.get_height()
-        ship_left = screen.get_width() // 2 - background.get_width() // 2
-        screen.blit(background, (ship_left, ship_top))
-
-        choix = pygame.image.load("Ressources/image/choix.png")
-        screen.blit(choix, (screen_width // 2 - choix.get_width() // 2, 50))
+        screen.blit(background, (0, 0))
+        screen.blit(choix_image, (screen_width // 2 - choix_image.get_width() // 2, 50))
 
         bird_rects = []
 
-        bird_width = ajustx(250)
-        bird_height = ajusty(250)
+        # Placement dynamique
+        bird_width, bird_height = ajustx(250), ajusty(250)
         spacing = 100
         total_width = len(ekip) * bird_width + (len(ekip) - 1) * spacing
         start_x = (screen_width - total_width) // 2
         y = 400
 
+        # Dessin des oiseaux
         for i, bird in enumerate(ekip):
             x = start_x + i * (bird_width + spacing)
-            rect = pygame.Rect(ajustx(x), ajusty(y), bird_width, bird_height)
+            rect = pygame.Rect(x, y, bird_width, bird_height)
             bird_rects.append((rect, bird))
 
-            # Afficher nom
+            # Sélectionner l'image correcte (bouche ouverte ou fermée)
+            bird.image = bird.image_o if bird in selec_trois else bird.image_n
+
+            # Afficher les éléments associés
+            screen.blit(bird.image, rect.topleft)
             text_name = small_font.render(bird.name, True, (0, 0, 0))
-            screen.blit(text_name, (ajustx(x)+ 100, ajusty(y + bird_height )+ 10))
-
-            # Afficher pouvoir
             text_power = small_font.render(bird.power, True, (150, 0, 0))
-            screen.blit(text_power, (ajustx(x), ajusty(y + bird_height + 30)))
 
-            # ouvre la bouche
-            if bird in selec_trois:
-                bird.image = bird.image_o
-            else:
-                bird.image = bird.image_n
-
-            screen.blit(bird.image, (ajustx(x), ajusty(y)))
+            screen.blit(text_name, (rect.x + bird_width // 2 - text_name.get_width() // 2, rect.y + bird_height + 10))
+            screen.blit(text_power, (rect.x + bird_width // 2 - text_power.get_width() // 2, rect.y + bird_height + 40))
 
         pygame.display.flip()
 
+        # Gestion des événements utilisateur
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -111,4 +112,3 @@ def select_team():
                     selection_running = False
 
     return selec_trois
-
