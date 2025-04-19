@@ -1,13 +1,5 @@
-import pygame
-import math
-import random
-import time
-import pymunk
-import pymunk.pygame_util
-
 from main import *
-from globals import *
-from perso import select_team
+
 from power import *
 
 def reset_globals():
@@ -245,20 +237,22 @@ def game_loop():
     global running, score, current_level, current_bird_index, start_pos, game_over, end_game_time
     dt = 1 / 60.0
 
-    handler = space.add_collision_handler(1, 2)
-    handler.begin = lambda arbiter, space, data: True
-
-    handler = space.add_collision_handler(3, 2)
-    handler.begin = lambda arbiter, space, data: True
+    # Initialisation du bouton "Réglages" en haut à droite
+    reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width - 300), ajusty(20), ajustx(250), ajusty(70))
 
     while running:
-        screen.blit(DECORS_IMG, (0, 0))
+        screen.blit(DECORS_IMG, (0, 0))  # Dessiner le fond de l'écran
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 return
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if game_over:
+                # Vérifie les clics sur le bouton "Réglages"
+                if reglage_rect.collidepoint(event.pos):
+                    reglages(pygame.display.get_surface().copy())  # Appelle la fonction des réglages
+
+                elif game_over:  # Si le jeu est terminé, gérer les clics sur les options de fin
                     restart_button, menu_button = draw_end_menu()
                     if restart_button.collidepoint(event.pos):
                         restart_game()
@@ -266,16 +260,15 @@ def game_loop():
                         clear_space()  # Nettoyer les ressources physiques
                         main()
                 else:
-                    if screen_width - 150 <= event.pos[0] <= screen_width - 20 and 20 <= event.pos[1] <= 70:
-                        restart_game()
-                    elif screen_width - 150 <= event.pos[0] <= screen_width - 20 and 80 <= event.pos[1] <= 130:
-                        main()
-                    elif current_bird_index < len(birds):
+                    # Logique standard pour le lancement d'un oiseau
+                    if current_bird_index < len(birds):
                         start_pos = pygame.mouse.get_pos()
+
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
+                # Gérer le lancer de l'oiseau
                 end_pos = pygame.mouse.get_pos()
                 if start_pos:
-                    bird_index = current_bird_index  # L'oiseau actuellement lancé
+                    bird_index = current_bird_index  # L'oiseau actuellement sélectionné
                     bird = birds[bird_index]
                     impulse = ((start_pos[0] - end_pos[0]) * 5, (start_pos[1] - end_pos[1]) * 5)
                     bird.body.apply_impulse_at_local_point(impulse)
@@ -285,6 +278,7 @@ def game_loop():
                     lance_sound.play()
 
         if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(birds):
+            # Dessiner la trajectoire de lancement
             current_mouse_pos = pygame.mouse.get_pos()
             bird_index = current_bird_index
             bird = birds[bird_index]
@@ -302,11 +296,12 @@ def game_loop():
             pygame.draw.line(screen, (0, 255, 0), bird_pos, (bird_pos[0] + dx * 0.1, bird_pos[1] + dy * 0.1), 4)
             pygame.draw.circle(screen, (0, 255, 0), bird_pos, 10, 2)
 
+        # Mise à jour des éléments du jeu
         space.step(dt)
         limit_speed()
         check_collision()
 
-        # Appeler la fonction pour gérer les oiseaux
+        # Gérer les oiseaux (orientation, animation)
         update_bird_angle()
 
         # Dessiner la nourriture
@@ -319,13 +314,20 @@ def game_loop():
             for pos in positions:
                 screen.blit(img, img.get_rect(center=pos))
 
+        # Mettre à jour le score et le niveau
         font = pygame.font.Font(None, 36)
         screen.blit(font.render(f"Score: {score}", True, RED), (20, 20))
         screen.blit(font.render(f"Niveau: {current_level}", True, RED), (20, 60))
 
+        # Dessiner le bouton "Réglages"
+        reglage_img, reglage_rect = reglage_btn.update(pygame.mouse.get_pos(), pygame.mouse.get_pressed()[0])
+        screen.blit(reglage_img, reglage_rect)
+
+        # Dessiner d'autres boutons ou éléments d'interface
         draw_restart_button()
         draw_menu_button()
 
+        # Gestion de la fin de la partie
         if current_bird_index >= len(birds) or (end_game_time is not None and time.time() - end_game_time >= 2):
             if end_game_time is None:
                 end_game_time = time.time()
@@ -335,9 +337,9 @@ def game_loop():
                 game_over = True
                 draw_end_menu()
 
+        # Rafraîchir l'écran
         pygame.display.flip()
         pygame.time.delay(int(dt * 1000))
-
 
 
 def jeu(level):

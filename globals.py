@@ -1,5 +1,6 @@
 import pygame
 import pymunk
+import random
 
 pygame.init()
 pygame.font.init()
@@ -41,7 +42,15 @@ miam_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - slurp 2.wav")
 lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
 menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
 
-Musique_jeu = pygame.mixer.music.load("Ressources/Sons/birds of a feather.mp3")
+musique_list = [
+        "Ressources/Sons/birds of a feather.mp3",
+        "Ressources/Sons/love, kortani - kortani (ft. ItsNikko) [Official Audio].mp3",
+        "Ressources/Sons/blue skies and sunshine - kortani (Official Audio).mp3",
+        "Ressources/Sons/soleil.mp3",
+        "Ressources/Sons/~FREE~ Elmaa & Khali Type Beat ｜ God Bless.mp3"
+    ]
+Musique_jeu = random.choice(musique_list)
+pygame.mixer.music.load(Musique_jeu)
 pygame.mixer.music.play(-1)
 # Images mises à l’échelle dynamiquement
 HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
@@ -111,3 +120,17 @@ class BoutonInteractif:
         self.rect = image.get_rect(center=(self.x, self.y))
         return image, self.rect
 
+# Création des boutons
+boutons = {
+    "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1480), ajusty(940), ajustx(285), ajusty(203)),
+    "niveau1":   BoutonInteractif('Nv1',      ajustx(960), ajusty(450), ajustx(520), ajusty(188)),
+    "niveau2":   BoutonInteractif('Nv2',      ajustx(960), ajusty(630), ajustx(520), ajusty(188)),
+    "niveau3":   BoutonInteractif('Nv3',      ajustx(960), ajusty(800), ajustx(520), ajusty(188)),
+    "quitter":   BoutonInteractif('Quitter',  ajustx(200), ajusty(710), ajustx(247), ajusty(247)),
+    "reglage":   BoutonInteractif('Reglages', ajustx(500), ajusty(940), ajustx(325), ajusty(235)),
+}
+
+boutons_jeu = {
+    "reglage2":  BoutonInteractif('Reglages2', ajustx(1000), ajusty(940), ajustx(325), ajusty(235))
+
+}

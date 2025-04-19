@@ -12,15 +12,7 @@ fond = pygame.transform.scale(fond, (screen_width, screen_height))
 
 
 
-# Création des boutons
-boutons = {
-    "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1480), ajusty(940), ajustx(285), ajusty(203)),
-    "niveau1":   BoutonInteractif('Nv1',      ajustx(960), ajusty(450), ajustx(520), ajusty(188)),
-    "niveau2":   BoutonInteractif('Nv2',      ajustx(960), ajusty(630), ajustx(520), ajusty(188)),
-    "niveau3":   BoutonInteractif('Nv3',      ajustx(960), ajusty(800), ajustx(520), ajusty(188)),
-    "quitter":   BoutonInteractif('Quitter',  ajustx(200), ajusty(710), ajustx(247), ajusty(247)),
-    "reglage":   BoutonInteractif('Reglages', ajustx(500), ajusty(940), ajustx(325), ajusty(235)),
-}
+
 def menu():
     clock = pygame.time.Clock()
     mouse_was_down = False
@@ -64,7 +56,7 @@ def menu():
                     elif nom == "niveau3":
                         return "niveau3"
                     elif nom == "reglage":
-                        return reglages()
+                        return reglages(pygame.display.get_surface().copy())
 
         mouse_was_down = mouse_pressed
 
