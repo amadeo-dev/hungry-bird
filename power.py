@@ -3,8 +3,8 @@ from Constantes import *
 from globals import *
 
 
-def past_power(selec_trois):
-    for bird in selec_trois:
+def past_power(selec):
+    for bird in selec:
         if bird.power == 'gros':
             bird.image_o = f"Ressources/image/Personnages/{bird.name}_s.png"
             bird.size *= 2

@@ -40,10 +40,10 @@ class BoutonInteractif:
 # Création des boutons
 boutons = {
     "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1450), ajusty(980), ajustx(285), ajusty(203)),
-    "niveau1":   BoutonInteractif('Nv1',      ajustx(1050), ajusty(470), ajustx(520), ajusty(188)),
-    "niveau2":   BoutonInteractif('Nv2',      ajustx(1080), ajusty(640), ajustx(520), ajusty(188)),
-    "niveau3":   BoutonInteractif('Nv3',      ajustx(1050), ajusty(810), ajustx(520), ajusty(188)),
-    "quitter":   BoutonInteractif('Quitter',  ajustx(200),  ajusty(760), ajustx(247), ajusty(247)),
+    "niveau1":   BoutonInteractif('Nv1',      ajustx(980), ajusty(470), ajustx(520), ajusty(188)),
+    "niveau2":   BoutonInteractif('Nv2',      ajustx(1000), ajusty(640), ajustx(520), ajusty(188)),
+    "niveau3":   BoutonInteractif('Nv3',      ajustx(980), ajusty(810), ajustx(520), ajusty(188)),
+    "quitter":   BoutonInteractif('Quitter',  ajustx(200),  ajusty(710), ajustx(247), ajusty(247)),
     "reglage":   BoutonInteractif('Reglages', ajustx(570),  ajusty(980), ajustx(325), ajusty(235)),
 }
 
