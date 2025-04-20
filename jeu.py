@@ -1,5 +1,4 @@
 from main import *
-
 from power import *
 
 def reset_globals():
@@ -246,6 +245,10 @@ def game_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 return
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:  # Ajout de la touche "r" pour redémarrer
+                    restart_game()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Vérifie les clics sur le bouton "Réglages"

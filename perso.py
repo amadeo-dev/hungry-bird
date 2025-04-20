@@ -31,6 +31,46 @@ class Bird:
         self.power = power
 
 
+class BirdButton:
+    def __init__(self, bird, x, y):
+        self.bird = bird
+        self.x, self.y = x, y
+        self.base_size = pygame.Vector2(250, 250)
+        self.current_size = self.base_size.copy()
+        self.rect = bird.image_n.get_rect(center=(x, y))
+        self.animation_timer = 0
+
+    def update(self, mouse_pos, mouse_pressed):
+        # Détection survol et clic
+        hover = self.rect.collidepoint(mouse_pos)
+        clicked = hover and mouse_pressed
+
+        # Déclencher l'animation au clic
+        if clicked:
+            self.animation_timer = 10  # 10 frames d'animation
+
+        # Gestion de l'animation
+        if self.animation_timer > 0:
+            self.animation_timer -= 0.5
+            if self.animation_timer > 5:  # Première moitié: réduction
+                scale = 0.95
+            else:  # Deuxième moitié: retour
+                scale = 1.0
+        else:
+            # État normal ou survol
+            scale = 1.02 if hover else 1.0
+
+        # Application de la taille
+        target_size = self.base_size * scale
+        self.current_size += (target_size - self.current_size) * 0.3
+
+        # Mise à jour de l'image
+        image = self.bird.image_o if self.bird in selec_trois else self.bird.image_n
+        image = pygame.transform.smoothscale(image, self.current_size)
+        self.rect = image.get_rect(center=(self.x, self.y))
+        return image, self.rect
+
+
 def create_birds():
     ekip.clear()
     selected_names = bird_name[:5]  # Par exemple, sélectionne les 5 premiers oiseaux
@@ -45,8 +85,6 @@ def create_birds():
 
 
 def select_team():
-
-
     global selec_trois, selection_running
     selection_running = True
     create_birds()
@@ -56,8 +94,17 @@ def select_team():
     background = pygame.transform.scale(background, (screen_width, screen_height))
     choix_image = pygame.image.load("Ressources/image/choix.png")
 
-    # Font plus petite pour texte
-    small_font = pygame.font.SysFont(None, 40)
+    # Création des boutons pour les oiseaux
+    bird_buttons = []
+    bird_width, bird_height = ajustx(250), ajusty(250)
+    spacing = 100
+    total_width = len(ekip) * bird_width + (len(ekip) - 1) * spacing
+    start_x = (screen_width - total_width) // 2
+    y = 400
+
+    for i, bird in enumerate(ekip):
+        x = start_x + i * (bird_width + spacing)
+        bird_buttons.append(BirdButton(bird, x + bird_width//2, y + bird_height//2))
 
     while selection_running:
         # Affichage du fond
@@ -65,31 +112,13 @@ def select_team():
         screen.blit(background, (0, 0))
         screen.blit(choix_image, (screen_width // 2 - choix_image.get_width() // 2, 50))
 
-        bird_rects = []
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_pressed = pygame.mouse.get_pressed()[0]
 
-        # Placement dynamique
-        bird_width, bird_height = ajustx(250), ajusty(250)
-        spacing = 100
-        total_width = len(ekip) * bird_width + (len(ekip) - 1) * spacing
-        start_x = (screen_width - total_width) // 2
-        y = 400
-
-        # Dessin des oiseaux
-        for i, bird in enumerate(ekip):
-            x = start_x + i * (bird_width + spacing)
-            rect = pygame.Rect(x, y, bird_width, bird_height)
-            bird_rects.append((rect, bird))
-
-            # Sélectionner l'image correcte (bouche ouverte ou fermée)
-            bird.image = bird.image_o if bird in selec_trois else bird.image_n
-
-            # Afficher les éléments associés
-            screen.blit(bird.image, rect.topleft)
-            text_name = small_font.render(bird.name, True, (0, 0, 0))
-            text_power = small_font.render(bird.power, True, (150, 0, 0))
-
-            screen.blit(text_name, (rect.x + bird_width // 2 - text_name.get_width() // 2, rect.y + bird_height + 10))
-            screen.blit(text_power, (rect.x + bird_width // 2 - text_power.get_width() // 2, rect.y + bird_height + 40))
+        # Dessin des boutons d'oiseaux
+        for button in bird_buttons:
+            image, rect = button.update(mouse_pos, mouse_pressed)
+            screen.blit(image, rect.topleft)
 
         pygame.display.flip()
 
@@ -99,8 +128,9 @@ def select_team():
                 pygame.quit()
                 exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                for rect, bird in bird_rects:
-                    if rect.collidepoint(event.pos):
+                for button in bird_buttons:
+                    if button.rect.collidepoint(event.pos):
+                        bird = button.bird
                         if bird in selec_trois:
                             selec_trois.remove(bird)
                         elif len(selec_trois) < 3:
