@@ -110,7 +110,7 @@ def reglages():
 
     # Créer un overlay plus transparent (valeur alpha plus basse)
     overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
-    overlay.fill((100, 100, 100, 90))  # Gris très transparent (alpha à 90/255)
+    overlay.fill((100, 100, 100, 130))  # Gris très transparent (alpha à 90/255)
 
     # Appliquer l'overlay sur la sauvegarde
     saved_screen.blit(overlay, (0, 0))
@@ -118,7 +118,7 @@ def reglages():
     # Le reste de votre code existant
     fond_original = pygame.image.load("Ressources/image/Menu/hotdog_r.png").convert_alpha()
     fond_rotated = pygame.transform.rotate(fond_original, 4)
-    new_width = int(screen_width * 0.4)
+    new_width = int(screen_width * 0.6)
     new_height = int(screen_height * 0.6)
     fond = pygame.transform.scale(fond_rotated, (new_width, new_height))
     fond_pos = ((screen_width - new_width) // 2, (screen_height - new_height + 230) // 3)
