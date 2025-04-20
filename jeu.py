@@ -154,9 +154,9 @@ def restart_game():
 
     # Positionnement des oiseaux de droite à gauche
     positions = [
-        (300, screen_height - 65),  # Troisième oiseau devient le premier
-        (200, screen_height - 65),  # Deuxième oiseau reste au milieu
-        (100, screen_height - 65)  # Premier oiseau devient le dernier
+        (300, screen_height - 80),  # Troisième oiseau devient le premier
+        (200, screen_height - 80),  # Deuxième oiseau reste au milieu
+        (100, screen_height - 80)  # Premier oiseau devient le dernier
     ]
 
     for i, bird in enumerate(birds[:3]):  # On aligne les 3 premiers oiseaux avec l'inversion et rapprochement
