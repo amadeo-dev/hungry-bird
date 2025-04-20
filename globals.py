@@ -44,7 +44,6 @@ menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
 
 musique_list = [
         "Ressources/Sons/birds of a feather.mp3",
-        "Ressources/Sons/love, kortani - kortani (ft. ItsNikko) [Official Audio].mp3",
         "Ressources/Sons/blue skies and sunshine - kortani (Official Audio).mp3",
         "Ressources/Sons/soleil.mp3",
         "Ressources/Sons/~FREE~ Elmaa & Khali Type Beat ｜ God Bless.mp3"

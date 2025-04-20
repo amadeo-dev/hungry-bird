@@ -56,7 +56,7 @@ def menu():
                     elif nom == "niveau3":
                         return "niveau3"
                     elif nom == "reglage":
-                        return reglages(pygame.display.get_surface().copy())
+                        return reglages()
 
         mouse_was_down = mouse_pressed
 

@@ -12,12 +12,12 @@ class VolumeSlider:
         self.height = int(height)
         self.volume = float(initial_volume) if initial_volume is not None else 0.5
         self.dragging = False
+        self.bar_rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.color = color
 
     def update(self, mouse_pos, mouse_pressed):
-        if mouse_pressed:
-            if self.x <= mouse_pos[0] <= self.x + self.width and self.y <= mouse_pos[1] <= self.y + self.height:
-                self.dragging = True
+        if mouse_pressed and self.bar_rect.collidepoint(mouse_pos):
+            self.dragging = True
 
         if not mouse_pressed:
             self.dragging = False
@@ -29,6 +29,10 @@ class VolumeSlider:
         return self.volume
 
     def draw(self, surface):
+        # Barre de fond
+        pygame.draw.rect(surface, (70, 70, 70), self.bar_rect, border_radius=self.height // 2)
+        pygame.draw.rect(surface, (150, 150, 150), self.bar_rect, 2, border_radius=self.height // 2)
+
         # Dessin sauce avec vagues fixes
         fill_width = int(self.width * (self.volume or 0))
         if fill_width > 0:
@@ -38,7 +42,7 @@ class VolumeSlider:
 
             for i in range(segments + 1):
                 x = self.x + (i / segments) * fill_width
-                wave = math.sin(x / 15) * wave_height
+                wave = math.sin(x / 15) * wave_height  # Pattern fixe
                 y = self.y + self.height // 2 + wave
                 points.append((x, y))
 
@@ -46,6 +50,13 @@ class VolumeSlider:
             points.append((self.x, self.y + self.height))
 
             pygame.draw.polygon(surface, self.color, points)
+            # Contour brillant
+            highlight_color = (
+                min(255, self.color[0] + 40),
+                min(255, self.color[1] + 40),
+                min(255, self.color[2] + 40)
+            )
+            pygame.draw.polygon(surface, highlight_color, points, 1)
 
 
 def ajustx(value):
@@ -74,6 +85,7 @@ def save_config(config):
 
 
 def update_audio_volumes(music_vol, fx_vol):
+    """Met à jour les volumes avec vérification des valeurs"""
     try:
         music_vol = float(music_vol or 0.5)
         fx_vol = float(fx_vol or 0.5)
@@ -90,78 +102,95 @@ def update_audio_volumes(music_vol, fx_vol):
         print(f"Erreur volume audio: {e}")
 
 
-def reglages(previous_screen):
-    # Créer un overlay semi-transparent
-    overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
-    overlay.fill((100, 100, 100, 128))  # Gris semi-transparent
-
-    # Charger l'image de fond redimensionnée (1/4 de la taille)
+def reglages():
+    # Charger l'image de fond redimensionnée (70% de la taille originale)
     try:
         fond_original = pygame.image.load("Ressources/image/Menu/hotdog_r.png")
-        new_width = int(screen_width * 0.25)
-        new_height = int(screen_height * 0.25)
+        new_width = int(screen_width * 0.7)
+        new_height = int(screen_height * 0.7)
         fond = pygame.transform.scale(fond_original, (new_width, new_height))
-        fond_rect = fond.get_rect(center=(screen_width // 2, screen_height // 2))
+        fond_pos = ((screen_width - new_width) // 2, (screen_height - new_height) // 3)  # Positionné plus haut
     except:
-        fond = pygame.Surface((new_width, new_height))
-        fond.fill((150, 75, 0))
-        fond_rect = fond.get_rect(center=(screen_width // 2, screen_height // 2))
+        fond = pygame.Surface((screen_width, screen_height))
+        fond.fill((40, 40, 40))  # Fond sombre uni
+        fond_pos = (0, 0)
 
     clock = pygame.time.Clock()
     config = load_config()
 
-    # Sliders sauce
-    music_slider = VolumeSlider(ajustx(650), ajusty(418), ajustx(600), ajusty(20),
-                                config.get("music_volume", 0.5), (218, 165, 32))
-    fx_slider = VolumeSlider(ajustx(650), ajusty(514), ajustx(600), ajusty(20),
-                             config.get("fx_volume", 0.5), (200, 40, 40))
+    # Sliders avec effet sauce
+    music_slider = VolumeSlider(ajustx(650), ajusty(418), ajustx(600), ajusty(25),
+                                config.get("music_volume", 0.5), (218, 165, 32))  # Jaune moutarde
+    fx_slider = VolumeSlider(ajustx(650), ajusty(514), ajustx(600), ajusty(25),
+                             config.get("fx_volume", 0.5), (200, 40, 40))  # Rouge ketchup
 
     # Boutons
-    musique_btn = BoutonInteractif("Musique", ajustx(350), ajusty(400), ajustx(300), ajusty(80))
-    sons_btn = BoutonInteractif("Sons", ajustx(350), ajusty(500), ajustx(300), ajusty(80))
-    bouton_retour = BoutonInteractif('Retour', ajustx(1000), ajusty(1000), ajustx(300), ajusty(150))
+    musique_btn = BoutonInteractif("Musique", ajustx(350), ajusty(400), ajustx(300), ajusty(70))
+    sons_btn = BoutonInteractif("Sons", ajustx(350), ajusty(500), ajustx(300), ajusty(70))
+    bouton_retour = BoutonInteractif('Retour', ajustx(960), ajusty(850), ajustx(300), ajusty(120))
+
+    holding = {"musique": False, "sons": False}
+    hold_timer = 0
+    HOLD_DELAY = 15
 
     running = True
     while running:
         mouse_pos = pygame.mouse.get_pos()
         mouse_pressed = pygame.mouse.get_pressed()[0]
 
-        # Afficher l'écran précédent avec overlay
-        screen.blit(previous_screen, (0, 0))
-        screen.blit(overlay, (0, 0))
+        # Affichage
+        screen.fill((50, 50, 50))  # Fond uni
+        screen.blit(fond, fond_pos)  # Image centrée et réduite
 
-        # Afficher le hotdog au centre
-        screen.blit(fond, fond_rect)
-
-        # Mise à jour boutons
-        musique_img, musique_rect = musique_btn.update(mouse_pos, False)
-        sons_img, sons_rect = sons_btn.update(mouse_pos, False)
-
+        # Gestion des événements
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quitter"
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if bouton_retour.rect.collidepoint(event.pos):
+                if musique_btn.rect.collidepoint(event.pos):
+                    holding["musique"] = True
+                    music_slider.volume = min(1.0, music_slider.volume + 0.05)
+                elif sons_btn.rect.collidepoint(event.pos):
+                    holding["sons"] = True
+                    fx_slider.volume = min(1.0, fx_slider.volume + 0.05)
+                elif bouton_retour.rect.collidepoint(event.pos):
                     save_config({
                         "music_volume": music_slider.volume,
                         "fx_volume": fx_slider.volume
                     })
                     return "menu"
 
-        # Mise à jour sliders
+            if event.type == pygame.MOUSEBUTTONUP:
+                holding["musique"] = False
+                holding["sons"] = False
+                hold_timer = 0
+
+        # Clic continu
+        if mouse_pressed:
+            hold_timer += 1
+            increment = 0.02 if hold_timer < HOLD_DELAY else 0.05
+            if holding["musique"]:
+                music_slider.volume = min(1.0, music_slider.volume + increment)
+            elif holding["sons"]:
+                fx_slider.volume = min(1.0, fx_slider.volume + increment)
+
+        # Mise à jour volumes
         music_vol = music_slider.update(mouse_pos, mouse_pressed)
         fx_vol = fx_slider.update(mouse_pos, mouse_pressed)
         update_audio_volumes(music_vol, fx_vol)
 
-        # Affichage
+        # Affichage des éléments
         music_slider.draw(screen)
         fx_slider.draw(screen)
-        screen.blit(musique_img, musique_rect)
-        screen.blit(sons_img, sons_rect)
 
-        retour_img, retour_rect = bouton_retour.update(mouse_pos, mouse_pressed)
-        screen.blit(retour_img, retour_rect)
+        musique_img, _ = musique_btn.update(mouse_pos, holding["musique"])
+        sons_img, _ = sons_btn.update(mouse_pos, holding["sons"])
+        retour_img, _ = bouton_retour.update(mouse_pos, mouse_pressed)
+
+        screen.blit(musique_img, musique_btn.rect)
+        screen.blit(sons_img, sons_btn.rect)
+        screen.blit(retour_img, bouton_retour.rect)
 
         pygame.display.flip()
         clock.tick(60)

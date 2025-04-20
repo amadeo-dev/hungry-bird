@@ -250,7 +250,7 @@ def game_loop():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Vérifie les clics sur le bouton "Réglages"
                 if reglage_rect.collidepoint(event.pos):
-                    reglages(pygame.display.get_surface().copy())  # Appelle la fonction des réglages
+                    reglages()  # Appelle la fonction des réglages
 
                 elif game_over:  # Si le jeu est terminé, gérer les clics sur les options de fin
                     restart_button, menu_button = draw_end_menu()
