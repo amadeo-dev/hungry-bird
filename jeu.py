@@ -140,7 +140,7 @@ def restart_game():
 
     for bird in birds:
         bird.launched = False
-        bird.size = 60
+        bird.size = 100
         bird.near_food = False
 
     hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_food(current_level)
@@ -372,7 +372,7 @@ def jeu(level):
         ]
 
         for i, bird in enumerate(birds[:3]):  # On suppose qu'il y a 3 oiseaux
-            bird.size = 60
+            bird.size = 100
             bird.launched = False
             bird.near_food = False
             bird.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
