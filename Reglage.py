@@ -105,6 +105,17 @@ def update_audio_volumes(music_vol, fx_vol):
 
 
 def reglages():
+    # Sauvegarder l'écran actuel avant d'afficher les réglages
+    saved_screen = screen.copy()
+
+    # Créer un overlay plus transparent (valeur alpha plus basse)
+    overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+    overlay.fill((100, 100, 100, 90))  # Gris très transparent (alpha à 90/255)
+
+    # Appliquer l'overlay sur la sauvegarde
+    saved_screen.blit(overlay, (0, 0))
+
+    # Le reste de votre code existant
     fond_original = pygame.image.load("Ressources/image/Menu/hotdog_r.png").convert_alpha()
     fond_rotated = pygame.transform.rotate(fond_original, 4)
     new_width = int(screen_width * 0.4)
@@ -138,6 +149,10 @@ def reglages():
 
     running = True
     while running:
+        # Afficher l'écran sauvegardé avec l'overlay en fond
+        screen.blit(saved_screen, (0, 0))
+        # Dessiner par-dessus les éléments des réglages
+        screen.blit(fond, fond_pos)
         current_time = pygame.time.get_ticks()
         mouse_pos = pygame.mouse.get_pos()
         mouse_pressed = pygame.mouse.get_pressed()[0]
