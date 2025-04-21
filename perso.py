@@ -2,10 +2,9 @@ import pygame
 import pymunk
 from globals import *
 
-
-power_list = ["Chiefetoilé","bavoir","chienem","base","Gourmand"]
-ekip = []   #liste de tous les oiseaux à disposition
-selec_trois = []  #selection des trois oiseaux du joueur
+power_list = ["Chiefetoilé", "bavoir", "chienem", "base", "Gourmand"]
+ekip = []  # liste de tous les oiseaux à disposition
+selec_trois = []  # selection des trois oiseaux du joueur
 font = pygame.font.Font(None, 58)
 
 selection_running = False
@@ -32,40 +31,41 @@ class Bird:
 
 
 class BirdButton:
-    def __init__(self, bird, x, y):
+    def __init__(self, bird, x, y, is_menu_button=False, custom_size=None):
         self.bird = bird
         self.x, self.y = x, y
-        self.base_size = pygame.Vector2(250, 250)
+        self.is_menu_button = is_menu_button
+
+        if is_menu_button:
+            self.image_n = pygame.image.load(f"Ressources/image/Choix Oiseau/{bird}.png").convert_alpha()
+            self.image_o = self.image_n
+        else:
+            self.image_n = bird.image_n
+            self.image_o = bird.image_o
+
+        self.base_size = pygame.Vector2(custom_size) if custom_size else (
+            pygame.Vector2(250, 250) if not is_menu_button else pygame.Vector2(500, 220))
         self.current_size = self.base_size.copy()
-        self.rect = bird.image_n.get_rect(center=(x, y))
+        self.rect = self.image_n.get_rect(center=(x, y))
         self.animation_timer = 0
 
     def update(self, mouse_pos, mouse_pressed):
-        # Détection survol et clic
         hover = self.rect.collidepoint(mouse_pos)
         clicked = hover and mouse_pressed
 
-        # Déclencher l'animation au clic
         if clicked:
-            self.animation_timer = 10  # 10 frames d'animation
+            self.animation_timer = 10
 
-        # Gestion de l'animation
         if self.animation_timer > 0:
             self.animation_timer -= 0.5
-            if self.animation_timer > 5:  # Première moitié: réduction
-                scale = 0.95
-            else:  # Deuxième moitié: retour
-                scale = 1.0
+            scale = 0.95 if self.animation_timer > 5 else 1.0
         else:
-            # État normal ou survol
             scale = 1.02 if hover else 1.0
 
-        # Application de la taille
         target_size = self.base_size * scale
         self.current_size += (target_size - self.current_size) * 0.3
 
-        # Mise à jour de l'image
-        image = self.bird.image_o if self.bird in selec_trois else self.bird.image_n
+        image = self.image_o if (not self.is_menu_button and self.bird in selec_trois) else self.image_n
         image = pygame.transform.smoothscale(image, self.current_size)
         self.rect = image.get_rect(center=(self.x, self.y))
         return image, self.rect
@@ -73,13 +73,11 @@ class BirdButton:
 
 def create_birds():
     ekip.clear()
-    selected_names = bird_name[:5]  # Par exemple, sélectionne les 5 premiers oiseaux
-
+    selected_names = bird_name[:5]
     for i, name in enumerate(selected_names):
         image = f"Ressources/image/Personnages/{name}_n.png"
         image_o = f"Ressources/image/Personnages/{name}_o.png"
         power = power_list[i]
-        # Création de l'oiseau
         bird = Bird((150 + i * 60, screen_height - 60), name, image, image_o, power)
         ekip.append(bird)
 
@@ -89,12 +87,12 @@ def select_team():
     selection_running = True
     create_birds()
 
-    # Chargement d'éléments graphiques une seule fois
-    background = pygame.image.load("Ressources/image/selec_bck.jpg")
-    background = pygame.transform.scale(background, (screen_width, screen_height))
-    choix_image = pygame.image.load("Ressources/image/choix.png")
+    background = pygame.transform.scale(pygame.image.load("Ressources/image/Choix Oiseau/Decors_o.png"),
+                                        (screen_width, screen_height))
+    text_image = pygame.image.load("Ressources/image/Choix Oiseau/Text.png").convert_alpha()
+    text_image = pygame.transform.scale(text_image, (500, 100))
+    text_rect = text_image.get_rect(center=(screen_width // 2, 150))  # Texte plus bas
 
-    # Création des boutons pour les oiseaux
     bird_buttons = []
     bird_width, bird_height = ajustx(250), ajusty(250)
     spacing = 100
@@ -104,25 +102,37 @@ def select_team():
 
     for i, bird in enumerate(ekip):
         x = start_x + i * (bird_width + spacing)
-        bird_buttons.append(BirdButton(bird, x + bird_width//2, y + bird_height//2))
+        bird_buttons.append(BirdButton(bird, x + bird_width // 2, y + bird_height // 2))
+
+    # Bouton Jouer en haut
+    jouer_btn = BirdButton("Jouer", screen_width // 2, 200, is_menu_button=True)  # Position remontée
+
+    # Bouton Retour/Sortir plus bas
+    retour_btn = BirdButton("Retour", 150, screen_height - 80, is_menu_button=True, custom_size=(200, 80))
 
     while selection_running:
-        # Affichage du fond
         screen.fill((255, 255, 255))
         screen.blit(background, (0, 0))
-        screen.blit(choix_image, (screen_width // 2 - choix_image.get_width() // 2, 50))
 
         mouse_pos = pygame.mouse.get_pos()
         mouse_pressed = pygame.mouse.get_pressed()[0]
 
-        # Dessin des boutons d'oiseaux
         for button in bird_buttons:
             image, rect = button.update(mouse_pos, mouse_pressed)
             screen.blit(image, rect.topleft)
 
+        if len(selec_trois) == 3:
+            jouer_img, jouer_rect = jouer_btn.update(mouse_pos, mouse_pressed)
+            screen.blit(jouer_img, jouer_rect.topleft)
+
+        retour_img, retour_rect = retour_btn.update(mouse_pos, mouse_pressed)
+        screen.blit(retour_img, retour_rect.topleft)
+
+        if len(selec_trois) < 3:
+            screen.blit(text_image, text_rect)
+
         pygame.display.flip()
 
-        # Gestion des événements utilisateur
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -136,7 +146,10 @@ def select_team():
                         elif len(selec_trois) < 3:
                             selec_trois.append(bird)
 
-                if len(selec_trois) == 3:
+                if len(selec_trois) == 3 and jouer_btn.rect.collidepoint(event.pos):
                     selection_running = False
+
+                if retour_btn.rect.collidepoint(event.pos):
+                    return "menu"
 
     return selec_trois
