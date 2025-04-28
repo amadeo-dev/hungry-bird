@@ -8,6 +8,14 @@ pygame.font.init()
 # Noms des oiseaux disponibles
 bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo']
 
+def load_high_quality_image(path, target_size=None):
+    """Charge une image avec un redimensionnement de haute qualité"""
+    image = pygame.image.load(path).convert_alpha()
+    if target_size:
+            # Utilisation de smoothscale pour une meilleure qualité
+        return pygame.transform.smoothscale(image, target_size)
+    return image
+
 # Initialisation écran
 info = pygame.display.Info()
 screen_width, screen_height = info.current_w, info.current_h
@@ -52,14 +60,15 @@ Musique_jeu = random.choice(musique_list)
 pygame.mixer.music.load(Musique_jeu)
 pygame.mixer.music.play(-1)
 # Images mises à l’échelle dynamiquement
-HOTDOG_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/hotdog.png"), (50, 30))
-BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.png"), (50, 50))
-BROCOLI_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.png"), (40, 40))
-DINDE_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Dinde_Royale.png"), (60, 60))
-RESTART_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Restart.png"), (50, 50))
+# Remplacer dans globals.py:
+HOTDOG_IMG = load_high_quality_image("Ressources/image/hotdog.png", (50, 30))
+BURGER_IMG = load_high_quality_image("Ressources/image/burger.png", (50, 50))
+BROCOLI_IMG = load_high_quality_image("Ressources/image/brocolis.png", (40, 40))
+DINDE_IMG = load_high_quality_image("Ressources/image/Dinde_Royale.png", (60, 60))
+RESTART_IMG = load_high_quality_image("Ressources/image/Restart.png", (50, 50))
 
-# Décor mis à l’échelle à la taille de l’écran
-DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/bck_lvl1.jpg"), (screen_width, screen_height))
+# Charger le décor à la bonne taille
+DECORS_IMG = pygame.image.load("Ressources/image/bck_lvl1.jpg").convert()
 
 # Position catapulte (utilise screen_height au lieu de HEIGHT)
 CATAPULT_POS = (150, screen_height - 100)
@@ -82,7 +91,7 @@ end_game_time = None
 
 class BoutonInteractif:
     def __init__(self, nom, x, y, tx, ty):
-        self.image_orig = pygame.image.load(f"Ressources/image/Menu/{nom}.png").convert_alpha()
+        self.image_orig = load_high_quality_image(f"Ressources/image/Menu/{nom}.png")
         self.nom = nom
         self.x, self.y = x, y
         self.base_size = pygame.Vector2(tx, ty)

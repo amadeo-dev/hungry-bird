@@ -21,11 +21,16 @@ class Bird:
         self.launched = False
         self.body.position = position
         self.name = name
-        self.image_n = pygame.image.load(image).convert_alpha()
-        self.image_n = pygame.transform.smoothscale(self.image_n, (250, 250))
+        self.image_n = load_high_quality_image(image)
+        self.image_o = load_high_quality_image(image_o)
 
-        self.image_o = pygame.image.load(image_o).convert_alpha()
-        self.image_o = pygame.transform.smoothscale(self.image_o, (250, 250))
+        # Conserver les proportions originales
+        original_width, original_height = self.image_n.get_size()
+        scale_factor = min(250 / original_width, 250 / original_height)
+        new_size = (int(original_width * scale_factor), int(original_height * scale_factor))
+
+        self.image_n = pygame.transform.smoothscale(self.image_n, new_size)
+        self.image_o = pygame.transform.smoothscale(self.image_o, new_size)
 
         self.power = power
 

@@ -210,11 +210,18 @@ def update_bird_angle():
             angle = math.degrees(math.atan2(vy, vx)) if vx != 0 or vy != 0 else 0
 
             # Charger l'image correcte (near_food ou non)
-            bird_img = pygame.transform.scale(
-                bird.image_o if getattr(bird, 'near_food', False) else bird.image_n,
-                (bird.size*5, bird.size*5) if bird.power =='Gourmand' and getattr(bird, 'near_food', True) else (bird.size, bird.size)
+            target_size = (bird.size * 5, bird.size * 5) if bird.power == 'Gourmand' and getattr(bird, 'near_food',
+                                                                                                 True) else (
+            bird.size, bird.size)
+            if not hasattr(bird, 'cached_images'):
+                bird.cached_images = {}
 
-            )
+            size_key = tuple(target_size) + (bird.near_food,)
+            if size_key not in bird.cached_images:
+                base_image = bird.image_o if bird.near_food else bird.image_n
+                bird.cached_images[size_key] = pygame.transform.smoothscale(base_image, target_size)
+
+            bird_img = bird.cached_images[size_key]
 
             # Gestion de l'effet miroir pour les mouvements vers la gauche (vx < 0)
             if vx < 0:
