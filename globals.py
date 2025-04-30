@@ -60,6 +60,23 @@ Musique_jeu = random.choice(musique_list)
 pygame.mixer.music.load(Musique_jeu)
 pygame.mixer.music.play(-1)
 # Images mises à l’échelle dynamiquement
+
+# Dans globals.py, ajoutez ces nouvelles variables :
+# Images pour le niveau 1
+DECORS_NV1 = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/decors Icone.png"), (screen_width, screen_height))
+GOBELET_BLEU = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Gobelet bleu.png"), (80, 100))
+GOBELET_ROUGE = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Gobelet Rouge.png"), (80, 100))
+GOBELET_VERT = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Gobelet Vert.png"), (80, 100))
+JUS_OBSTACLE = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Jus.png"), (150, 150))
+JOUET_OBSTACLE = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/jouet.png"), (200, 100))
+
+# Bonus et malus pour le niveau 1
+BANANE_BONUS = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Banane.png"), (50, 50))
+HOTDOG_BONUS = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Hot Dog.png"), (50, 30))
+BURGER_BONUS = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Burger.png"), (50, 50))
+BANANE_MALUS = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Banane Pourri-.png"), (50, 50))
+POUBELLE_MALUS = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/Poubelle.png"), (60, 80))
+
 # Remplacer dans globals.py:
 HOTDOG_IMG = load_high_quality_image("Ressources/image/hotdog.png", (50, 30))
 BURGER_IMG = load_high_quality_image("Ressources/image/burger.png", (50, 50))
