@@ -108,18 +108,22 @@ def create_gobelets():
 def create_obstacles(level):
     obstacles = []
     if level == 1:
-        # Obstacle Jus
+        # Obstacle Jus avec hitbox réduite
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 550, screen_height - 190)
 
-        mask = pygame.mask.from_surface(JUS_OBSTACLE)
+        # Réduire la taille de la hitbox à 90%
+        scaled_size = (int(JUS_OBSTACLE.get_width() * 0.9), int(JUS_OBSTACLE.get_height() * 0.9))
+        scaled_img = pygame.transform.scale(JUS_OBSTACLE, scaled_size)
+
+        mask = pygame.mask.from_surface(scaled_img)
         outline = mask.outline()
         if outline:
             simplified = [v for i, v in enumerate(outline) if i % 5 == 0]
-            vertices = [(x - JUS_OBSTACLE.get_width() / 2, y - JUS_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+            vertices = [(x - scaled_size[0] / 2, y - scaled_size[1] / 2) for (x, y) in simplified]
             shape = pymunk.Poly(body, vertices)
         else:
-            shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width(), JUS_OBSTACLE.get_height()))
+            shape = pymunk.Poly.create_box(body, scaled_size)
 
         shape.elasticity = 0.5
         shape.friction = 1.0
@@ -127,19 +131,21 @@ def create_obstacles(level):
         space.add(body, shape)
         obstacles.append((body, shape, JUS_OBSTACLE))
 
-        # Obstacle Jouet
+        # Obstacle Jouet avec hitbox réduite
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 800, screen_height - 720)
 
-        mask = pygame.mask.from_surface(JOUET_OBSTACLE)
+        scaled_size = (int(JOUET_OBSTACLE.get_width() * 0.9), int(JOUET_OBSTACLE.get_height() * 0.9))
+        scaled_img = pygame.transform.scale(JOUET_OBSTACLE, scaled_size)
+
+        mask = pygame.mask.from_surface(scaled_img)
         outline = mask.outline()
         if outline:
             simplified = [v for i, v in enumerate(outline) if i % 5 == 0]
-            vertices = [(x - JOUET_OBSTACLE.get_width() / 2, y - JOUET_OBSTACLE.get_height() / 2) for (x, y) in
-                        simplified]
+            vertices = [(x - scaled_size[0] / 2, y - scaled_size[1] / 2) for (x, y) in simplified]
             shape = pymunk.Poly(body, vertices)
         else:
-            shape = pymunk.Poly.create_box(body, (JOUET_OBSTACLE.get_width(), JOUET_OBSTACLE.get_height()))
+            shape = pymunk.Poly.create_box(body, scaled_size)
 
         shape.elasticity = 0.7
         shape.friction = 0.3
@@ -183,10 +189,12 @@ def check_collision():
 
         bird.near_food = False
 
-        # Obtenir l'image actuelle de l'oiseau
+        # Créer un masque pour l'oiseau (avec une taille légèrement réduite)
         bird_img = bird.image_o if getattr(bird, 'near_food', False) else bird.image_n
-        bird_mask = pygame.mask.from_surface(bird_img)
-        bird_rect = bird_img.get_rect(center=(int(bird.body.position.x), int(bird.body.position.y)))
+        scaled_bird_size = (int(bird_img.get_width() * 0.9), int(bird_img.get_height() * 0.9))
+        scaled_bird_img = pygame.transform.scale(bird_img, scaled_bird_size)
+        bird_mask = pygame.mask.from_surface(scaled_bird_img)
+        bird_rect = scaled_bird_img.get_rect(center=(int(bird.body.position.x), int(bird.body.position.y)))
 
         for lst, points, size, img in [
             (banane_positions, 20, 5, BANANE_BONUS),
@@ -196,15 +204,17 @@ def check_collision():
             (poubelle_positions, -50, -10, POUBELLE_MALUS)
         ]:
             for item_pos in lst[:]:
-                # Créer un rect pour la nourriture
-                food_rect = img.get_rect(center=item_pos)
+                # Créer un masque réduit pour la nourriture (90% de la taille originale)
+                scaled_food_size = (int(img.get_width() * 0.3), int(img.get_height() * 0.3))
+                scaled_food = pygame.transform.scale(img, scaled_food_size)
+                food_mask = pygame.mask.from_surface(scaled_food)
+                food_rect = scaled_food.get_rect(center=item_pos)
 
-                # Calculer le décalage entre les masques
+                # Calculer le décalage
                 offset_x = food_rect.x - bird_rect.x
                 offset_y = food_rect.y - bird_rect.y
 
-                # Vérifier la collision pixel-par-pixel
-                food_mask = pygame.mask.from_surface(img)
+                # Vérifier la collision
                 if bird_mask.overlap(food_mask, (offset_x, offset_y)):
                     score += points
                     bird.size = max(50, bird.size + size)
