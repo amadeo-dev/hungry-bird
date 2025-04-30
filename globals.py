@@ -51,10 +51,10 @@ lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
 menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
 
 musique_list = [
-        "Ressources/Sons/birds of a feather.mp3",
         "Ressources/Sons/blue skies and sunshine - kortani (Official Audio).mp3",
         "Ressources/Sons/soleil.mp3",
-        "Ressources/Sons/~FREE~ Elmaa & Khali Type Beat ｜ God Bless.mp3"
+        "Ressources/Sons/~FREE~ Elmaa & Khali Type Beat ｜ God Bless.mp3",
+        "Ressources/Sons/GIMS - CIEL (Official Lyrics Video).mp3"
     ]
 Musique_jeu = random.choice(musique_list)
 pygame.mixer.music.load(Musique_jeu)
@@ -162,3 +162,5 @@ boutons_jeu = {
     "reglage2":  BoutonInteractif('Reglages2', ajustx(1000), ajusty(940), ajustx(325), ajusty(235))
 
 }
+
+GOBELET_COLLISION_TYPE = 5
