@@ -81,20 +81,20 @@ def create_ground():
 def create_obstacles(level):
     obstacles = []
     if level == 1:
-        # Obstacle Jus (position fixe)
+        # Obstacle Jus
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width // 2, screen_height - 100)
-        shape = pymunk.Poly.create_box(body, (150, 150))
+        shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width(), JUS_OBSTACLE.get_height()))
         shape.elasticity = 0.5
         shape.friction = 1.0
-        shape.collision_type = 4  # Nouveau type de collision pour les obstacles
+        shape.collision_type = 4
         space.add(body, shape)
         obstacles.append((body, shape, JUS_OBSTACLE))
 
-        # Obstacle Jouet (position fixe)
+        # Obstacle Jouet
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width // 2, screen_height // 2)
-        shape = pymunk.Poly.create_box(body, (200, 100))
+        shape = pymunk.Poly.create_box(body, (JOUET_OBSTACLE.get_width(), JOUET_OBSTACLE.get_height()))
         shape.elasticity = 0.7
         shape.friction = 0.3
         shape.collision_type = 4
@@ -291,12 +291,15 @@ def game_loop(obstacles=None):
         screen.blit(DECORS_NV1 if current_level == 1 else DECORS_IMG, (0, 0))
 
         if current_level == 1:
-            # Dessiner les gobelets
-            screen.blit(GOBELET_BLEU, (100 - 40, screen_height - 150 - 50))
-            screen.blit(GOBELET_ROUGE, (200 - 40, screen_height - 150 - 50))
-            screen.blit(GOBELET_VERT, (300 - 40, screen_height - 150 - 50))
+            # Dessiner les gobelets avec leurs tailles originales
+            screen.blit(GOBELET_BLEU, (
+            screen_width - 100 - GOBELET_BLEU.get_width() // 2, screen_height - 150 - GOBELET_BLEU.get_height() // 2))
+            screen.blit(GOBELET_ROUGE, (
+            screen_width - 200 - GOBELET_ROUGE.get_width() // 2, screen_height - 150 - GOBELET_ROUGE.get_height() // 2))
+            screen.blit(GOBELET_VERT, (
+            screen_width - 300 - GOBELET_VERT.get_width() // 2, screen_height - 150 - GOBELET_VERT.get_height() // 2))
 
-            # Dessiner les obstacles si ils existent
+            # Dessiner les obstacles
             if obstacles:
                 for body, shape, img in obstacles:
                     screen.blit(img, (int(body.position.x) - img.get_width() // 2,
@@ -429,7 +432,7 @@ def game_loop(obstacles=None):
 
 def jeu(level):
     reset_globals()
-    global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions, running, score, current_level, current_bird_index, space
+    global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions, running, score, current_level, current_bird_index, space, brocoli_positions, dinde_positions
 
     space = pymunk.Space()
     space.gravity = (0, 900)
@@ -442,21 +445,23 @@ def jeu(level):
         birds = selected_team.copy()
 
         if level == 1:
-            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(level)
+            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(
+                level)
             screen.blit(DECORS_NV1, (0, 0))
         else:
+            #  Declare global variables before assignment
             hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_random_food(level)
             screen.blit(DECORS_IMG, (0, 0))
 
         create_ground()
         create_borders()
-        obstacles = create_obstacles(level)  # Création des obstacles
+        obstacles = create_obstacles(level)
 
-        # Positions des gobelets pour les oiseaux
+        # Positions des oiseaux de droite à gauche
         gobelet_positions = [
-            (100, screen_height - 150),  # Gobelet bleu
-            (200, screen_height - 150),  # Gobelet rouge
-            (300, screen_height - 150)   # Gobelet vert
+            (screen_width - 100, screen_height - 150),  # Premier oiseau à droite
+            (screen_width - 200, screen_height - 150),  # Deuxième oiseau
+            (screen_width - 300, screen_height - 150)  # Troisième oiseau à gauche
         ]
 
         for i, bird in enumerate(birds[:3]):
@@ -478,4 +483,4 @@ def jeu(level):
         game_over = False
         end_game_time = None
 
-        game_loop(obstacles)  # Passez les obstacles à game_loop
+        game_loop(obstacles)
