@@ -6,7 +6,6 @@ def reset_globals():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     global brocoli_positions, dinde_positions, score, current_level, current_bird_index, game_over, end_game_time, space, running
 
-    # Réinitialiser toutes les variables globales
     birds = []
     banane_positions = []
     hotdog_positions = []
@@ -22,7 +21,6 @@ def reset_globals():
     end_game_time = None
     running = True
 
-    # Réinitialiser l'espace physique
     space = pymunk.Space()
     space.gravity = GRAVITY
 
@@ -33,15 +31,13 @@ def is_far_enough(pos, others):
 
 def create_food(level):
     if level == 1:
-        # Positions fixes pour le niveau 1
-        banane_positions = [(800, 500), (900, 550), (1000, 500)]  # +20 points
-        hotdog_positions = [(850, 450)]  # +40 points
-        burger_positions = [(950, 400)]  # +100 points
-        banane_malus_positions = [(700, 500), (1100, 500)]  # -20 points
-        poubelle_positions = [(750, 450)]  # -50 points
+        banane_positions = [(560, 500), (970, 380)]
+        hotdog_positions = [(1300, 250), (1200, 620)]
+        burger_positions = [(870, 190)]
+        banane_malus_positions = [(600, 350), (780, 570)]
+        poubelle_positions = [(620, 200),(1300, 420)]
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     else:
-        # Pour niveaux 2 et 3
         return create_random_food(level)
 
 
@@ -81,22 +77,30 @@ def create_ground():
 def create_gobelets():
     gobelets = []
     positions = [
-        (150, screen_height - 130),  # Gobelet bleu
-        (250, screen_height - 130),  # Gobelet rouge
-        (350, screen_height - 130)  # Gobelet vert
+        (90, screen_height - 70),  # Gobelet bleu (1ère position)
+        (210, screen_height - 60),  # Gobelet rouge (2ème position)
+        (330, screen_height - 70)  # Gobelet vert (3ème position)
     ]
     images = [GOBELET_BLEU, GOBELET_ROUGE, GOBELET_VERT]
 
-    for i, pos in enumerate(positions):
+    for img, pos in zip(images, positions):
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = pos
-        # Créer une forme adaptée à l'image du gobelet
-        shape = pymunk.Poly.create_box(body, (images[i].get_width(), images[i].get_height()))
+
+        mask = pygame.mask.from_surface(img)
+        outline = mask.outline()
+        if outline:
+            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]
+            vertices = [(x - img.get_width() / 2, y - img.get_height() / 2) for (x, y) in simplified]
+            shape = pymunk.Poly(body, vertices)
+        else:
+            shape = pymunk.Poly.create_box(body, (img.get_width(), img.get_height()))
+
         shape.elasticity = 0.3
         shape.friction = 1.0
-        shape.collision_type = 5  # Nouveau type de collision pour les gobelets
+        shape.collision_type = 5
         space.add(body, shape)
-        gobelets.append((body, shape, images[i]))
+        gobelets.append((body, shape, img))
 
     return gobelets
 
@@ -106,8 +110,17 @@ def create_obstacles(level):
     if level == 1:
         # Obstacle Jus
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
-        body.position = (screen_width // 2, screen_height - 100)
-        shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width(), JUS_OBSTACLE.get_height()))
+        body.position = (screen_width - 550, screen_height - 190)
+
+        mask = pygame.mask.from_surface(JUS_OBSTACLE)
+        outline = mask.outline()
+        if outline:
+            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]
+            vertices = [(x - JUS_OBSTACLE.get_width() / 2, y - JUS_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+            shape = pymunk.Poly(body, vertices)
+        else:
+            shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width(), JUS_OBSTACLE.get_height()))
+
         shape.elasticity = 0.5
         shape.friction = 1.0
         shape.collision_type = 4
@@ -116,8 +129,18 @@ def create_obstacles(level):
 
         # Obstacle Jouet
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
-        body.position = (screen_width // 2, screen_height // 2)
-        shape = pymunk.Poly.create_box(body, (JOUET_OBSTACLE.get_width(), JOUET_OBSTACLE.get_height()))
+        body.position = (screen_width - 800, screen_height - 720)
+
+        mask = pygame.mask.from_surface(JOUET_OBSTACLE)
+        outline = mask.outline()
+        if outline:
+            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]
+            vertices = [(x - JOUET_OBSTACLE.get_width() / 2, y - JOUET_OBSTACLE.get_height() / 2) for (x, y) in
+                        simplified]
+            shape = pymunk.Poly(body, vertices)
+        else:
+            shape = pymunk.Poly.create_box(body, (JOUET_OBSTACLE.get_width(), JOUET_OBSTACLE.get_height()))
+
         shape.elasticity = 0.7
         shape.friction = 0.3
         shape.collision_type = 4
@@ -160,29 +183,30 @@ def check_collision():
 
         bird.near_food = False
 
-        # Vérifier la proximité avec la nourriture
-        for lst in [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]:
-            for item in lst:
-                if bird.body.position.get_distance(item) < 100:
-                    bird.near_food = True
-                    break
-            if bird.near_food:
-                break
+        # Créer un masque pour l'oiseau
+        bird_img = bird.image_o if getattr(bird, 'near_food', False) else bird.image_n
+        bird_mask = pygame.mask.from_surface(bird_img)
 
-        # Collision avec la nourriture
         for lst, points, size, img in [
-            (banane_positions, 20, 5, BANANE_BONUS),  # +20 points
-            (hotdog_positions, 40, 8, HOTDOG_BONUS),  # +40 points
-            (burger_positions, 100, 15, BURGER_BONUS),  # +100 points
-            (banane_malus_positions, -20, -5, BANANE_MALUS),  # -20 points
-            (poubelle_positions, -50, -10, POUBELLE_MALUS)  # -50 points
+            (banane_positions, 20, 5, BANANE_BONUS),
+            (hotdog_positions, 40, 8, HOTDOG_BONUS),
+            (burger_positions, 100, 15, BURGER_BONUS),
+            (banane_malus_positions, -20, -5, BANANE_MALUS),
+            (poubelle_positions, -50, -10, POUBELLE_MALUS)
         ]:
-            for item in lst[:]:
-                if bird.body.position.get_distance(item) < 40:
+            for item_pos in lst[:]:
+                # Calculer le décalage entre l'oiseau et l'item
+                offset = (int(item_pos[0] - bird.body.position.x + bird_img.get_width() / 2),
+                          int(item_pos[1] - bird.body.position.y + bird_img.get_height() / 2))
+
+                # Vérifier la collision pixel-par-pixel
+                item_mask = pygame.mask.from_surface(img)
+                if bird_mask.overlap(item_mask, offset):
                     score += points
                     bird.size = max(50, bird.size + size)
-                    lst.remove(item)
+                    lst.remove(item_pos)
                     miam_sound.play()
+                    bird.near_food = True
 
 
 def clear_space():
@@ -219,17 +243,17 @@ def restart_game():
     create_ground()
     create_borders()
     obstacles = create_obstacles(current_level)
+    gobelets = create_gobelets()
 
-    # Positions des oiseaux à GAUCHE sur les gobelets
     gobelet_positions = [
-        (150, screen_height - 130),  # Gobelet bleu
-        (250, screen_height - 130),  # Gobelet rouge
-        (350, screen_height - 130)  # Gobelet vert
+        (330, screen_height - 70),  # 3ème gobelet (vert) - premier oiseau choisi
+        (210, screen_height - 60),  # 2ème gobelet (rouge) - deuxième oiseau choisi
+        (90, screen_height - 70)  # 1er gobelet (bleu) - troisième oiseau choisi
     ]
 
     for i, bird in enumerate(birds[:3]):
         bird.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
-        bird.body.position = (gobelet_positions[i][0], gobelet_positions[i][1] - 70)
+        bird.body.position = (gobelet_positions[i][0], gobelet_positions[i][1] - bird.size / 2 - 10)
         bird.shape = pymunk.Circle(bird.body, bird.size / 2)
         bird.shape.elasticity = 0.8
         bird.shape.friction = 0.5
@@ -240,7 +264,37 @@ def restart_game():
     current_bird_index = 0
     game_over = False
     end_game_time = None
-    return obstacles
+    return obstacles, gobelets
+
+
+def update_bird_angle():
+    for bird in birds:
+        if hasattr(bird, 'body') and bird.body:
+            vx, vy = bird.body.velocity
+            angle = math.degrees(math.atan2(vy, vx)) if vx != 0 or vy != 0 else 0
+
+            target_size = (bird.size * 5, bird.size * 5) if bird.power == 'Gourmand' and getattr(bird, 'near_food',
+                                                                                                 True) else (
+            bird.size, bird.size)
+            if not hasattr(bird, 'cached_images'):
+                bird.cached_images = {}
+
+            size_key = tuple(target_size) + (bird.near_food,)
+            if size_key not in bird.cached_images:
+                base_image = bird.image_o if bird.near_food else bird.image_n
+                bird.cached_images[size_key] = pygame.transform.smoothscale(base_image, target_size)
+
+            bird_img = bird.cached_images[size_key]
+
+            if vx < 0:
+                bird_img = pygame.transform.flip(bird_img, True, False)
+                angle = 180 + angle
+
+            if abs(vx) > 0.1 or abs(vy) > 0.1:
+                bird_img = pygame.transform.rotate(bird_img, -angle)
+
+            bird_rect = bird_img.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
+            screen.blit(bird_img, bird_rect)
 
 
 def draw_end_menu():
@@ -275,36 +329,6 @@ def draw_menu_button():
     screen.blit(text, (screen_width - 120, 90))
 
 
-def update_bird_angle():
-    for bird in birds:
-        if hasattr(bird, 'body') and bird.body:
-            vx, vy = bird.body.velocity
-            angle = math.degrees(math.atan2(vy, vx)) if vx != 0 or vy != 0 else 0
-
-            target_size = (bird.size * 5, bird.size * 5) if bird.power == 'Gourmand' and getattr(bird, 'near_food',
-                                                                                                 True) else (
-            bird.size, bird.size)
-            if not hasattr(bird, 'cached_images'):
-                bird.cached_images = {}
-
-            size_key = tuple(target_size) + (bird.near_food,)
-            if size_key not in bird.cached_images:
-                base_image = bird.image_o if bird.near_food else bird.image_n
-                bird.cached_images[size_key] = pygame.transform.smoothscale(base_image, target_size)
-
-            bird_img = bird.cached_images[size_key]
-
-            if vx < 0:
-                bird_img = pygame.transform.flip(bird_img, True, False)
-                angle = 180 + angle
-
-            if abs(vx) > 0.1 or abs(vy) > 0.1:
-                bird_img = pygame.transform.rotate(bird_img, -angle)
-
-            bird_rect = bird_img.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
-            screen.blit(bird_img, bird_rect)
-
-
 def game_loop(obstacles=None, gobelets=None):
     global running, score, current_level, current_bird_index, start_pos, game_over, end_game_time
     dt = 1 / 60.0
@@ -321,14 +345,6 @@ def game_loop(obstacles=None, gobelets=None):
                                   int(body.position.y) - img.get_height() // 2))
 
         if current_level == 1:
-            # Dessiner les gobelets
-            screen.blit(GOBELET_BLEU,
-                        (150 - GOBELET_BLEU.get_width() // 2, screen_height - 130 - GOBELET_BLEU.get_height() // 2))
-            screen.blit(GOBELET_ROUGE,
-                        (250 - GOBELET_ROUGE.get_width() // 2, screen_height - 130 - GOBELET_ROUGE.get_height() // 2))
-            screen.blit(GOBELET_VERT,
-                        (350 - GOBELET_VERT.get_width() // 2, screen_height - 130 - GOBELET_VERT.get_height() // 2))
-
             # Dessiner les obstacles
             if obstacles:
                 for body, shape, img in obstacles:
@@ -362,7 +378,7 @@ def game_loop(obstacles=None, gobelets=None):
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:  # Touche R pour redémarrer
-                    obstacles = restart_game()
+                    obstacles, gobelets = restart_game()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if reglage_rect.collidepoint(event.pos):
@@ -370,7 +386,7 @@ def game_loop(obstacles=None, gobelets=None):
                 elif game_over:
                     restart_button, menu_button = draw_end_menu()
                     if restart_button.collidepoint(event.pos):
-                        obstacles = restart_game()
+                        obstacles, gobelets = restart_game()
                     elif menu_button.collidepoint(event.pos):
                         clear_space()
                         main()
@@ -448,11 +464,11 @@ def jeu(level):
         current_level = level
         selected_team = select_team()
         past_power(selected_team)
-        # Inverser l'ordre des oiseaux pour que le 3ème soit lancé en premier
-        birds = selected_team[::-1]  # Inversion de la liste
+        birds = selected_team.copy()
 
         if level == 1:
-            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(level)
+            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(
+                level)
             screen.blit(DECORS_NV1, (0, 0))
         else:
             hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_random_food(level)
@@ -461,16 +477,21 @@ def jeu(level):
         create_ground()
         create_borders()
         obstacles = create_obstacles(level)
-        gobelets = create_gobelets()  # Création des gobelets physiques
+        gobelets = create_gobelets()
 
-        # Positions des oiseaux sur les gobelets (en les centrant)
+        # Positionnement initial des oiseaux au-dessus des gobelets
+        gobelet_positions = [
+            (330, screen_height - 70),  # 3ème gobelet (vert) - premier oiseau choisi
+            (210, screen_height - 60),  # 2ème gobelet (rouge) - deuxième oiseau choisi
+            (90, screen_height - 70)  # 1er gobelet (bleu) - troisième oiseau choisi
+        ]
+
         for i, bird in enumerate(birds[:3]):
             bird.size = 100
             bird.launched = False
             bird.near_food = False
             bird.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
-            # Positionner l'oiseau au centre du gobelet (en hauteur - taille oiseau)
-            bird.body.position = (gobelets[i][0].position.x, gobelets[i][0].position.y - bird.size/2 - 10)
+            bird.body.position = (gobelet_positions[i][0], gobelet_positions[i][1] - bird.size / 2 - 10)
             bird.shape = pymunk.Circle(bird.body, bird.size / 2)
             bird.shape.elasticity = 0.8
             bird.shape.friction = 0.5
@@ -479,7 +500,7 @@ def jeu(level):
 
         running = True
         score = 0
-        current_bird_index = 0  # Commencer par le premier oiseau (qui est maintenant le dernier de la sélection)
+        current_bird_index = 0
         start_pos = None
         game_over = False
         end_game_time = None

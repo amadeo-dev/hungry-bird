@@ -63,22 +63,32 @@ pygame.mixer.music.play(-1)
 
 # Dans globals.py, ajoutez ces nouvelles variables :
 # Images pour le niveau 1
-DECORS_NV1 = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/decors Icone.png"), (screen_width, screen_height))
+DECORS_NV1 = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/decors nv1.png"), (screen_width, screen_height))
 # Dans globals.py, modifiez les tailles des images :
-GOBELET_BLEU = load_high_quality_image("Ressources/image/Niveau 1/Gobelet bleu.png")  # Supprimez le resize
-GOBELET_ROUGE = load_high_quality_image("Ressources/image/Niveau 1/Gobelet Rouge.png")
-GOBELET_VERT = load_high_quality_image("Ressources/image/Niveau 1/Gobelet Vert.png")
+SCALE_FACTOR = 0.8
 
-# Pour les autres images, utilisez load_high_quality_image sans redimensionnement forcé
-JUS_OBSTACLE = load_high_quality_image("Ressources/image/Niveau 1/Jus.png")
-JOUET_OBSTACLE = load_high_quality_image("Ressources/image/Niveau 1/jouet.png")
+def load_scaled_image(path):
+    """Charge une image et la redimensionne selon SCALE_FACTOR"""
+    image = pygame.image.load(path).convert_alpha()
+    new_size = (int(image.get_width() * SCALE_FACTOR),
+                int(image.get_height() * SCALE_FACTOR))
+    return pygame.transform.smoothscale(image, new_size)
 
-# Bonus et malus
-BANANE_BONUS = load_high_quality_image("Ressources/image/Niveau 1/Banane.png")
-HOTDOG_BONUS = load_high_quality_image("Ressources/image/Niveau 1/Hot Dog.png")
-BURGER_BONUS = load_high_quality_image("Ressources/image/Niveau 1/Burger.png")
-BANANE_MALUS = load_high_quality_image("Ressources/image/Niveau 1/Banane Pourri-.png")
-POUBELLE_MALUS = load_high_quality_image("Ressources/image/Niveau 1/Poubelle.png")
+# Images pour le niveau 1
+
+# Chargement simplifié de toutes les images avec redimensionnement automatique
+GOBELET_BLEU = load_scaled_image("Ressources/image/Niveau 1/Gobelet bleu.png")
+GOBELET_ROUGE = load_scaled_image("Ressources/image/Niveau 1/Gobelet Rouge.png")
+GOBELET_VERT = load_scaled_image("Ressources/image/Niveau 1/Gobelet Vert.png")
+
+JUS_OBSTACLE = load_scaled_image("Ressources/image/Niveau 1/Jus.png")
+JOUET_OBSTACLE = load_scaled_image("Ressources/image/Niveau 1/jouet.png")
+
+BANANE_BONUS = load_scaled_image("Ressources/image/Niveau 1/Banane.png")
+HOTDOG_BONUS = load_scaled_image("Ressources/image/Niveau 1/Hot Dog.png")
+BURGER_BONUS = load_scaled_image("Ressources/image/Niveau 1/Burger.png")
+BANANE_MALUS = load_scaled_image("Ressources/image/Niveau 1/Banane Pourri-.png")
+POUBELLE_MALUS = load_scaled_image("Ressources/image/Niveau 1/Poubelle.png")
 
 # Remplacer dans globals.py:
 HOTDOG_IMG = load_high_quality_image("Ressources/image/hotdog.png", (50, 30))
@@ -163,4 +173,4 @@ boutons_jeu = {
 
 }
 
-GOBELET_COLLISION_TYPE = 5
+GOBELET_COLLISION_TYPE = 0
