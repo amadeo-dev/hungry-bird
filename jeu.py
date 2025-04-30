@@ -32,7 +32,7 @@ def is_far_enough(pos, others):
 def create_food(level):
     if level == 1:
         banane_positions = [(560, 500), (970, 380)]
-        hotdog_positions = [(1300, 250), (1200, 620)]
+        hotdog_positions = [(1300, 250), (1300, 620)]
         burger_positions = [(870, 190)]
         banane_malus_positions = [(600, 350), (780, 570)]
         poubelle_positions = [(620, 200),(1300, 420)]
@@ -183,9 +183,10 @@ def check_collision():
 
         bird.near_food = False
 
-        # Créer un masque pour l'oiseau
+        # Obtenir l'image actuelle de l'oiseau
         bird_img = bird.image_o if getattr(bird, 'near_food', False) else bird.image_n
         bird_mask = pygame.mask.from_surface(bird_img)
+        bird_rect = bird_img.get_rect(center=(int(bird.body.position.x), int(bird.body.position.y)))
 
         for lst, points, size, img in [
             (banane_positions, 20, 5, BANANE_BONUS),
@@ -195,13 +196,16 @@ def check_collision():
             (poubelle_positions, -50, -10, POUBELLE_MALUS)
         ]:
             for item_pos in lst[:]:
-                # Calculer le décalage entre l'oiseau et l'item
-                offset = (int(item_pos[0] - bird.body.position.x + bird_img.get_width() / 2),
-                          int(item_pos[1] - bird.body.position.y + bird_img.get_height() / 2))
+                # Créer un rect pour la nourriture
+                food_rect = img.get_rect(center=item_pos)
+
+                # Calculer le décalage entre les masques
+                offset_x = food_rect.x - bird_rect.x
+                offset_y = food_rect.y - bird_rect.y
 
                 # Vérifier la collision pixel-par-pixel
-                item_mask = pygame.mask.from_surface(img)
-                if bird_mask.overlap(item_mask, offset):
+                food_mask = pygame.mask.from_surface(img)
+                if bird_mask.overlap(food_mask, (offset_x, offset_y)):
                     score += points
                     bird.size = max(50, bird.size + size)
                     lst.remove(item_pos)
