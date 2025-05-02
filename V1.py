@@ -19,7 +19,7 @@ BURGER_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/burger.p
 BROCOLI_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/brocolis.png"), (40, 40))
 DINDE_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Dinde_Royale.png"), (60, 60))
 RESTART_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Restart.png"), (50, 50))
-DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/decor.png"), (WIDTH, HEIGHT))
+DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/bck_lvl1.jpg"), (WIDTH, HEIGHT))
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hungry Bird")
