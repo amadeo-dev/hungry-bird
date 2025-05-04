@@ -11,8 +11,6 @@ fond = pygame.transform.scale(fond, (screen_width, screen_height))
 
 
 
-
-
 def menu():
     clock = pygame.time.Clock()
     mouse_was_down = False
