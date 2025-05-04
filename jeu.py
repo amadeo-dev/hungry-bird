@@ -35,7 +35,7 @@ def create_food(level):
         hotdog_positions = [(1300, 250), (1300, 620)]
         burger_positions = [(870, 190)]
         banane_malus_positions = [(600, 350), (780, 570)]
-        poubelle_positions = [(620, 200),(1300, 420)]
+        poubelle_positions = [(620, 200), (1300, 420)]
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     else:
         return create_random_food(level)
@@ -187,40 +187,39 @@ def check_collision():
         if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
+        # Vérifier la proximité avec la nourriture pour ouvrir la bouche
         bird.near_food = False
+        for lst in [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]:
+            for item in lst:
+                if ((bird.body.position[0] - item[0]) ** 2 + (bird.body.position[1] - item[1]) ** 2) ** 0.5 < 150:
+                    bird.near_food = True
+                    break
+            if bird.near_food:
+                break
 
-        # Créer un masque pour l'oiseau (avec une taille légèrement réduite)
-        bird_img = bird.image_o if getattr(bird, 'near_food', False) else bird.image_n
-        scaled_bird_size = (int(bird_img.get_width() * 0.9), int(bird_img.get_height() * 0.9))
-        scaled_bird_img = pygame.transform.scale(bird_img, scaled_bird_size)
-        bird_mask = pygame.mask.from_surface(scaled_bird_img)
-        bird_rect = scaled_bird_img.get_rect(center=(int(bird.body.position.x), int(bird.body.position.y)))
-
-        for lst, points, size, img in [
-            (banane_positions, 20, 5, BANANE_BONUS),
-            (hotdog_positions, 40, 8, HOTDOG_BONUS),
-            (burger_positions, 100, 15, BURGER_BONUS),
-            (banane_malus_positions, -20, -5, BANANE_MALUS),
-            (poubelle_positions, -50, -10, POUBELLE_MALUS)
+        # Collision avec la nourriture
+        for lst, points, size, img, color_effect in [
+            (banane_positions, 20, 5, BANANE_BONUS, None),  # +20 points, petit grossissement
+            (hotdog_positions, 40, 10, HOTDOG_BONUS, None),  # +40 points, moyen grossissement
+            (burger_positions, 100, 20, BURGER_BONUS, None),  # +100 points, gros grossissement
+            (banane_malus_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),  # -20 points, légère teinte verte
+            (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))  # -50 points, forte teinte verte
         ]:
             for item_pos in lst[:]:
-                # Créer un masque réduit pour la nourriture (90% de la taille originale)
-                scaled_food_size = (int(img.get_width() * 0.3), int(img.get_height() * 0.3))
-                scaled_food = pygame.transform.scale(img, scaled_food_size)
-                food_mask = pygame.mask.from_surface(scaled_food)
-                food_rect = scaled_food.get_rect(center=item_pos)
-
-                # Calculer le décalage
-                offset_x = food_rect.x - bird_rect.x
-                offset_y = food_rect.y - bird_rect.y
-
-                # Vérifier la collision
-                if bird_mask.overlap(food_mask, (offset_x, offset_y)):
+                if ((bird.body.position[0] - item_pos[0]) ** 2 + (
+                        bird.body.position[1] - item_pos[1]) ** 2) ** 0.5 < 50:
                     score += points
                     bird.size = max(50, bird.size + size)
+
+                    # Appliquer l'effet de couleur si c'est un malus
+                    if color_effect:
+                        bird.color_effect = color_effect
+                        pygame.time.set_timer(pygame.USEREVENT + 1, 2000)  # Réinitialiser après 2 sec
+
                     lst.remove(item_pos)
                     miam_sound.play()
                     bird.near_food = True
+                    break
 
 
 def clear_space():
@@ -246,6 +245,7 @@ def restart_game():
         bird.launched = False
         bird.size = 100
         bird.near_food = False
+        bird.color_effect = None
 
     # Recréer la nourriture selon le niveau
     if current_level == 1:
@@ -287,15 +287,36 @@ def update_bird_angle():
             vx, vy = bird.body.velocity
             angle = math.degrees(math.atan2(vy, vx)) if vx != 0 or vy != 0 else 0
 
-            target_size = (bird.size * 5, bird.size * 5) if bird.power == 'Gourmand' and getattr(bird, 'near_food',
-                                                                                                 True) else (
-            bird.size, bird.size)
+            # Déterminer la taille cible en fonction de si l'oiseau est près de la nourriture
+            if bird.near_food:
+                base_size = int(bird.size * 1.05)
+            else:
+                base_size = bird.size
+
+            # Appliquer un effet de gourmandise si l'oiseau a ce pouvoir
+            if hasattr(bird, 'power') and bird.power == 'Gourmand' and bird.near_food:
+                target_size = (base_size * 1.5, base_size * 1.5)
+            else:
+                target_size = (base_size, base_size)
+
             if not hasattr(bird, 'cached_images'):
                 bird.cached_images = {}
 
             size_key = tuple(target_size) + (bird.near_food,)
             if size_key not in bird.cached_images:
                 base_image = bird.image_o if bird.near_food else bird.image_n
+
+                # Appliquer l'effet de couleur si nécessaire (modification ici)
+                if hasattr(bird, 'color_effect') and bird.color_effect:
+                    # Créer une copie de l'image pour ne pas modifier l'originale
+                    colored_image = base_image.copy()
+                    # Créer une surface pour la teinte
+                    tint = pygame.Surface(colored_image.get_size(), pygame.SRCALPHA)
+                    tint.fill(bird.color_effect)
+                    # Appliquer la teinte seulement aux pixels non transparents
+                    colored_image.blit(tint, (0, 0), special_flags=pygame.BLEND_MULT)
+                    base_image = colored_image
+
                 bird.cached_images[size_key] = pygame.transform.smoothscale(base_image, target_size)
 
             bird_img = bird.cached_images[size_key]
@@ -389,11 +410,9 @@ def game_loop(obstacles=None, gobelets=None):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 return
-
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:  # Touche R pour redémarrer
                     obstacles, gobelets = restart_game()
-
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if reglage_rect.collidepoint(event.pos):
                     reglages()
@@ -406,7 +425,6 @@ def game_loop(obstacles=None, gobelets=None):
                         main()
                 elif current_bird_index < len(birds):
                     start_pos = pygame.mouse.get_pos()
-
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
                 end_pos = pygame.mouse.get_pos()
                 if start_pos:
@@ -417,6 +435,10 @@ def game_loop(obstacles=None, gobelets=None):
                     current_bird_index += 1
                     start_pos = None
                     lance_sound.play()
+            elif event.type == pygame.USEREVENT + 1:  # Réinitialiser l'effet de couleur
+                for bird in birds:
+                    if hasattr(bird, 'color_effect'):
+                        bird.color_effect = None
 
         if start_pos and pygame.mouse.get_pressed()[0] and current_bird_index < len(birds):
             current_mouse_pos = pygame.mouse.get_pos()
@@ -504,6 +526,7 @@ def jeu(level):
             bird.size = 100
             bird.launched = False
             bird.near_food = False
+            bird.color_effect = None
             bird.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
             bird.body.position = (gobelet_positions[i][0], gobelet_positions[i][1] - bird.size / 2 - 10)
             bird.shape = pymunk.Circle(bird.body, bird.size / 2)
