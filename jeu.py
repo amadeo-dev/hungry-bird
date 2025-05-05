@@ -33,7 +33,7 @@ def create_food(level):
     if level == 1:
         banane_positions = [(560, 500), (970, 380)]
         hotdog_positions = [(1300, 250), (1300, 620)]
-        burger_positions = [(870, 190)]
+        burger_positions = [(830, 190)]
         banane_malus_positions = [(600, 350), (780, 570)]
         poubelle_positions = [(620, 200), (1300, 420)]
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
@@ -108,50 +108,52 @@ def create_gobelets():
 def create_obstacles(level):
     obstacles = []
     if level == 1:
-        # Obstacle Jus avec hitbox réduite
+        # Obstacle Jus (normal)
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 550, screen_height - 190)
-
-        # Réduire la taille de la hitbox à 90%
-        scaled_size = (int(JUS_OBSTACLE.get_width() * 0.9), int(JUS_OBSTACLE.get_height() * 0.9))
-        scaled_img = pygame.transform.scale(JUS_OBSTACLE, scaled_size)
-
-        mask = pygame.mask.from_surface(scaled_img)
-        outline = mask.outline()
-        if outline:
-            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]
-            vertices = [(x - scaled_size[0] / 2, y - scaled_size[1] / 2) for (x, y) in simplified]
-            shape = pymunk.Poly(body, vertices)
-        else:
-            shape = pymunk.Poly.create_box(body, scaled_size)
-
+        shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width() * 0.9, JUS_OBSTACLE.get_height() * 0.9))
         shape.elasticity = 0.5
         shape.friction = 1.0
-        shape.collision_type = 4
         space.add(body, shape)
         obstacles.append((body, shape, JUS_OBSTACLE))
 
-        # Obstacle Jouet avec hitbox réduite
+        # Obstacle Jouet avec VOS VALEURS EXACTES
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
-        body.position = (screen_width - 800, screen_height - 720)
+        body.position = (screen_width - 800, screen_height - 710)
+        space.add(body)
 
-        scaled_size = (int(JOUET_OBSTACLE.get_width() * 0.9), int(JOUET_OBSTACLE.get_height() * 0.9))
-        scaled_img = pygame.transform.scale(JOUET_OBSTACLE, scaled_size)
+        # Vos paramètres exacts du trou
+        radius_x = 10  # Largeur du trou
+        radius_y = 30  # Hauteur du trou
+        segments = 20  # Nombre de segments pour l'ovale
 
-        mask = pygame.mask.from_surface(scaled_img)
-        outline = mask.outline()
-        if outline:
-            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]
-            vertices = [(x - scaled_size[0] / 2, y - scaled_size[1] / 2) for (x, y) in simplified]
-            shape = pymunk.Poly(body, vertices)
-        else:
-            shape = pymunk.Poly.create_box(body, scaled_size)
+        # Demi-cercle supérieur (comme dans votre code)
+        top_vertices = []
+        for i in range(segments + 1):
+            angle = math.pi * i / segments
+            x = radius_x * math.cos(angle) - 10
+            y = -radius_y * math.sin(angle) - 30
+            top_vertices.append((x, y))
+        top_shape = pymunk.Poly(body, top_vertices)
 
-        shape.elasticity = 0.7
-        shape.friction = 0.3
-        shape.collision_type = 4
-        space.add(body, shape)
-        obstacles.append((body, shape, JOUET_OBSTACLE))
+        # Demi-cercle inférieur (comme dans votre code)
+        bottom_vertices = []
+        for i in range(segments + 1):
+            angle = math.pi * i / segments
+            x = radius_x * math.cos(angle) - 10
+            y = radius_y * math.sin(angle) + 130
+            bottom_vertices.append((x, y))
+        bottom_shape = pymunk.Poly(body, bottom_vertices)
+
+        # Propriétés physiques
+        for shape in [top_shape, bottom_shape]:
+            shape.elasticity = 0.7
+            shape.friction = 0.3
+            shape.collision_type = 4
+            space.add(shape)
+
+        # Stockage simple avec l'image
+        obstacles.append((body, [top_shape, bottom_shape], JOUET_OBSTACLE))
 
     return obstacles
 
@@ -379,12 +381,15 @@ def game_loop(obstacles=None, gobelets=None):
                 screen.blit(img, (int(body.position.x) - img.get_width() // 2,
                                   int(body.position.y) - img.get_height() // 2))
 
+        # Dans game_loop()
         if current_level == 1:
             # Dessiner les obstacles
             if obstacles:
-                for body, shape, img in obstacles:
-                    screen.blit(img, (int(body.position.x) - img.get_width() // 2,
-                                      int(body.position.y) - img.get_height() // 2))
+                for obstacle in obstacles:
+                    if len(obstacle) == 3:  # Format (body, shape/shapes, image)
+                        body, shapes, img = obstacle
+                        screen.blit(img, (int(body.position.x) - img.get_width() // 2,
+                                          int(body.position.y) - img.get_height() // 2))
 
             # Dessiner la nourriture niveau 1
             for img, positions in [
