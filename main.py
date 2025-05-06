@@ -12,8 +12,6 @@ from menu import *
 from jeu import *
 from Reglage import *
 
-space = pymunk.Space()
-
 
 def main():
 
