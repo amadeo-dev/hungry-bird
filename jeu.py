@@ -1,6 +1,6 @@
 from main import *
 from power import *
-
+from globals import *
 
 def reset_globals():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
