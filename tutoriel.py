@@ -5,11 +5,11 @@ def lancer_tutoriel(screen):
     largeur_tuto, hauteur_tuto = 1020, 720
 
     # Charger l’image de fond (même taille que le screen)
-    fond = pygame.image.load("/Users/jackyzhang/PycharmProjects/hungry-bird/Ressources/image/Menu/Decors.png").convert()
+    fond = pygame.image.load("Ressources/image/Menu/Decors.png").convert()
     fond = pygame.transform.scale(fond, screen.get_size())
 
     # Charger l’image tutoriel redimensionnée
-    image_tutoriel = pygame.image.load("/Users/jackyzhang/PycharmProjects/hungry-bird/Ressources/image/Menu/Instruction.png").convert_alpha()
+    image_tutoriel = pygame.image.load("Ressources/image/Menu/Instruction.png").convert_alpha()
     image_tutoriel = pygame.transform.scale(image_tutoriel, (largeur_tuto, hauteur_tuto))
 
     # Calculer la position pour centrer l’image tutoriel

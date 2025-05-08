@@ -83,11 +83,11 @@ GOBELET_VERT = load_scaled_image("Ressources/image/Niveau 1/Gobelet Vert.png")
 
 JUS_OBSTACLE = load_scaled_image("Ressources/image/Niveau 1/Jus.png")
 JOUET_OBSTACLE = load_scaled_image("Ressources/image/Niveau 1/jouet.png")
-
+BANANE_MALUS = load_scaled_image("Ressources/image/Niveau 1/Banane Pourri-.png")
 BANANE_BONUS = load_scaled_image("Ressources/image/Niveau 1/Banane.png")
 HOTDOG_BONUS = load_scaled_image("Ressources/image/Niveau 1/Hot Dog.png")
 BURGER_BONUS = load_scaled_image("Ressources/image/Niveau 1/Burger.png")
-BANANE_MALUS = load_scaled_image("Ressources/image/Niveau 1/Banane Pourri-.png")
+
 POUBELLE_MALUS = load_scaled_image("Ressources/image/Niveau 1/Poubelle.png")
 
 # Remplacer dans globals.py:
@@ -99,6 +99,28 @@ RESTART_IMG = load_high_quality_image("Ressources/image/Restart.png", (50, 50))
 
 # Charger le décor à la bonne taille
 DECORS_IMG = pygame.image.load("Ressources/image/bck_lvl1.jpg").convert()
+
+# Images pour le niveau 2
+DECORS_NV2 = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 2/Decors2.png"), (screen_width, screen_height))
+
+# Gobelet pour le niveau 2
+GOBELET_YAOURT = load_scaled_image("Ressources/image/Niveau 2/Yaourt.png")
+
+# Obstacles pour le niveau 2
+AVION_OBSTACLE = load_scaled_image("Ressources/image/Niveau 2/Avion.png")
+BOUTEILLE_OBSTACLE = load_scaled_image("Ressources/image/Niveau 2/Bouteille.png")
+LIVRE_OBSTACLE = load_scaled_image("Ressources/image/Niveau 2/Livre.png")
+
+# Bonus pour le niveau 2
+COOKIE_BONUS = load_scaled_image("Ressources/image/Niveau 2/Cookie.png")
+POULET_BONUS = load_scaled_image("Ressources/image/Niveau 2/Poulet.png")
+SANDWICH_BONUS = load_scaled_image("Ressources/image/Niveau 2/Sandwich.png")
+
+# Malus pour le niveau 2
+OS_MALUS = load_scaled_image("Ressources/image/Niveau 2/Os.png")
+POUBELLE_NV2_MALUS = load_scaled_image("Ressources/image/Niveau 2/Poubelle.png")
+
+
 
 # Position catapulte (utilise screen_height au lieu de HEIGHT)
 CATAPULT_POS = (150, screen_height - 100)
@@ -174,3 +196,5 @@ boutons_jeu = {
 }
 
 GOBELET_COLLISION_TYPE = 0
+
+

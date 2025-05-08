@@ -5,6 +5,7 @@ from globals import *
 def reset_globals():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     global brocoli_positions, dinde_positions, score, current_level, current_bird_index, game_over, end_game_time, space, running
+    global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions
 
     birds = []
     banane_positions = []
@@ -14,6 +15,11 @@ def reset_globals():
     poubelle_positions = []
     brocoli_positions = []
     dinde_positions = []
+
+    cookie_positions = []
+    poulet_positions = []
+    sandwich_positions = []
+    os_malus_positions = []
     score = 0
     current_level = 1
     current_bird_index = 0
@@ -37,6 +43,13 @@ def create_food(level):
         banane_malus_positions = [(600, 350), (780, 570)]
         poubelle_positions = [(620, 200), (1300, 420)]
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
+    elif level == 2:
+        cookie_positions = [(600, 450), (1000, 300)]
+        poulet_positions = [(600, 250), (1200, 600)]
+        sandwich_positions = [(1250, 300)] #
+        os_malus_positions = [(700, 350), (900, 550)]
+        poubelle_positions = [(650, 700), (1250, 400)]
+        return cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions
     else:
         return create_random_food(level)
 
@@ -74,14 +87,22 @@ def create_ground():
     return body, shape
 
 
-def create_gobelets():
+def create_gobelets(level):
     gobelets = []
-    positions = [
-        (90, screen_height - 70),  # Gobelet bleu (1ère position)
-        (210, screen_height - 60),  # Gobelet rouge (2ème position)
-        (330, screen_height - 70)  # Gobelet vert (3ème position)
-    ]
-    images = [GOBELET_BLEU, GOBELET_ROUGE, GOBELET_VERT]
+    if level == 1:
+        positions = [
+            (90, screen_height - 70),  # Gobelet bleu
+            (210, screen_height - 60),  # Gobelet rouge
+            (330, screen_height - 70)   # Gobelet vert
+        ]
+        images = [GOBELET_BLEU, GOBELET_ROUGE, GOBELET_VERT]
+    else:  # Niveau 2 et 3
+        positions = [
+            (90, screen_height - 70),   # Yaourt position 1
+            (210, screen_height - 60),  # Yaourt position 2
+            (330, screen_height - 70)   # Yaourt position 3
+        ]
+        images = [GOBELET_YAOURT] * 3  # Même image pour les 3 positions
 
     for img, pos in zip(images, positions):
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
@@ -108,10 +129,20 @@ def create_gobelets():
 def create_obstacles(level):
     obstacles = []
     if level == 1:
-        # Obstacle Jus (normal)
+        # Obstacle Jus - Hitbox précise
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 550, screen_height - 190)
-        shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width() * 0.9, JUS_OBSTACLE.get_height() * 0.9))
+
+        # Création de la hitbox basée sur le contour de l'image
+        mask = pygame.mask.from_surface(JUS_OBSTACLE)
+        outline = mask.outline()
+        if outline:
+            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]  # Simplifier le contour
+            vertices = [(x - JUS_OBSTACLE.get_width() / 2, y - JUS_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+            shape = pymunk.Poly(body, vertices)
+        else:
+            shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width() * 0.9, JUS_OBSTACLE.get_height() * 0.9))
+
         shape.elasticity = 0.5
         shape.friction = 1.0
         space.add(body, shape)
@@ -123,8 +154,8 @@ def create_obstacles(level):
         space.add(body)
 
         # Vos paramètres exacts du trou
-        radius_x = 10  # Largeur du trou
-        radius_y = 30  # Hauteur du trou
+        radius_x = 5  # Largeur du trou
+        radius_y = 50  # Hauteur du trou
         segments = 20  # Nombre de segments pour l'ovale
 
         # Demi-cercle supérieur (comme dans votre code)
@@ -154,6 +185,39 @@ def create_obstacles(level):
 
         # Stockage simple avec l'image
         obstacles.append((body, [top_shape, bottom_shape], JOUET_OBSTACLE))
+    elif level == 2:
+        # Avion (statique avec hitbox précise)
+        body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        body.position = (screen_width - 400, 150)
+        mask = pygame.mask.from_surface(AVION_OBSTACLE)
+        outline = mask.outline()
+        simplified = [outline[i] for i in range(0, len(outline), 3)]  # Simplifier le contour
+        vertices = [(x - AVION_OBSTACLE.get_width() / 2, y - AVION_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+        shape = pymunk.Poly(body, vertices)
+        space.add(body, shape)
+        obstacles.append((body, shape, AVION_OBSTACLE))
+
+        # Bouteille (dynamique avec hitbox rectangulaire simple)
+        body = pymunk.Body(1, pymunk.moment_for_box(1, (
+        BOUTEILLE_OBSTACLE.get_width() * 0.7, BOUTEILLE_OBSTACLE.get_height() * 0.7)))
+        body.position = (screen_width // 2, screen_height - 150)
+        shape = pymunk.Poly.create_box(body,
+                                       (BOUTEILLE_OBSTACLE.get_width() * 0.7, BOUTEILLE_OBSTACLE.get_height() * 0.7))
+        shape.elasticity = 0.7
+        shape.friction = 0.5
+        space.add(body, shape)
+        obstacles.append((body, shape, BOUTEILLE_OBSTACLE))
+
+        # Livre (statique avec hitbox précise)
+        body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        body.position = (screen_width - 150, screen_height - 200)
+        mask = pygame.mask.from_surface(LIVRE_OBSTACLE)
+        outline = mask.outline()
+        simplified = [outline[i] for i in range(0, len(outline), 3)]  # Simplifier le contour
+        vertices = [(x - LIVRE_OBSTACLE.get_width() / 2, y - LIVRE_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+        shape = pymunk.Poly(body, vertices)
+        space.add(body, shape)
+        obstacles.append((body, shape, LIVRE_OBSTACLE))
 
     return obstacles
 
@@ -191,7 +255,15 @@ def check_collision():
 
         # Vérifier la proximité avec la nourriture pour ouvrir la bouche
         bird.near_food = False
-        for lst in [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]:
+        food_lists = []
+        if current_level == 1:
+            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]
+        elif current_level == 2:
+            food_lists = [cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions]
+        else:
+            food_lists = [hotdog_positions, burger_positions, brocoli_positions, dinde_positions]
+
+        for lst in food_lists:
             for item in lst:
                 if ((bird.body.position[0] - item[0]) ** 2 + (bird.body.position[1] - item[1]) ** 2) ** 0.5 < 150:
                     bird.near_food = True
@@ -200,23 +272,39 @@ def check_collision():
                 break
 
         # Collision avec la nourriture
-        for lst, points, size, img, color_effect in [
-            (banane_positions, 20, 5, BANANE_BONUS, None),  # +20 points, petit grossissement
-            (hotdog_positions, 40, 10, HOTDOG_BONUS, None),  # +40 points, moyen grossissement
-            (burger_positions, 100, 20, BURGER_BONUS, None),  # +100 points, gros grossissement
-            (banane_malus_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),  # -20 points, légère teinte verte
-            (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))  # -50 points, forte teinte verte
-        ]:
+        if current_level == 1:
+            food_data = [
+                (banane_positions, 20, 5, BANANE_BONUS, None),
+                (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
+                (burger_positions, 100, 20, BURGER_BONUS, None),
+                (banane_malus_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),
+                (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))
+            ]
+        elif current_level == 2:
+            food_data = [
+                (cookie_positions, 30, 8, COOKIE_BONUS, None),
+                (poulet_positions, 50, 12, POULET_BONUS, None),
+                (sandwich_positions, 80, 15, SANDWICH_BONUS, None),
+                (os_malus_positions, -30, -8, OS_MALUS, (100, 255, 100)),
+                (poubelle_positions, -60, -15, POUBELLE_NV2_MALUS, (50, 255, 50))
+            ]
+        else:
+            food_data = [
+                (hotdog_positions, 40, 10, HOTDOG_IMG, None),
+                (burger_positions, 80, 15, BURGER_IMG, None),
+                (brocoli_positions, -20, -5, BROCOLI_IMG, (100, 255, 100)),
+                (dinde_positions, -40, -10, DINDE_IMG, (50, 255, 50))
+            ]
+
+        for lst, points, size, img, color_effect in food_data:
             for item_pos in lst[:]:
-                if ((bird.body.position[0] - item_pos[0]) ** 2 + (
-                        bird.body.position[1] - item_pos[1]) ** 2) ** 0.5 < 50:
+                if ((bird.body.position[0] - item_pos[0]) ** 2 + (bird.body.position[1] - item_pos[1]) ** 2) ** 0.5 < 50:
                     score += points
                     bird.size = max(50, bird.size + size)
 
-                    # Appliquer l'effet de couleur si c'est un malus
                     if color_effect:
                         bird.color_effect = color_effect
-                        pygame.time.set_timer(pygame.USEREVENT + 1, 2000)  # Réinitialiser après 2 sec
+                        pygame.time.set_timer(pygame.USEREVENT + 1, 2000)
 
                     lst.remove(item_pos)
                     miam_sound.play()
@@ -238,6 +326,7 @@ def clear_space():
 
 def restart_game():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
+    global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions
     global brocoli_positions, dinde_positions, score, current_bird_index, game_over, end_game_time
 
     clear_space()
@@ -253,13 +342,16 @@ def restart_game():
     if current_level == 1:
         banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(
             current_level)
+    elif current_level ==2:
+        cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions = create_food(
+            current_level)
     else:
         hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_random_food(current_level)
 
     create_ground()
     create_borders()
     obstacles = create_obstacles(current_level)
-    gobelets = create_gobelets()
+    gobelets = create_gobelets(current_level)
 
     gobelet_positions = [
         (330, screen_height - 70),  # 3ème gobelet (vert) - premier oiseau choisi
@@ -373,25 +465,35 @@ def game_loop(obstacles=None, gobelets=None):
     reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width - 300), ajusty(20), ajustx(250), ajusty(70))
 
     while running:
-        screen.blit(DECORS_NV1 if current_level == 1 else DECORS_IMG, (0, 0))
+        # Afficher le décor approprié selon le niveau
+        if current_level == 1:
+            screen.blit(DECORS_NV1, (0, 0))
+        elif current_level == 2:
+            screen.blit(DECORS_NV2, (0, 0))
+        else:
+            screen.blit(DECORS_IMG, (0, 0))
+
+        # Dessiner les obstacles s'ils existent
+        if obstacles:
+            for obstacle in obstacles:
+                body, shape, img = obstacle
+                if body.body_type == pymunk.Body.DYNAMIC:  # Seulement pour la bouteille
+                    # Rotation en fonction de l'angle du corps physique
+                    rotated_img = pygame.transform.rotate(img, -math.degrees(body.angle))
+                    pos = int(body.position.x), int(body.position.y)
+                    screen.blit(rotated_img, rotated_img.get_rect(center=pos))
+                else:
+                    # Obstacles statiques (affichage normal)
+                    screen.blit(img, img.get_rect(center=(int(body.position.x), int(body.position.y))))
 
         # Dessiner les gobelets
         if gobelets:
             for body, shape, img in gobelets:
-                screen.blit(img, (int(body.position.x) - img.get_width() // 2,
-                                  int(body.position.y) - img.get_height() // 2))
+                img_rect = img.get_rect(center=(int(body.position.x), int(body.position.y)))
+                screen.blit(img, img_rect)
 
-        # Dans game_loop()
+        # Dessiner la nourriture selon le niveau
         if current_level == 1:
-            # Dessiner les obstacles
-            if obstacles:
-                for obstacle in obstacles:
-                    if len(obstacle) == 3:  # Format (body, shape/shapes, image)
-                        body, shapes, img = obstacle
-                        screen.blit(img, (int(body.position.x) - img.get_width() // 2,
-                                          int(body.position.y) - img.get_height() // 2))
-
-            # Dessiner la nourriture niveau 1
             for img, positions in [
                 (BANANE_BONUS, banane_positions),
                 (HOTDOG_BONUS, hotdog_positions),
@@ -401,8 +503,17 @@ def game_loop(obstacles=None, gobelets=None):
             ]:
                 for pos in positions:
                     screen.blit(img, img.get_rect(center=pos))
+        elif current_level == 2:
+            for img, positions in [
+                (COOKIE_BONUS, cookie_positions),
+                (POULET_BONUS, poulet_positions),
+                (SANDWICH_BONUS, sandwich_positions),
+                (OS_MALUS, os_malus_positions),
+                (POUBELLE_NV2_MALUS, poubelle_positions)
+            ]:
+                for pos in positions:
+                    screen.blit(img, img.get_rect(center=pos))
         else:
-            # Dessiner nourriture niveaux 2 et 3
             for img, positions in [
                 (HOTDOG_IMG, hotdog_positions),
                 (BURGER_IMG, burger_positions),
@@ -495,7 +606,8 @@ def game_loop(obstacles=None, gobelets=None):
 def jeu(level):
     reset_globals()
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
-    global brocoli_positions, dinde_positions, running, score, current_level, current_bird_index, space
+    global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, brocoli_positions, dinde_positions
+    global running, score, current_level, current_bird_index, space
 
     space = pymunk.Space()
     space.gravity = (0, 900)
@@ -508,9 +620,11 @@ def jeu(level):
         birds = selected_team.copy()
 
         if level == 1:
-            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(
-                level)
+            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(level)
             screen.blit(DECORS_NV1, (0, 0))
+        elif level == 2:
+            cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions = create_food(level)
+            screen.blit(DECORS_NV2, (0, 0))
         else:
             hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_random_food(level)
             screen.blit(DECORS_IMG, (0, 0))
@@ -518,7 +632,7 @@ def jeu(level):
         create_ground()
         create_borders()
         obstacles = create_obstacles(level)
-        gobelets = create_gobelets()
+        gobelets = create_gobelets(level)
 
         # Positionnement initial des oiseaux au-dessus des gobelets
         gobelet_positions = [
