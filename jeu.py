@@ -39,7 +39,7 @@ def create_food(level):
     if level == 1:
         banane_positions = [(560, 500), (970, 380)]
         hotdog_positions = [(1300, 250), (1300, 620)]
-        burger_positions = [(830, 190)]
+        burger_positions = [(830, 210)]
         banane_malus_positions = [(600, 350), (780, 570)]
         poubelle_positions = [(620, 200), (1300, 420)]
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
