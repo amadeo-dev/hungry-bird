@@ -59,9 +59,14 @@ musique_list = [
 Musique_jeu = random.choice(musique_list)
 pygame.mixer.music.load(Musique_jeu)
 pygame.mixer.music.play(-1)
+
+
 # Images mises à l’échelle dynamiquement
 
-# Dans globals.py, ajoutez ces nouvelles variables :
+best_scores = {1: 0, 2: 0, 3: 0}  # Dictionnaire pour stocker les meilleurs scores par niveau
+
+
+
 # Images pour le niveau 1
 DECORS_NV1 = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 1/decors nv1.png"), (screen_width, screen_height))
 # Dans globals.py, modifiez les tailles des images :
