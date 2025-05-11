@@ -147,10 +147,10 @@ def create_obstacles(level):
         obstacles.append((body, shape, JUS_OBSTACLE, None))
 
         # Obstacle Jouet
+        # Obstacle Jouet (haut)
         jouet_body = pymunk.Body(body_type=pymunk.Body.STATIC)
         jouet_body.position = (screen_width - 800, screen_height - 710)
 
-        # Créer les formes d'abord
         radius_x = 5
         radius_y = 50
         segments = 20
@@ -162,6 +162,14 @@ def create_obstacles(level):
             y = -radius_y * math.sin(angle) - 30
             top_vertices.append((x, y))
         top_shape = pymunk.Poly(jouet_body, top_vertices)
+        top_shape.elasticity = 0.7
+        top_shape.friction = 0.3
+        top_shape.collision_type = 4
+        space.add(jouet_body, top_shape)
+
+        # Obstacle Jouet2 (bas)
+        jouet2_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        jouet2_body.position = (screen_width - 800, screen_height - 720)
 
         bottom_vertices = []
         for i in range(segments + 1):
@@ -169,17 +177,16 @@ def create_obstacles(level):
             x = radius_x * math.cos(angle) - 10
             y = radius_y * math.sin(angle) + 130
             bottom_vertices.append((x, y))
-        bottom_shape = pymunk.Poly(jouet_body, bottom_vertices)
+        bottom_shape = pymunk.Poly(jouet2_body, bottom_vertices)
+        bottom_shape.elasticity = 0.7
+        bottom_shape.friction = 0.3
+        bottom_shape.collision_type = 4
+        space.add(jouet2_body, bottom_shape)
 
-        # Configurer les propriétés
-        for shape in [top_shape, bottom_shape]:
-            shape.elasticity = 0.7
-            shape.friction = 0.3
-            shape.collision_type = 4
+        # Ajout à la liste des obstacles
+        obstacles.append((jouet_body, top_shape, JOUET_OBSTACLE))
+        obstacles.append((jouet2_body, bottom_shape, JOUET2_OBSTACLE))
 
-        # Ajouter tout en une fois
-        space.add(jouet_body, top_shape, bottom_shape)
-        obstacles.append((jouet_body, [top_shape, bottom_shape], JOUET2_OBSTACLE, JOUET_OBSTACLE))
 
     elif level == 2:
         # Avion
@@ -567,23 +574,14 @@ def game_loop(obstacles=None, gobelets=None):
         else:
             screen.blit(DECORS_IMG, (0, 0))
 
-        # Dessiner les obstacles s'ils existent
-        # Afficher JOUET2 (arrière-plan) AVANT les oiseaux
+        # Afficher TOUS les obstacles SAUF JOUET2 (derrière les oiseaux)
         if obstacles:
             for obstacle in obstacles:
-                if len(obstacle) == 4:
-                    body, shapes, front_img, back_img = obstacle
-                    if back_img:
-                        screen.blit(back_img, back_img.get_rect(center=(int(body.position.x), int(body.position.y))))
-
-                else:
-                    # Affichage normal pour les autres obstacles
-                    body, shape, img = obstacle
+                if len(obstacle) >= 3 and obstacle[2] != JOUET2_OBSTACLE:  # Sauf JOUET2
+                    body, shape, img = obstacle[:3]
                     if hasattr(body, 'angle') and body.body_type == pymunk.Body.DYNAMIC:
-                        # Pour les objets dynamiques comme la bouteille
                         rotated_img = pygame.transform.rotate(img, -math.degrees(body.angle))
-                        screen.blit(rotated_img,
-                                    rotated_img.get_rect(center=(int(body.position.x), int(body.position.y))))
+                        screen.blit(rotated_img, rotated_img.get_rect(center=(int(body.position.x), int(body.position.y))))
                     else:
                         screen.blit(img, img.get_rect(center=(int(body.position.x), int(body.position.y))))
 
@@ -710,12 +708,12 @@ def game_loop(obstacles=None, gobelets=None):
         limit_speed()
         check_collision()
         update_bird_angle()
-        if obstacles:
+
+        if obstacles and current_level == 1:
             for obstacle in obstacles:
-                if len(obstacle) == 4:
-                    body, shapes, front_img, back_img = obstacle
-                    if front_img:
-                        screen.blit(front_img, front_img.get_rect(center=(int(body.position.x), int(body.position.y))))
+                if len(obstacle) >= 3 and obstacle[2] == JOUET2_OBSTACLE:
+                    body, shape, img = obstacle[:3]
+                    screen.blit(img, img.get_rect(center=(int(body.position.x), int(body.position.y))))
 
         # Affichage score et niveau
         font = pygame.font.Font(None, 36)
