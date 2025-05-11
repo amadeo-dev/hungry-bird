@@ -95,6 +95,7 @@ GOBELET_VERT = load_scaled_image("Ressources/image/Niveau 1/Gobelet Vert.png")
 
 JUS_OBSTACLE = load_scaled_image("Ressources/image/Niveau 1/Jus.png")
 JOUET_OBSTACLE = load_scaled_image("Ressources/image/Niveau 1/jouet.png")
+JOUET2_OBSTACLE = load_scaled_image("Ressources/image/Niveau 1/jouet2.png")
 BANANE_MALUS = load_scaled_image("Ressources/image/Niveau 1/Banane Pourri-.png")
 BANANE_BONUS = load_scaled_image("Ressources/image/Niveau 1/Banane.png")
 HOTDOG_BONUS = load_scaled_image("Ressources/image/Niveau 1/Hot Dog.png")

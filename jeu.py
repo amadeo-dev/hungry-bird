@@ -133,62 +133,35 @@ def create_gobelets(level):
 def create_obstacles(level):
     obstacles = []
     if level == 1:
-        # Obstacle Jus - Hitbox précise
+        # Obstacle Jus
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 550, screen_height - 190)
-
-        # Création de la hitbox basée sur le contour de l'image
         mask = pygame.mask.from_surface(JUS_OBSTACLE)
         outline = mask.outline()
-        if outline:
-            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]  # Simplifier le contour
-            vertices = [(x - JUS_OBSTACLE.get_width() / 2, y - JUS_OBSTACLE.get_height() / 2) for (x, y) in simplified]
-            shape = pymunk.Poly(body, vertices)
-        else:
-            shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width() * 0.9, JUS_OBSTACLE.get_height() * 0.9))
-
+        simplified = [outline[i] for i in range(0, len(outline), 5)]
+        vertices = [(x - JUS_OBSTACLE.get_width() / 2, y - JUS_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+        shape = pymunk.Poly(body, vertices)
         shape.elasticity = 0.5
         shape.friction = 1.0
         space.add(body, shape)
-        obstacles.append((body, shape, JUS_OBSTACLE))
+        obstacles.append((body, shape, JUS_OBSTACLE, None))  # None pour pas de 2ème image
 
-        # Obstacle Jouet avec VOS VALEURS EXACTES
-        body = pymunk.Body(body_type=pymunk.Body.STATIC)
-        body.position = (screen_width - 800, screen_height - 710)
-        space.add(body)
+        # Obstacle Jouet (devant/derrière)
+        jouet_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        jouet_body.position = (screen_width - 800, screen_height - 710)
 
-        # Vos paramètres exacts du trou
-        radius_x = 5  # Largeur du trou
-        radius_y = 50  # Hauteur du trou
-        segments = 20  # Nombre de segments pour l'ovale
+        # Hitbox seulement pour la partie avant (jouet.png)
+        mask = pygame.mask.from_surface(JOUET_OBSTACLE)
+        outline = mask.outline()
+        simplified = [outline[i] for i in range(0, len(outline), 5)]
+        vertices = [(x - JOUET_OBSTACLE.get_width() / 2, y - JOUET_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+        shape = pymunk.Poly(jouet_body, vertices)
+        shape.elasticity = 0.7
+        shape.friction = 0.3
+        shape.collision_type = 4
+        space.add(jouet_body, shape)
 
-        # Demi-cercle supérieur (comme dans votre code)
-        top_vertices = []
-        for i in range(segments + 1):
-            angle = math.pi * i / segments
-            x = radius_x * math.cos(angle) - 10
-            y = -radius_y * math.sin(angle) - 30
-            top_vertices.append((x, y))
-        top_shape = pymunk.Poly(body, top_vertices)
-
-        # Demi-cercle inférieur (comme dans votre code)
-        bottom_vertices = []
-        for i in range(segments + 1):
-            angle = math.pi * i / segments
-            x = radius_x * math.cos(angle) - 10
-            y = radius_y * math.sin(angle) + 130
-            bottom_vertices.append((x, y))
-        bottom_shape = pymunk.Poly(body, bottom_vertices)
-
-        # Propriétés physiques
-        for shape in [top_shape, bottom_shape]:
-            shape.elasticity = 0.7
-            shape.friction = 0.3
-            shape.collision_type = 4
-            space.add(shape)
-
-        # Stockage simple avec l'image
-        obstacles.append((body, [top_shape, bottom_shape], JOUET_OBSTACLE))
+        obstacles.append((jouet_body, shape, JOUET_OBSTACLE, JOUET2_OBSTACLE))
     elif level == 2:
         # Avion (statique avec hitbox précise)
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
@@ -261,11 +234,11 @@ def check_collision():
         if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
-        bird.near_food = False  # Réinitialisation
+        bird.near_food = False
 
-        # Paramètres ajustés pour une meilleure réactivité
-        BASE_PROXIMITY = 120  # Distance de base pour ouvrir la bouche
-        PROXIMITY_THRESHOLD = BASE_PROXIMITY * (1.5 if bird.name == 'Amadeo' else 1)
+        # Paramètres ajustés
+        BASE_PROXIMITY = 100  # Distance pour ouvrir la bouche
+        PROXIMITY_THRESHOLD = BASE_PROXIMITY * (1.8 if bird.name == 'Amadeo' else 1)
         COLLISION_THRESHOLD = 40
 
         # Liste des éléments interactifs
@@ -281,11 +254,9 @@ def check_collision():
             dx = abs(bird.body.position.x - pos[0])
             dy = abs(bird.body.position.y - pos[1])
 
-            # Hitbox allongée pour Amadéo (2x plus large)
+            # Pour Amadéo, zone de détection plus large
             if bird.name == 'Amadeo':
-                proximity = BASE_PROXIMITY * 2  # Zone 2x plus large
-                vertical_extension = BASE_PROXIMITY * 1.5  # Extension verticale
-                if dx < proximity and dy < vertical_extension:
+                if dx < PROXIMITY_THRESHOLD * 1.5 and dy < PROXIMITY_THRESHOLD * 1.2:
                     bird.near_food = True
                     break
             else:
@@ -293,7 +264,6 @@ def check_collision():
                     bird.near_food = True
                     break
 
-        # Gestion des collisions
         food_data = []
         if current_level == 1:
             food_data = [
@@ -573,14 +543,16 @@ def game_loop(obstacles=None, gobelets=None):
         # Dessiner les obstacles s'ils existent
         if obstacles:
             for obstacle in obstacles:
-                body, shape, img = obstacle
-                if body.body_type == pymunk.Body.DYNAMIC:  # Seulement pour la bouteille
-                    # Rotation en fonction de l'angle du corps physique
-                    rotated_img = pygame.transform.rotate(img, -math.degrees(body.angle))
-                    pos = int(body.position.x), int(body.position.y)
-                    screen.blit(rotated_img, rotated_img.get_rect(center=pos))
+                if len(obstacle) == 4:  # Cas du jouet avec deux images
+                    body, shape, front_img, back_img = obstacle
+                    if back_img:  # Afficher d'abord l'arrière-plan
+                        screen.blit(back_img, back_img.get_rect(center=(int(body.position.x), int(body.position.y))))
+                    # Les oiseaux seront affichés ici
+                    if front_img:  # Puis l'avant-plan
+                        screen.blit(front_img, front_img.get_rect(center=(int(body.position.x), int(body.position.y))))
                 else:
-                    # Obstacles statiques (affichage normal)
+                    # Affichage normal pour les autres obstacles
+                    body, shape, img = obstacle
                     screen.blit(img, img.get_rect(center=(int(body.position.x), int(body.position.y))))
 
         # Dessiner les gobelets
