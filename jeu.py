@@ -45,10 +45,10 @@ def create_food(level):
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     elif level == 2:
         cookie_positions = [(600, 450), (1000, 300), (900, 700)]
-        poulet_positions = [(600, 250)]
+        poulet_positions = [(600, 250), (1200, 600)]
         sandwich_positions = [(1250, 300)]
         os_malus_positions = [(700, 350), (900, 550)]
-        poubelle_positions = [(650, 700), (1250, 400)]
+        poubelle_positions = [(650, 700)]
         return cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions
     else:  # Niveau 3 - mêmes aliments que niveau 1
         return create_random_food(level)
@@ -261,19 +261,20 @@ def check_collision():
         if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
+        # Réinitialiser near_food à chaque frame
         bird.near_food = False
 
-        # Vérifier tous les aliments
+        # Vérifier la proximité AVANT la collision
         all_food = []
         if current_level == 1:
             all_food = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
         elif current_level == 2:
             all_food = cookie_positions + poulet_positions + sandwich_positions + os_malus_positions + poubelle_positions
 
-        # Augmenter la distance de détection pour ouvrir la bouche plus tôt
+        # Détection de proximité (200 pixels)
         for pos in all_food:
-            distance = ((bird.body.position[0] - pos[0]) ** 2 + (bird.body.position[1] - pos[1]) ** 2) ** 0.5
-            if distance < 150:  # Distance réduite de 300 à 150 pour une réaction plus rapide
+            distance = ((bird.body.position.x - pos[0])**2 + (bird.body.position.y - pos[1])**2)**0.5
+            if distance < 200:  # Augmente cette valeur si nécessaire
                 bird.near_food = True
                 break
 
