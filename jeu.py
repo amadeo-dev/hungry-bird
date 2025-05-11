@@ -664,8 +664,31 @@ def game_loop(obstacles=None, gobelets=None):
                 dx *= factor
                 dy *= factor
 
-            pygame.draw.line(screen, (0, 255, 0), bird_pos, (bird_pos[0] + dx * 0.1, bird_pos[1] + dy * 0.1), 4)
-            pygame.draw.circle(screen, (0, 255, 0), bird_pos, 10, 2)
+            num_points = 30  # Plus de points pour une trajectoire plus lisse
+            trajectory_length = 0.2  # Augmenter cette valeur pour allonger la trajectoire
+
+            for i in range(1, num_points + 1):
+                t = i / num_points * trajectory_length
+
+                # Calcul de position avec gravité (mouvement parabolique)
+                x = bird_pos[0] + dx * t
+                y = bird_pos[1] + dy * t + 0.5 * space.gravity[1] * t ** 2
+
+                # Style des points (dégradé de taille et de couleur)
+                point_size = max(1, 6 * (1 - t / trajectory_length))  # Réduction progressive
+                alpha = int(200 * (1 - (t / trajectory_length) ** 2))  # Dégradé plus doux
+                color = (100, 255, 255, alpha)  # Vert plus clair
+
+                # Dessin avec anti-aliasing (pour des points plus lisses)
+                if point_size > 1.5:
+                    pygame.draw.circle(screen, color, (int(x), int(y)), int(point_size))
+                else:
+                    screen.set_at((int(x), int(y)), color[:3])  # Pixel parfait pour petits points
+
+            # Cercle autour de l'oiseau (plus stylisé)
+            pygame.draw.circle(screen, (100, 255, 100), bird_pos, 18, 2)  # Cercle extérieur
+            pygame.draw.circle(screen, (200, 255, 200), bird_pos, 10, 1)  # Cercle intérieur
+            pygame.draw.circle(screen, (50, 200, 50), bird_pos, 5)  # Point central
 
         handle_power_input(birds)
         check_power_duration(birds)
