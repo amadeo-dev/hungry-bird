@@ -2,7 +2,7 @@ import pygame
 import pymunk
 from globals import *
 
-power_list = ["Chiefetoilé", "bavoir", "chienem", "base", "Gourmand"]
+power_list = ["base", "bouclier", "boost", "Gourmand", "saut"]
 ekip = []  # liste de tous les oiseaux à disposition
 selec_trois = []  # selection des trois oiseaux du joueur
 font = pygame.font.Font(None, 58)
