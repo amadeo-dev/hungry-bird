@@ -455,8 +455,8 @@ def game_loop(obstacles=None, gobelets=None):
     dt = 1 / 60.0
 
     reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width), ajusty(60), ajustx(162), ajusty(117))
-    restart_btn = pygame.Rect(screen_width - 150, 20, 130, 50)  # Bouton Restart
-    menu_btn = pygame.Rect(screen_width - 150, 80, 130, 50)    # Bouton Menu
+    restart_btn = pygame.Rect(screen_width - 150, 20, 130, 50)
+    menu_btn = pygame.Rect(screen_width - 150, 80, 130, 50)
 
     while running:
         # Afficher le décor approprié selon le niveau
@@ -530,7 +530,7 @@ def game_loop(obstacles=None, gobelets=None):
                 elif menu_btn.collidepoint(mouse_pos):
                     clear_space()
                     reset_globals()
-                    return "menu" # Retour au menu principal
+                    return "menu"
                 elif game_over:
                     restart_button, menu_button = draw_end_menu()
                     if restart_button.collidepoint(mouse_pos):
@@ -603,18 +603,21 @@ def game_loop(obstacles=None, gobelets=None):
 
 
 def jeu(level):
-    reset_globals()
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, brocoli_positions, dinde_positions
-    global running, score, current_level, current_bird_index, space
-
-    space = pymunk.Space()
-    space.gravity = (0, 900)
+    global running, score, current_level, current_bird_index, space, selec_trois
 
     while True:
+        reset_globals()
+        space = pymunk.Space()
+        space.gravity = (0, 900)
         clear_space()
+
         current_level = level
         selected_team = select_team()
+        if selected_team == "menu":  # Si l'utilisateur a cliqué sur Retour
+            return "menu"  # Retourne au menu principal
+
         past_power(selected_team)
         birds = selected_team.copy()
 
@@ -629,8 +632,8 @@ def jeu(level):
         else:  # Niveau 3
             banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_random_food(
                 level)
-            brocoli_positions = banane_malus_positions  # Compatibilité
-            dinde_positions = poubelle_positions  # Compatibilité
+            brocoli_positions = banane_malus_positions
+            dinde_positions = poubelle_positions
             screen.blit(DECORS_IMG, (0, 0))
 
         create_ground()
@@ -638,11 +641,10 @@ def jeu(level):
         obstacles = create_obstacles(level)
         gobelets = create_gobelets(level)
 
-        # Positionnement initial des oiseaux au-dessus des gobelets
         gobelet_positions = [
-            (330, screen_height - 70),  # 3ème gobelet (vert) - premier oiseau choisi
-            (210, screen_height - 60),  # 2ème gobelet (rouge) - deuxième oiseau choisi
-            (90, screen_height - 70)  # 1er gobelet (bleu) - troisième oiseau choisi
+            (330, screen_height - 70),
+            (210, screen_height - 60),
+            (90, screen_height - 70)
         ]
 
         for i, bird in enumerate(birds[:3]):
@@ -665,4 +667,6 @@ def jeu(level):
         game_over = False
         end_game_time = None
 
-        game_loop(obstacles, gobelets)
+        result = game_loop(obstacles, gobelets)
+        if result == "menu":
+            return "menu"
