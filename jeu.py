@@ -45,7 +45,7 @@ def create_food(level):
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     elif level == 2:
         cookie_positions = [(600, 450), (1000, 300), (900, 700)]
-        poulet_positions = [(600, 250), (1200, 600)]
+        poulet_positions = [(600, 250)]
         sandwich_positions = [(1250, 300)]
         os_malus_positions = [(700, 350), (900, 550)]
         poubelle_positions = [(650, 700), (1250, 400)]
@@ -270,9 +270,10 @@ def check_collision():
         elif current_level == 2:
             all_food = cookie_positions + poulet_positions + sandwich_positions + os_malus_positions + poubelle_positions
 
+        # Augmenter la distance de détection pour ouvrir la bouche plus tôt
         for pos in all_food:
             distance = ((bird.body.position[0] - pos[0]) ** 2 + (bird.body.position[1] - pos[1]) ** 2) ** 0.5
-            if distance < 300:
+            if distance < 150:  # Distance réduite de 300 à 150 pour une réaction plus rapide
                 bird.near_food = True
                 break
 
@@ -470,6 +471,7 @@ def draw_end_menu():
     title_font = pygame.font.Font(None, 74)
     score_font = pygame.font.Font(None, 48)
     button_font = pygame.font.Font(None, 36)
+    hint_font = pygame.font.Font(None, 32)
 
     # Messages en fonction du score
     if score >= 75:
@@ -490,6 +492,9 @@ def draw_end_menu():
     random.seed(current_time // 10000)  # Change chaque seconde
     title_text = random.choice(messages)
 
+    hint_text = hint_font.render("Appuie sur 'Espace' Pour activer les pouvoirs des Personnages !", True, WHITE)
+    hint_rect = hint_text.get_rect(center=(screen_width // 2, screen_height // 2 + 150))
+    screen.blit(hint_text, hint_rect)
     # Affichage des textes
     texts = [
         (title_text, title_font, color, -100),
