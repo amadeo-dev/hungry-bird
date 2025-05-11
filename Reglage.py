@@ -201,3 +201,4 @@ def reglages():
         clock.tick(60)
 
     return "menu"
+
