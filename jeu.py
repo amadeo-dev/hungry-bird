@@ -143,61 +143,87 @@ def create_obstacles(level):
         shape = pymunk.Poly(body, vertices)
         shape.elasticity = 0.5
         shape.friction = 1.0
-        space.add(body, shape)
-        obstacles.append((body, shape, JUS_OBSTACLE, None))  # None pour pas de 2ème image
+        space.add(body, shape)  # Ajouter body et shape ensemble
+        obstacles.append((body, shape, JUS_OBSTACLE, None))
 
-        # Obstacle Jouet (devant/derrière)
+        # Obstacle Jouet
         jouet_body = pymunk.Body(body_type=pymunk.Body.STATIC)
         jouet_body.position = (screen_width - 800, screen_height - 710)
 
-        # Hitbox seulement pour la partie avant (jouet.png)
-        mask = pygame.mask.from_surface(JOUET_OBSTACLE)
-        outline = mask.outline()
-        simplified = [outline[i] for i in range(0, len(outline), 5)]
-        vertices = [(x - JOUET_OBSTACLE.get_width() / 2, y - JOUET_OBSTACLE.get_height() / 2) for (x, y) in simplified]
-        shape = pymunk.Poly(jouet_body, vertices)
-        shape.elasticity = 0.7
-        shape.friction = 0.3
-        shape.collision_type = 4
-        space.add(jouet_body, shape)
+        # Créer les formes d'abord
+        radius_x = 5
+        radius_y = 50
+        segments = 20
 
-        obstacles.append((jouet_body, shape, JOUET_OBSTACLE, JOUET2_OBSTACLE))
+        top_vertices = []
+        for i in range(segments + 1):
+            angle = math.pi * i / segments
+            x = radius_x * math.cos(angle) - 10
+            y = -radius_y * math.sin(angle) - 30
+            top_vertices.append((x, y))
+        top_shape = pymunk.Poly(jouet_body, top_vertices)
+
+        bottom_vertices = []
+        for i in range(segments + 1):
+            angle = math.pi * i / segments
+            x = radius_x * math.cos(angle) - 10
+            y = radius_y * math.sin(angle) + 130
+            bottom_vertices.append((x, y))
+        bottom_shape = pymunk.Poly(jouet_body, bottom_vertices)
+
+        # Configurer les propriétés
+        for shape in [top_shape, bottom_shape]:
+            shape.elasticity = 0.7
+            shape.friction = 0.3
+            shape.collision_type = 4
+
+        # Ajouter tout en une fois
+        space.add(jouet_body, top_shape, bottom_shape)
+        obstacles.append((jouet_body, [top_shape, bottom_shape], JOUET2_OBSTACLE, JOUET_OBSTACLE))
+
     elif level == 2:
-        # Avion (statique avec hitbox précise)
+        # Avion
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 400, 150)
         mask = pygame.mask.from_surface(AVION_OBSTACLE)
         outline = mask.outline()
-        simplified = [outline[i] for i in range(0, len(outline), 3)]  # Simplifier le contour
+        simplified = [outline[i] for i in range(0, len(outline), 3)]
         vertices = [(x - AVION_OBSTACLE.get_width() / 2, y - AVION_OBSTACLE.get_height() / 2) for (x, y) in simplified]
         shape = pymunk.Poly(body, vertices)
         space.add(body, shape)
         obstacles.append((body, shape, AVION_OBSTACLE))
 
-        # Bouteille (dynamique avec hitbox rectangulaire simple)
-        body = pymunk.Body(1, pymunk.moment_for_box(1, (
-        BOUTEILLE_OBSTACLE.get_width() * 0.7, BOUTEILLE_OBSTACLE.get_height() * 0.7)))
+        # Bouteille avec correction
+        body = pymunk.Body(1, pymunk.moment_for_box(1,
+                                                    (BOUTEILLE_OBSTACLE.get_width() * 0.7,
+                                                     BOUTEILLE_OBSTACLE.get_height() * 0.7)))
         body.position = (screen_width // 2, screen_height - 150)
         shape = pymunk.Poly.create_box(body,
                                        (BOUTEILLE_OBSTACLE.get_width() * 0.7, BOUTEILLE_OBSTACLE.get_height() * 0.7))
         shape.elasticity = 0.7
         shape.friction = 0.5
-        space.add(body, shape)
+        shape.collision_type = 4
+
+        # Créer une jointure pour empêcher la chute
+        pivot = pymunk.PivotJoint(space.static_body, body, (0, 0), (0, 0))
+        pivot.max_bias = 0
+        pivot.max_force = 1000
+
+        space.add(body, shape, pivot)
         obstacles.append((body, shape, BOUTEILLE_OBSTACLE))
 
-        # Livre (statique avec hitbox précise)
+        # Livre
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 150, screen_height - 200)
         mask = pygame.mask.from_surface(LIVRE_OBSTACLE)
         outline = mask.outline()
-        simplified = [outline[i] for i in range(0, len(outline), 3)]  # Simplifier le contour
+        simplified = [outline[i] for i in range(0, len(outline), 3)]
         vertices = [(x - LIVRE_OBSTACLE.get_width() / 2, y - LIVRE_OBSTACLE.get_height() / 2) for (x, y) in simplified]
         shape = pymunk.Poly(body, vertices)
         space.add(body, shape)
         obstacles.append((body, shape, LIVRE_OBSTACLE))
 
     return obstacles
-
 
 def create_borders():
     borders = [
@@ -543,17 +569,22 @@ def game_loop(obstacles=None, gobelets=None):
         # Dessiner les obstacles s'ils existent
         if obstacles:
             for obstacle in obstacles:
-                if len(obstacle) == 4:  # Cas du jouet avec deux images
-                    body, shape, front_img, back_img = obstacle
-                    if back_img:  # Afficher d'abord l'arrière-plan
+                if len(obstacle) == 4:  # Cas spécial jouet avec deux images
+                    body, shapes, front_img, back_img = obstacle
+                    if back_img:  # Arrière-plan d'abord
                         screen.blit(back_img, back_img.get_rect(center=(int(body.position.x), int(body.position.y))))
-                    # Les oiseaux seront affichés ici
-                    if front_img:  # Puis l'avant-plan
+                    if front_img:  # Premier plan ensuite
                         screen.blit(front_img, front_img.get_rect(center=(int(body.position.x), int(body.position.y))))
                 else:
                     # Affichage normal pour les autres obstacles
                     body, shape, img = obstacle
-                    screen.blit(img, img.get_rect(center=(int(body.position.x), int(body.position.y))))
+                    if hasattr(body, 'angle') and body.body_type == pymunk.Body.DYNAMIC:
+                        # Pour les objets dynamiques comme la bouteille
+                        rotated_img = pygame.transform.rotate(img, -math.degrees(body.angle))
+                        screen.blit(rotated_img,
+                                    rotated_img.get_rect(center=(int(body.position.x), int(body.position.y))))
+                    else:
+                        screen.blit(img, img.get_rect(center=(int(body.position.x), int(body.position.y))))
 
         # Dessiner les gobelets
         if gobelets:
@@ -612,7 +643,8 @@ def game_loop(obstacles=None, gobelets=None):
                         obstacles, gobelets = restart_game()
                     elif menu_button.collidepoint(mouse_pos):
                         clear_space()
-                        return  # Retour au menu principal
+                        reset_globals()
+                        return "menu" # Retour au menu principal
                 elif current_bird_index < len(birds):
                     start_pos = mouse_pos
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):

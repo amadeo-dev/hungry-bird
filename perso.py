@@ -12,13 +12,7 @@ selection_running = False
 
 class Bird:
     def __init__(self, position, name, image, image_o, power):
-        self.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 15))
-        self.shape = pymunk.Circle(self.body, 15)
-        space.add(self.body, self.shape)
-        self.shape.elasticity = 0.8
-        self.shape.friction = 0.5
-        self.size = 80
-        self.launched = False
+        self.body = pymunk.Body(1, pymunk.moment_for_circle(1, 0, 30))
         self.body.position = position
         self.name = name
         self.image_n = load_high_quality_image(image)
@@ -26,31 +20,45 @@ class Bird:
         self.power = power
         self.power_active = False
         self.power_end_time = 0
-        self.can_use_power = False  # Devient True quand l'oiseau est lancé
+        self.can_use_power = False
         self.near_food = False
+        self.size = 80
+        self.launched = False
+
+        # Création de la hitbox - version corrigée
+        if name == 'Amadeo':
+            width, height = 200, 100  # Hitbox très large
+            self.shape = pymunk.Poly.create_box(self.body, (width, height))
+            self.shape.offset = (0, -20)  # Ajustement vertical
+        else:
+            self.shape = pymunk.Circle(self.body, 30)
+
+        self.shape.elasticity = 0.8
+        self.shape.friction = 0.5
+        self.shape.collision_type = 2
+
+        # IMPORTANT: Ajouter d'abord le body, puis la shape
+        space.add(self.body, self.shape)
+
+        # Chargement spécial pour Amadéo
         if name == 'Amadeo':
             self.special_image = pygame.image.load("Ressources/image/Personnages/Amadeo_s.png").convert_alpha()
-            self.special_image = pygame.transform.smoothscale(self.special_image,
-                                                              (self.image_n.get_width(), self.image_n.get_height()))
+            original_width, original_height = self.special_image.get_size()
+            scale_factor = min(250 / original_width, 250 / original_height)
+            new_size = (int(original_width * scale_factor), int(original_height * scale_factor))
+            self.special_image = pygame.transform.smoothscale(self.special_image, new_size)
+
         self.shield_active = False
-        self.original_image_n = self.image_n  # Sauvegarde des images originales
+        self.original_image_n = self.image_n
         self.original_image_o = self.image_o
 
-        # Préchargement de l'image spéciale pour Amadeo
-        if name == 'Amadeo':
-            self.special_image = pygame.image.load("Ressources/image/Personnages/Amadeo_s.png").convert_alpha()
-            self.special_image = pygame.transform.smoothscale(self.special_image,
-                                                              (self.image_n.get_width(), self.image_n.get_height()))
-
-        # Conserver les proportions originales
+        # Redimensionnement des images
         original_width, original_height = self.image_n.get_size()
         scale_factor = min(250 / original_width, 250 / original_height)
         new_size = (int(original_width * scale_factor), int(original_height * scale_factor))
 
         self.image_n = pygame.transform.smoothscale(self.image_n, new_size)
         self.image_o = pygame.transform.smoothscale(self.image_o, new_size)
-
-        self.power = power
 
 
 class BirdButton:
