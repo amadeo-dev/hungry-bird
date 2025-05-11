@@ -191,7 +191,7 @@ boutons = {
     "tutoriel":  BoutonInteractif('Tutoriel', ajustx(1480), ajusty(940), ajustx(285), ajusty(203)),
     "niveau1":   BoutonInteractif('Nv1',      ajustx(960), ajusty(450), ajustx(520), ajusty(188)),
     "niveau2":   BoutonInteractif('Nv2',      ajustx(960), ajusty(630), ajustx(520), ajusty(188)),
-    "niveau3":   BoutonInteractif('Nv3',      ajustx(960), ajusty(800), ajustx(520), ajusty(188)),
+    "niveau3":   BoutonInteractif('Nv3',      ajustx(960), ajusty(800), ajustx(520/1.15), ajusty(188/1.4)),
     "quitter":   BoutonInteractif('Quitter',  ajustx(200), ajusty(710), ajustx(247), ajusty(247)),
     "reglage":   BoutonInteractif('Reglages', ajustx(500), ajusty(940), ajustx(325), ajusty(235)),
 }
