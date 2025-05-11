@@ -6,7 +6,7 @@ def reset_globals():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     global score, current_level, current_bird_index, game_over, end_game_time, space, running
     global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions
-    global selec_trois  # Ajoutez cette ligne pour réinitialiser la sélection
+    global selec_trois  # Assure-toi que c'est bien déclaré ici
 
     birds = []
     banane_positions = []
@@ -19,7 +19,7 @@ def reset_globals():
     poulet_positions = []
     sandwich_positions = []
     os_malus_positions = []
-    selec_trois = []  # Réinitialise la sélection des oiseaux
+    selec_trois = []  # Réinitialisation EXPLICITE de la sélection
     score = 0
     current_level = 1
     current_bird_index = 0
@@ -603,20 +603,18 @@ def game_loop(obstacles=None, gobelets=None):
 
 
 def jeu(level):
-    global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
-    global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, brocoli_positions, dinde_positions
+    reset_globals()  # Appel explicite au début
+    global birds, banane_positions, hotdog_positions, burger_positions, poubelle_positions
+    global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions
     global running, score, current_level, current_bird_index, space, selec_trois
 
     while True:
-        reset_globals()
-        space = pymunk.Space()
-        space.gravity = (0, 900)
-        clear_space()
-
+        # Réinitialisation à chaque nouvelle partie
+        selec_trois = []
         current_level = level
         selected_team = select_team()
-        if selected_team == "menu":  # Si l'utilisateur a cliqué sur Retour
-            return "menu"  # Retourne au menu principal
+        if selected_team == "menu":
+            return "menu"
 
         past_power(selected_team)
         birds = selected_team.copy()

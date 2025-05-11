@@ -89,6 +89,7 @@ def create_birds():
 
 def select_team():
     global selec_trois, selection_running
+    selec_trois = []  # Réinitialisation au début
     selection_running = True
     create_birds()
 
