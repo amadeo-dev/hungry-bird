@@ -64,8 +64,6 @@ pygame.mixer.music.play(-1)
 # Images mises à l’échelle dynamiquement
 
 best_scores = {1: 0, 2: 0, 3: 0}  # Dictionnaire pour stocker les meilleurs scores par niveau
-message_counter = 0  # Ajoute cette variable globale
-last_message_index = -1  # Nouvelle variable globale
 
 
 # Images pour le niveau 1
