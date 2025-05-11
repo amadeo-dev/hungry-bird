@@ -98,7 +98,7 @@ DINDE_IMG = load_high_quality_image("Ressources/image/Dinde_Royale.png", (60, 60
 RESTART_IMG = load_high_quality_image("Ressources/image/Restart.png", (50, 50))
 
 # Charger le décor à la bonne taille
-DECORS_IMG = pygame.image.load("Ressources/image/bck_lvl1.jpg").convert()
+DECORS_IMG = pygame.transform.scale(pygame.image.load("Ressources/image/Papier.png"),(screen_width, screen_height))
 
 # Images pour le niveau 2
 DECORS_NV2 = pygame.transform.scale(pygame.image.load("Ressources/image/Niveau 2/Decors2.png"), (screen_width, screen_height))
