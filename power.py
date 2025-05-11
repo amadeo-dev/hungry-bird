@@ -13,8 +13,8 @@ def activate_power(bird):
     if bird.power == 'boost':
         # Vitesse extrême + rebonds
         bird.body.velocity = (
-            bird.body.velocity[0] * 2.0,
-            bird.body.velocity[1] * 2.0 - 300
+            bird.body.velocity[0] * 1.5,
+            bird.body.velocity[1] * 1.5 - 300
         )
         bird.shape.elasticity = 2
         bird.shape.friction = 0.5
