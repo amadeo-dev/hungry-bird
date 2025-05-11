@@ -496,10 +496,13 @@ def draw_restart_button():
     screen.blit(RESTART_IMG, (screen_width - 150, 20))
 
 def draw_menu_button():
-    pygame.draw.rect(screen, RED, (screen_width - 150, 80, 130, 50))
+    button_rect = pygame.Rect(screen_width - 150, 80, 130, 50)
+    pygame.draw.rect(screen, RED, button_rect, border_radius=10)
+    pygame.draw.rect(screen, WHITE, button_rect, 2, border_radius=10)
     font = pygame.font.Font(None, 36)
     text = font.render("Menu", True, WHITE)
     screen.blit(text, (screen_width - 120, 90))
+    return button_rect  # Retourne le rect pour la détection de clic
 
 
 def game_loop(obstacles=None, gobelets=None):
@@ -508,7 +511,7 @@ def game_loop(obstacles=None, gobelets=None):
 
     reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width), ajusty(60), ajustx(162), ajusty(117))
     restart_btn = pygame.Rect(screen_width - 150, 20, 130, 50)
-    menu_btn = pygame.Rect(screen_width - 150, 80, 130, 50)
+    menu_btn = draw_menu_button()  # Utilise la nouvelle fonction
 
     while running:
         # Afficher le décor approprié selon le niveau
