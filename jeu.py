@@ -665,7 +665,7 @@ def game_loop(obstacles=None, gobelets=None):
                 dy *= factor
 
             num_points = 30  # Plus de points pour une trajectoire plus lisse
-            trajectory_length = 0.2  # Augmenter cette valeur pour allonger la trajectoire
+            trajectory_length = 0.4  # Augmenter cette valeur pour allonger la trajectoire
 
             for i in range(1, num_points + 1):
                 t = i / num_points * trajectory_length
@@ -677,7 +677,7 @@ def game_loop(obstacles=None, gobelets=None):
                 # Style des points (dégradé de taille et de couleur)
                 point_size = max(1, 6 * (1 - t / trajectory_length))  # Réduction progressive
                 alpha = int(200 * (1 - (t / trajectory_length) ** 2))  # Dégradé plus doux
-                color = (100, 255, 255, alpha)  # Vert plus clair
+                color = (255, 255, 255, alpha)  # Vert plus clair
 
                 # Dessin avec anti-aliasing (pour des points plus lisses)
                 if point_size > 1.5:
