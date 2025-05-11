@@ -554,6 +554,7 @@ def game_loop(obstacles=None, gobelets=None):
     dt = 1 / 60.0
 
     reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width), ajusty(60), ajustx(162), ajusty(117))
+    reglage_img, reglage_rect = None, None
     restart_btn = pygame.Rect(screen_width - 150, 20, 130, 50)
     menu_btn = pygame.Rect(screen_width - 150, 80, 130, 50)
 
@@ -567,14 +568,14 @@ def game_loop(obstacles=None, gobelets=None):
             screen.blit(DECORS_IMG, (0, 0))
 
         # Dessiner les obstacles s'ils existent
+        # Afficher JOUET2 (arrière-plan) AVANT les oiseaux
         if obstacles:
             for obstacle in obstacles:
-                if len(obstacle) == 4:  # Cas spécial jouet avec deux images
+                if len(obstacle) == 4:
                     body, shapes, front_img, back_img = obstacle
-                    if back_img:  # Arrière-plan d'abord
+                    if back_img:
                         screen.blit(back_img, back_img.get_rect(center=(int(body.position.x), int(body.position.y))))
-                    if front_img:  # Premier plan ensuite
-                        screen.blit(front_img, front_img.get_rect(center=(int(body.position.x), int(body.position.y))))
+
                 else:
                     # Affichage normal pour les autres obstacles
                     body, shape, img = obstacle
@@ -709,6 +710,12 @@ def game_loop(obstacles=None, gobelets=None):
         limit_speed()
         check_collision()
         update_bird_angle()
+        if obstacles:
+            for obstacle in obstacles:
+                if len(obstacle) == 4:
+                    body, shapes, front_img, back_img = obstacle
+                    if front_img:
+                        screen.blit(front_img, front_img.get_rect(center=(int(body.position.x), int(body.position.y))))
 
         # Affichage score et niveau
         font = pygame.font.Font(None, 36)

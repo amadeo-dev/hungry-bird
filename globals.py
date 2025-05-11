@@ -191,4 +191,3 @@ boutons_jeu = {
 
 # Identifiant pour les collisions
 GOBELET_COLLISION_TYPE = 0
-
