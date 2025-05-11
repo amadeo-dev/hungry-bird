@@ -6,6 +6,7 @@ def reset_globals():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     global score, current_level, current_bird_index, game_over, end_game_time, space, running
     global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions
+    global selec_trois  # Ajoutez cette ligne pour réinitialiser la sélection
 
     birds = []
     banane_positions = []
@@ -18,6 +19,7 @@ def reset_globals():
     poulet_positions = []
     sandwich_positions = []
     os_malus_positions = []
+    selec_trois = []  # Réinitialise la sélection des oiseaux
     score = 0
     current_level = 1
     current_bird_index = 0
@@ -441,7 +443,6 @@ def draw_end_menu():
 def draw_restart_button():
     screen.blit(RESTART_IMG, (screen_width - 150, 20))
 
-
 def draw_menu_button():
     pygame.draw.rect(screen, RED, (screen_width - 150, 80, 130, 50))
     font = pygame.font.Font(None, 36)
@@ -453,7 +454,9 @@ def game_loop(obstacles=None, gobelets=None):
     global running, score, current_level, current_bird_index, start_pos, game_over, end_game_time
     dt = 1 / 60.0
 
-    reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width - 300), ajusty(20), ajustx(250), ajusty(70))
+    reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width), ajusty(60), ajustx(162), ajusty(117))
+    restart_btn = pygame.Rect(screen_width - 150, 20, 130, 50)  # Bouton Restart
+    menu_btn = pygame.Rect(screen_width - 150, 80, 130, 50)    # Bouton Menu
 
     while running:
         # Afficher le décor approprié selon le niveau
@@ -518,21 +521,25 @@ def game_loop(obstacles=None, gobelets=None):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 return
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:  # Touche R pour redémarrer
-                    obstacles, gobelets = restart_game()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
                 if reglage_rect.collidepoint(event.pos):
                     reglages()
+                elif restart_btn.collidepoint(mouse_pos):
+                    obstacles, gobelets = restart_game()
+                elif menu_btn.collidepoint(mouse_pos):
+                    clear_space()
+                    reset_globals()
+                    return "menu" # Retour au menu principal
                 elif game_over:
                     restart_button, menu_button = draw_end_menu()
-                    if restart_button.collidepoint(event.pos):
+                    if restart_button.collidepoint(mouse_pos):
                         obstacles, gobelets = restart_game()
-                    elif menu_button.collidepoint(event.pos):
+                    elif menu_button.collidepoint(mouse_pos):
                         clear_space()
-                        main()
+                        return  # Retour au menu principal
                 elif current_bird_index < len(birds):
-                    start_pos = pygame.mouse.get_pos()
+                    start_pos = mouse_pos
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
                 end_pos = pygame.mouse.get_pos()
                 if start_pos:
@@ -578,10 +585,10 @@ def game_loop(obstacles=None, gobelets=None):
         # Boutons
         reglage_img, reglage_rect = reglage_btn.update(pygame.mouse.get_pos(), pygame.mouse.get_pressed()[0])
         screen.blit(reglage_img, reglage_rect)
-        draw_restart_button()
-        draw_menu_button()
+        draw_restart_button()  # Dessine le bouton Restart
+        draw_menu_button() # Dessine le bouton Menu
 
-        # Fin de partie
+        # Gestion fin de partie
         if current_bird_index >= len(birds) or (end_game_time is not None and time.time() - end_game_time >= 2):
             if end_game_time is None:
                 end_game_time = time.time()
@@ -589,7 +596,7 @@ def game_loop(obstacles=None, gobelets=None):
                 if not game_over:
                     menu_sound.play()
                 game_over = True
-                draw_end_menu()
+                restart_button, menu_button = draw_end_menu()  # On stocke les rect des boutons
 
         pygame.display.flip()
         pygame.time.delay(int(dt * 1000))
@@ -659,9 +666,3 @@ def jeu(level):
         end_game_time = None
 
         game_loop(obstacles, gobelets)
-
-
-
-
-
-
