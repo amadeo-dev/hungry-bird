@@ -6,8 +6,10 @@ def reset_globals():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     global score, current_level, current_bird_index, game_over, end_game_time, space, running
     global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions
-    global selec_trois  # Assure-toi que c'est bien déclaré ici
+    global selec_trois, message_counter, last_message_index
 
+    last_message_index = -1  # Réinitialise pour nouvelle partie
+    message_counter = 0
     birds = []
     banane_positions = []
     hotdog_positions = []
@@ -420,26 +422,54 @@ def update_bird_angle():
             screen.blit(bird_img, bird_rect)
 
 
+# Ajoute en haut de ton fichier (avec les autres variables globales)
+message_index = 0
+
+
 def draw_end_menu():
-    global best_scores
+    global best_scores, last_message_index
+
     if score > best_scores.get(current_level, 0):
         best_scores[current_level] = score
+
+    # Overlay semi-transparent
     overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 180))  # Noir semi-transparent
+    overlay.fill((0, 0, 0, 180))
     screen.blit(overlay, (0, 0))
 
-    # Police et couleurs
+    # Polices
     title_font = pygame.font.Font(None, 74)
     score_font = pygame.font.Font(None, 48)
     button_font = pygame.font.Font(None, 36)
 
-    text_random = [("Bravo !", title_font, GREEN, -100), ("Tu t'es bien régalé !", title_font, GREEN, -100),
-                   ("Gros Gourmand !", title_font, GREEN, -100),
-                   ("Il n'en reste plus une miette !", title_font, GREEN, -100)]
-    text_end = random.choice(text_random)
-    # Affichage des textes
+    # Messages
+    if score >= 75:
+        messages = [
+            "Bravo !",
+            "Tu t'es bien régalé !",
+            "Gros Gourmand !",
+            "Il n'en reste plus une miette !"
+        ]
+        color = GREEN
+    else:
+        messages = [
+            "Tu peux mieux faire !",
+            "Encore un effort !",
+            "Tu n'avais pas faim ?",
+            "Tu n'as pas un grand appétit..."
+        ]
+        color = ORANGE
+
+    # Sélection du message (change SEULEMENT à l'ouverture)
+    if last_message_index == -1 or last_message_index >= len(messages) - 1:
+        last_message_index = 0
+    else:
+        last_message_index += 1
+    title_text = messages[last_message_index]
+
+    # Affichage
     texts = [
-        text_end,
+        (title_text, title_font, color, -100),
         (f"Score actuel: {score}", score_font, WHITE, -30),
         (f"Meilleur score: {best_scores.get(current_level, 0)}", score_font, WHITE, 20)
     ]
@@ -465,15 +495,14 @@ def draw_end_menu():
             button_height
         )
         pygame.draw.rect(screen, color, button_rect, border_radius=10)
-        pygame.draw.rect(screen, WHITE, button_rect, 2, border_radius=10)  # Bordure blanche
+        pygame.draw.rect(screen, WHITE, button_rect, 2, border_radius=10)
 
         text_surface = button_font.render(text, True, WHITE)
         text_rect = text_surface.get_rect(center=button_rect.center)
         screen.blit(text_surface, text_rect)
-
         button_rects.append(button_rect)
 
-    return button_rects[0], button_rects[1]  # Retourne les rect des boutons Restart et Menu
+    return button_rects[0], button_rects[1]
 
 
 def draw_restart_button():
@@ -573,7 +602,8 @@ def game_loop(obstacles=None, gobelets=None):
                         obstacles, gobelets = restart_game()
                     elif menu_button.collidepoint(mouse_pos):
                         clear_space()
-                        return  # Retour au menu principal
+                        reset_globals()
+                        return "menu"  # Retour au menu principal
                 elif current_bird_index < len(birds):
                     start_pos = mouse_pos
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
