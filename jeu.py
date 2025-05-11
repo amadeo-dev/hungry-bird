@@ -662,3 +662,8 @@ def jeu(level):
         end_game_time = None
 
         game_loop(obstacles, gobelets)
+
+
+
+
+
