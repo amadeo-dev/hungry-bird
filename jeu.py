@@ -44,13 +44,13 @@ def create_food(level):
         poubelle_positions = [(620, 200), (1300, 420)]
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     elif level == 2:
-        cookie_positions = [(600, 450), (1000, 300),(900, 700)]
+        cookie_positions = [(600, 450), (1000, 300), (900, 700)]
         poulet_positions = [(600, 250), (1200, 600)]
-        sandwich_positions = [(1250, 300)] #
+        sandwich_positions = [(1250, 300)]
         os_malus_positions = [(700, 350), (900, 550)]
-        poubelle_positions = [(650, 700)]
+        poubelle_positions = [(650, 700), (1250, 400)]
         return cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions
-    else:
+    else:  # Niveau 3 - mêmes aliments que niveau 1
         return create_random_food(level)
 
 
@@ -60,16 +60,22 @@ def create_random_food(level):
     def random_pos():
         max_attempts = 100
         for _ in range(max_attempts):
-            pos = (random.randint(screen_width // 2, screen_width - 100),
-                   random.randint(screen_height // 2, screen_height - 150))
+            pos = (random.randint(400, screen_width - 200),  # Plus large que avant
+                   random.randint(100, screen_height - 200))  # Plus haut que avant
             if is_far_enough(pos, food_positions):
                 food_positions.append(pos)
                 return pos
-        return (random.randint(screen_width // 2, screen_width - 100),
-                random.randint(screen_height // 2, screen_height - 150))
-    if level == 3:
-        return [random_pos() for _ in range(4)], [random_pos() for _ in range(1)], [random_pos() for _ in range(2)], [
-            random_pos() for _ in range(1)]
+        return (random.randint(400, screen_width - 200),
+                random.randint(100, screen_height - 200))
+
+    # Mêmes quantités que niveau 1
+    banane = [random_pos() for _ in range(2)]
+    hotdog = [random_pos() for _ in range(2)]
+    burger = [random_pos()]
+    banane_malus = [random_pos() for _ in range(2)]
+    poubelle = [random_pos() for _ in range(2)]
+
+    return banane, hotdog, burger, banane_malus, poubelle
 
 
 def create_ground():
@@ -252,12 +258,16 @@ def check_collision():
         # Vérifier la proximité avec la nourriture pour ouvrir la bouche
         bird.near_food = False
         food_lists = []
-        if current_level == 1:
-            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]
+        if current_level == 1 or current_level == 3:  # Mêmes règles pour 1 et 3
+            food_data = [
+                (banane_positions, 20, 5, BANANE_BONUS, None),
+                (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
+                (burger_positions, 100, 20, BURGER_BONUS, None),
+                (banane_malus_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),
+                (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))
+            ]
         elif current_level == 2:
             food_lists = [cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions]
-        else:
-            food_lists = [hotdog_positions, burger_positions, brocoli_positions, dinde_positions]
 
         for lst in food_lists:
             for item in lst:
@@ -336,13 +346,14 @@ def restart_game():
 
     # Recréer la nourriture selon le niveau
     if current_level == 1:
-        banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(
-            current_level)
-    elif current_level ==2:
-        cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions = create_food(
-            current_level)
-    else:
-        hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_random_food(current_level)
+        banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(current_level)
+    elif current_level == 2:
+        cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions = create_food(current_level)
+    else:  # Niveau 3
+        banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_random_food(current_level)
+        # Compatibilité avec ancien code
+        brocoli_positions = banane_malus_positions
+        dinde_positions = poubelle_positions
 
     create_ground()
     create_borders()
@@ -616,13 +627,18 @@ def jeu(level):
         birds = selected_team.copy()
 
         if level == 1:
-            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(level)
+            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(
+                level)
             screen.blit(DECORS_NV1, (0, 0))
         elif level == 2:
-            cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions = create_food(level)
+            cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions = create_food(
+                level)
             screen.blit(DECORS_NV2, (0, 0))
-        else:
-            hotdog_positions, burger_positions, brocoli_positions, dinde_positions = create_random_food(level)
+        else:  # Niveau 3
+            banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_random_food(
+                level)
+            brocoli_positions = banane_malus_positions  # Compatibilité
+            dinde_positions = poubelle_positions  # Compatibilité
             screen.blit(DECORS_IMG, (0, 0))
 
         create_ground()
