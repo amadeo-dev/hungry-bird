@@ -27,8 +27,14 @@ class Bird:
         self.power_active = False
         self.power_end_time = 0
         self.shield_active = False
-        self.original_image_n = self.image_n  # Sauvegarde de l'image originale
+        self.original_image_n = self.image_n  # Sauvegarde des images originales
         self.original_image_o = self.image_o
+
+        # Préchargement de l'image spéciale pour Amadeo
+        if name == 'Amadeo':
+            self.special_image = pygame.image.load("Ressources/image/Personnages/Amadeo_s.png").convert_alpha()
+            self.special_image = pygame.transform.smoothscale(self.special_image,
+                                                              (self.image_n.get_width(), self.image_n.get_height()))
 
         # Conserver les proportions originales
         original_width, original_height = self.image_n.get_size()

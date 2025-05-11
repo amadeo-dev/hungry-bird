@@ -51,6 +51,7 @@ MIN_DISTANCE = 50
 miam_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - slurp 2.wav")
 lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
 menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
+POWER_SOUND = pygame.mixer.Sound("Ressources/Sons/Yihaaa.wav")
 
 musique_list = [
         "Ressources/Sons/blue skies and sunshine - kortani (Official Audio).mp3",
