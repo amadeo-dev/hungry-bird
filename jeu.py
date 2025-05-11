@@ -30,7 +30,7 @@ def reset_globals():
 
 
 def is_far_enough(pos, others,MIN_DISTANCE):
-    return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE for o in others)
+    return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE*1.5 for o in others)
 
 
 def create_food(level):
@@ -59,7 +59,7 @@ def create_random_food(level):
         max_attempts = 100
         for _ in range(max_attempts):
             # Zone plus large et mieux répartie
-            x = random.randint(200, screen_width - 200)  # De la gauche à la droite
+            x = random.randint(500, screen_width - 200)  # De la gauche à la droite
             y = random.randint(100, screen_height - 200)  # Du haut vers le bas
             pos = (x, y)
             # Distance minimale augmentée de 50%
