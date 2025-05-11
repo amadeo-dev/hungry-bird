@@ -44,11 +44,11 @@ def create_food(level):
         poubelle_positions = [(620, 200), (1300, 420)]
         return banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
     elif level == 2:
-        cookie_positions = [(600, 450), (1000, 300)]
+        cookie_positions = [(600, 450), (1000, 300),(900, 700)]
         poulet_positions = [(600, 250), (1200, 600)]
         sandwich_positions = [(1250, 300)] #
         os_malus_positions = [(700, 350), (900, 550)]
-        poubelle_positions = [(650, 700), (1250, 400)]
+        poubelle_positions = [(650, 700)]
         return cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions
     else:
         return create_random_food(level)
@@ -67,13 +67,9 @@ def create_random_food(level):
                 return pos
         return (random.randint(screen_width // 2, screen_width - 100),
                 random.randint(screen_height // 2, screen_height - 150))
-
-    if level == 2:
-        return [random_pos() for _ in range(5)], [random_pos() for _ in range(2)], [random_pos() for _ in range(3)], [
+    if level == 3:
+        return [random_pos() for _ in range(4)], [random_pos() for _ in range(1)], [random_pos() for _ in range(2)], [
             random_pos() for _ in range(1)]
-    elif level == 3:
-        return [random_pos() for _ in range(7)], [random_pos() for _ in range(3)], [random_pos() for _ in range(4)], [
-            random_pos() for _ in range(2)]
 
 
 def create_ground():
@@ -290,10 +286,10 @@ def check_collision():
             ]
         else:
             food_data = [
-                (hotdog_positions, 40, 10, HOTDOG_IMG, None),
-                (burger_positions, 80, 15, BURGER_IMG, None),
-                (brocoli_positions, -20, -5, BROCOLI_IMG, (100, 255, 100)),
-                (dinde_positions, -40, -10, DINDE_IMG, (50, 255, 50))
+                (hotdog_positions, 40, 10, BANANE_BONUS, None),
+                (burger_positions, 80, 15, HOTDOG_BONUS, None),
+                (brocoli_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),
+                (dinde_positions, -40, -10, BURGER_BONUS, (50, 255, 50))
             ]
 
         for lst, points, size, img, color_effect in food_data:
