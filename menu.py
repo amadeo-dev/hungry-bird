@@ -67,3 +67,4 @@ def menu():
 
         pygame.display.flip()
         clock.tick(60)  # limite la boucle à 60 FPS
+

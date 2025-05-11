@@ -81,3 +81,4 @@ def past_power(selec):
             bird.original_image_o = bird.original_image_n
             bird.image_n = bird.original_image_n
             bird.image_o = bird.original_image_o
+

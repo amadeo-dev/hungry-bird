@@ -32,3 +32,4 @@ def lancer_tutoriel(screen):
         screen.blit(image_tutoriel, (pos_x, pos_y))  # On affiche le visuel tutoriel par-dessus
         pygame.display.flip()
         clock.tick(60)  # 60 FPS pour que ce soit fluide
+
