@@ -6,7 +6,7 @@ pygame.init()
 pygame.font.init()
 
 # Noms des oiseaux disponibles
-bird_name = ['Jacky', 'Thomas', 'Adrien', 'Nicolas', 'Amadeo']
+bird_name = ['Adrien','Nicolas', 'Thomas','Amadeo', 'Jacky']
 
 def load_high_quality_image(path, target_size=None):
     """Charge une image avec un redimensionnement de haute qualité"""
