@@ -12,7 +12,7 @@ def past_power(selec):
 
         elif bird.power == 'bouclier':
             pass
-        elif bird.power == 'chienem':
+        elif bird.power == 'bond':
             pass
         elif bird.power == 'boom3':
             pass

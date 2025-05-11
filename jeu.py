@@ -32,7 +32,7 @@ def reset_globals():
 
 
 def is_far_enough(pos, others,MIN_DISTANCE):
-    return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE*1.5 for o in others)
+    return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE for o in others)
 
 
 def create_food(level):
@@ -257,6 +257,8 @@ def check_collision():
         if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
+        detection_distance = 150
+
         # Proximité avec nourriture (tous les éléments)
         bird.near_food = False
         food_lists = []
@@ -269,11 +271,10 @@ def check_collision():
 
         for lst in food_lists:
             for item in lst:
-                if ((bird.body.position[0] - item[0])**2 + (bird.body.position[1] - item[1])**2)**0.5 < 50:
+                if ((bird.body.position[0] - item[0]) ** 2 + (
+                        bird.body.position[1] - item[1]) ** 2) ** 0.5 < detection_distance:
                     bird.near_food = True
                     break
-            if bird.near_food:
-                break
 
         # Collisions
         if current_level == 1 or current_level == 3:  # Mêmes règles pour 1 et 3
@@ -420,24 +421,75 @@ def update_bird_angle():
 
 
 def draw_end_menu():
-    font = pygame.font.Font(None, 74)
-    text = font.render("Bravo !", True, GREEN)
-    text_rect = text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
-    screen.blit(text, text_rect)
+    global best_scores
+    if score > best_scores.get(current_level, 0):
+        best_scores[current_level] = score
 
-    restart_button = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
-    menu_button = pygame.Rect(screen_width // 2 - 100, screen_height // 2 + 80, 200, 50)
+    # Création de l'overlay
+    overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    screen.blit(overlay, (0, 0))
 
-    pygame.draw.rect(screen, GREEN, restart_button)
-    pygame.draw.rect(screen, RED, menu_button)
+    # Polices
+    title_font = pygame.font.Font(None, 74)
+    score_font = pygame.font.Font(None, 48)
+    button_font = pygame.font.Font(None, 36)
 
-    font = pygame.font.Font(None, 36)
-    restart_text = font.render("Restart", True, WHITE)
-    menu_text = font.render("Menu", True, WHITE)
-    screen.blit(restart_text, (restart_button.x + 50, restart_button.y + 5))
-    screen.blit(menu_text, (menu_button.x + 70, menu_button.y + 5))
+    # Messages en fonction du score
+    if score >= 75:
+        messages = [
+            "Bravo !", "Tu t'es bien régalé !",
+            "Gros Gourmand !", "Il n'en reste plus une miette !"
+        ]
+        color = GREEN
+    else:
+        messages = [
+            "Tu peux mieux faire !", "Encore un effort !",
+            "Tu n'avais pas un grand appetit...", "Tu n'as pas faim ?"
+        ]
+        color = ORANGE  # Ajoute ORANGE à tes couleurs dans globals.py
 
-    return restart_button, menu_button
+    # Message aléatoire mais différent à chaque appel
+    current_time = pygame.time.get_ticks()
+    random.seed(current_time // 3000)  # Change chaque seconde
+    title_text = random.choice(messages)
+
+    # Affichage des textes
+    texts = [
+        (title_text, title_font, color, -100),
+        (f"Score actuel: {score}", score_font, WHITE, -30),
+        (f"Meilleur score: {best_scores.get(current_level, 0)}", score_font, WHITE, 20)
+    ]
+
+    for text, font, color, y_offset in texts:
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect(center=(screen_width // 2, screen_height // 2 + y_offset))
+        screen.blit(text_surface, text_rect)
+
+    # Boutons
+    button_width, button_height = 200, 50
+    buttons = [
+        ("Restart", GREEN, 200),
+        ("Menu", RED, 290)
+    ]
+
+    button_rects = []
+    for text, color, y_offset in buttons:
+        button_rect = pygame.Rect(
+            screen_width // 2 - button_width // 2,
+            screen_height // 2 + y_offset,
+            button_width,
+            button_height
+        )
+        pygame.draw.rect(screen, color, button_rect, border_radius=10)
+        pygame.draw.rect(screen, WHITE, button_rect, 2, border_radius=10)
+
+        text_surface = button_font.render(text, True, WHITE)
+        text_rect = text_surface.get_rect(center=button_rect.center)
+        screen.blit(text_surface, text_rect)
+        button_rects.append(button_rect)
+
+    return button_rects[0], button_rects[1]
 
 
 def draw_restart_button():
@@ -596,7 +648,21 @@ def game_loop(obstacles=None, gobelets=None):
                 if not game_over:
                     menu_sound.play()
                 game_over = True
-                restart_button, menu_button = draw_end_menu()  # On stocke les rect des boutons
+                restart_button, menu_button = draw_end_menu()
+
+                # Gestion des clics sur les boutons
+                mouse_pos = pygame.mouse.get_pos()
+                mouse_pressed = pygame.mouse.get_pressed()[0]
+
+                if mouse_pressed:
+                    if restart_button.collidepoint(mouse_pos):
+                        obstacles, gobelets = restart_game()
+                        game_over = False
+                        end_game_time = None
+                    elif menu_button.collidepoint(mouse_pos):
+                        clear_space()
+                        reset_globals()
+                        return "menu" # On stocke les rect des boutons
 
         pygame.display.flip()
         pygame.time.delay(int(dt * 1000))

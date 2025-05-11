@@ -114,7 +114,7 @@ def select_team():
     jouer_btn = BirdButton("Jouer", screen_width // 2, 200, is_menu_button=True)  # Position remontée
 
     # Bouton Retour/Sortir plus bas
-    retour_btn = BirdButton("Retour", 150, screen_height - 80, is_menu_button=True, custom_size=(200, 80))
+    retour_btn = BirdButton("Retour", 150, screen_height - 80, is_menu_button=True, custom_size=(200, 100))
 
     while selection_running:
         screen.fill((255, 255, 255))
