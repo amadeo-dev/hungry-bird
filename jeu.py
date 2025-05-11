@@ -587,9 +587,10 @@ def game_loop(obstacles=None, gobelets=None):
                     restart_button, menu_button = draw_end_menu()
                     if restart_button.collidepoint(mouse_pos):
                         obstacles, gobelets = restart_game()
-                    elif menu_button.collidepoint(mouse_pos):
+                    elif menu_btn.collidepoint(mouse_pos):
                         clear_space()
-                        return  # Retour au menu principal
+                        reset_globals()
+                        return "menu"
                 elif current_bird_index < len(birds):
                     start_pos = mouse_pos
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
