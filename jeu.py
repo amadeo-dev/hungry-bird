@@ -677,7 +677,7 @@ def game_loop(obstacles=None, gobelets=None):
                 # Style des points (dégradé de taille et de couleur)
                 point_size = max(1, 6 * (1 - t / trajectory_length))  # Réduction progressive
                 alpha = int(200 * (1 - (t / trajectory_length) ** 2))  # Dégradé plus doux
-                color = (255, 255, 255, alpha)  # Vert plus clair
+                color = (255, 0, 255, alpha)  # Vert plus clair
 
                 # Dessin avec anti-aliasing (pour des points plus lisses)
                 if point_size > 1.5:
