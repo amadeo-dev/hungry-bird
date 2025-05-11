@@ -261,29 +261,41 @@ def check_collision():
         if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
-        # Réinitialiser near_food à chaque frame
-        bird.near_food = False
+        bird.near_food = False  # Réinitialisation
 
-        # Vérifier la proximité AVANT la collision
-        all_food = []
+        # Paramètres ajustés pour une meilleure réactivité
+        BASE_PROXIMITY = 120  # Distance de base pour ouvrir la bouche
+        PROXIMITY_THRESHOLD = BASE_PROXIMITY * (1.5 if bird.name == 'Amadeo' else 1)
+        COLLISION_THRESHOLD = 40
+
+        # Liste des éléments interactifs
         if current_level == 1:
-            all_food = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
+            all_items = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
         elif current_level == 2:
-            all_food = cookie_positions + poulet_positions + sandwich_positions + os_malus_positions + poubelle_positions
+            all_items = cookie_positions + poulet_positions + sandwich_positions + os_malus_positions + poubelle_positions
+        else:
+            all_items = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
 
-        # Détection de proximité (200 pixels)
-        for pos in all_food:
-            distance = ((bird.body.position.x - pos[0])**2 + (bird.body.position.y - pos[1])**2)**0.5
-            if distance < 200:  # Augmente cette valeur si nécessaire
-                bird.near_food = True
-                break
+        # Détection de proximité améliorée
+        for pos in all_items:
+            dx = abs(bird.body.position.x - pos[0])
+            dy = abs(bird.body.position.y - pos[1])
 
-        # Proximité avec nourriture (tous les éléments)
-        bird.near_food = False
-        food_lists = []
+            # Hitbox allongée pour Amadéo (2x plus large)
+            if bird.name == 'Amadeo':
+                proximity = BASE_PROXIMITY * 2  # Zone 2x plus large
+                vertical_extension = BASE_PROXIMITY * 1.5  # Extension verticale
+                if dx < proximity and dy < vertical_extension:
+                    bird.near_food = True
+                    break
+            else:
+                if dx < PROXIMITY_THRESHOLD and dy < PROXIMITY_THRESHOLD:
+                    bird.near_food = True
+                    break
+
+        # Gestion des collisions
+        food_data = []
         if current_level == 1:
-            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions,
-                          poubelle_positions]
             food_data = [
                 (banane_positions, 20, 5, BANANE_BONUS, None),
                 (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
@@ -292,8 +304,6 @@ def check_collision():
                 (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))
             ]
         elif current_level == 2:
-            food_lists = [cookie_positions, poulet_positions, sandwich_positions, os_malus_positions,
-                          poubelle_positions]
             food_data = [
                 (cookie_positions, 30, 8, COOKIE_BONUS, None),
                 (poulet_positions, 50, 12, POULET_BONUS, None),
@@ -301,9 +311,7 @@ def check_collision():
                 (os_malus_positions, -30, -8, OS_MALUS, (100, 255, 100)),
                 (poubelle_positions, -60, -15, POUBELLE_NV2_MALUS, (50, 255, 50))
             ]
-        else:  # Niveau 3 - TOUS les éléments interactifs
-            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions,
-                          poubelle_positions]
+        else:
             food_data = [
                 (banane_positions, 20, 5, BANANE_BONUS, None),
                 (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
@@ -314,9 +322,10 @@ def check_collision():
 
         for lst, points, size, img, color_effect in food_data:
             for item_pos in lst[:]:
-                if ((bird.body.position[0] - item_pos[0]) ** 2 + (
-                        bird.body.position[1] - item_pos[1]) ** 2) ** 0.5 < 50:
-                    # Si c'est un malus et que le bouclier est actif, on ignore
+                distance = ((bird.body.position.x - item_pos[0]) ** 2 +
+                            (bird.body.position.y - item_pos[1]) ** 2) ** 0.5
+
+                if distance < COLLISION_THRESHOLD:
                     if color_effect is not None and bird.shield_active:
                         continue
 
