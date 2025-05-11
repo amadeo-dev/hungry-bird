@@ -145,7 +145,6 @@ def reglages():
 
     musique_btn = BoutonInteractif("Musique", ajustx(450), ajusty(430), ajustx(300), ajusty(70))
     sons_btn = BoutonInteractif("Sons", ajustx(450), ajusty(530), ajustx(300), ajusty(70))
-    bouton_retour = BoutonInteractif('Retour', ajustx(500), ajusty(800), ajustx(300), ajusty(120))
 
     running = True
     while running:
@@ -174,14 +173,17 @@ def reglages():
                     holding["sons"] = True
                     hold_timer = 0
                     fx_slider.volume = min(1.0, fx_slider.volume + CLICK_INCREMENT)
-                elif bouton_retour.rect.collidepoint(event.pos):
-                    save_config({
-                        "music_volume": music_slider.volume,
-                        "fx_volume": fx_slider.volume
-                    })
-                    return "menu"
+                else:
+                    # Si clic en dehors du fond
+                    fond_rect = pygame.Rect(fond_pos[0], fond_pos[1], fond.get_width(), fond.get_height())
+                    if not fond_rect.collidepoint(event.pos):
+                        save_config({
+                            "music_volume": music_slider.volume,
+                            "fx_volume": fx_slider.volume
+                        })
+                        return "menu"
 
-            if event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP:
                 holding["musique"] = False
                 holding["sons"] = False
                 hold_timer = 0
@@ -207,11 +209,9 @@ def reglages():
 
         musique_img, _ = musique_btn.update(mouse_pos, holding["musique"])
         sons_img, _ = sons_btn.update(mouse_pos, holding["sons"])
-        retour_img, _ = bouton_retour.update(mouse_pos, mouse_pressed)
 
         screen.blit(musique_img, musique_btn.rect)
         screen.blit(sons_img, sons_btn.rect)
-        screen.blit(retour_img, bouton_retour.rect)
 
         pygame.display.flip()
         clock.tick(60)
