@@ -4,7 +4,7 @@ from globals import *
 
 def reset_globals():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
-    global brocoli_positions, dinde_positions, score, current_level, current_bird_index, game_over, end_game_time, space, running
+    global score, current_level, current_bird_index, game_over, end_game_time, space, running
     global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions
 
     birds = []
@@ -13,8 +13,6 @@ def reset_globals():
     burger_positions = []
     banane_malus_positions = []
     poubelle_positions = []
-    brocoli_positions = []
-    dinde_positions = []
 
     cookie_positions = []
     poulet_positions = []
@@ -31,7 +29,7 @@ def reset_globals():
     space.gravity = GRAVITY
 
 
-def is_far_enough(pos, others):
+def is_far_enough(pos, others,MIN_DISTANCE):
     return all(((pos[0] - o[0]) ** 2 + (pos[1] - o[1]) ** 2) ** 0.5 > MIN_DISTANCE for o in others)
 
 
@@ -60,20 +58,22 @@ def create_random_food(level):
     def random_pos():
         max_attempts = 100
         for _ in range(max_attempts):
-            pos = (random.randint(400, screen_width - 200),  # Plus large que avant
-                   random.randint(100, screen_height - 200))  # Plus haut que avant
-            if is_far_enough(pos, food_positions):
+            # Zone plus large et mieux répartie
+            x = random.randint(200, screen_width - 200)  # De la gauche à la droite
+            y = random.randint(100, screen_height - 200)  # Du haut vers le bas
+            pos = (x, y)
+            # Distance minimale augmentée de 50%
+            if is_far_enough(pos, food_positions, int(MIN_DISTANCE * 1.5)):
                 food_positions.append(pos)
                 return pos
-        return (random.randint(400, screen_width - 200),
-                random.randint(100, screen_height - 200))
+        return (screen_width // 2, screen_height // 2)  # Fallback
 
-    # Mêmes quantités que niveau 1
-    banane = [random_pos() for _ in range(2)]
+    # Quantités exactes demandées
     hotdog = [random_pos() for _ in range(2)]
+    banane = [random_pos() for _ in range(2)]
     burger = [random_pos()]
+    poubelle = [random_pos()]
     banane_malus = [random_pos() for _ in range(2)]
-    poubelle = [random_pos() for _ in range(2)]
 
     return banane, hotdog, burger, banane_malus, poubelle
 
@@ -255,30 +255,26 @@ def check_collision():
         if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
-        # Vérifier la proximité avec la nourriture pour ouvrir la bouche
+        # Proximité avec nourriture (tous les éléments)
         bird.near_food = False
         food_lists = []
-        if current_level == 1 or current_level == 3:  # Mêmes règles pour 1 et 3
-            food_data = [
-                (banane_positions, 20, 5, BANANE_BONUS, None),
-                (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
-                (burger_positions, 100, 20, BURGER_BONUS, None),
-                (banane_malus_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),
-                (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))
-            ]
+        if current_level == 1:
+            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]
         elif current_level == 2:
             food_lists = [cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions]
+        else:  # Niveau 3 - TOUS les éléments interactifs
+            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]
 
         for lst in food_lists:
             for item in lst:
-                if ((bird.body.position[0] - item[0]) ** 2 + (bird.body.position[1] - item[1]) ** 2) ** 0.5 < 150:
+                if ((bird.body.position[0] - item[0])**2 + (bird.body.position[1] - item[1])**2)**0.5 < 50:
                     bird.near_food = True
                     break
             if bird.near_food:
                 break
 
-        # Collision avec la nourriture
-        if current_level == 1:
+        # Collisions
+        if current_level == 1 or current_level == 3:  # Mêmes règles pour 1 et 3
             food_data = [
                 (banane_positions, 20, 5, BANANE_BONUS, None),
                 (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
@@ -294,24 +290,15 @@ def check_collision():
                 (os_malus_positions, -30, -8, OS_MALUS, (100, 255, 100)),
                 (poubelle_positions, -60, -15, POUBELLE_NV2_MALUS, (50, 255, 50))
             ]
-        else:
-            food_data = [
-                (hotdog_positions, 40, 10, BANANE_BONUS, None),
-                (burger_positions, 80, 15, HOTDOG_BONUS, None),
-                (brocoli_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),
-                (dinde_positions, -40, -10, BURGER_BONUS, (50, 255, 50))
-            ]
 
         for lst, points, size, img, color_effect in food_data:
             for item_pos in lst[:]:
-                if ((bird.body.position[0] - item_pos[0]) ** 2 + (bird.body.position[1] - item_pos[1]) ** 2) ** 0.5 < 50:
+                if ((bird.body.position[0] - item_pos[0])**2 + (bird.body.position[1] - item_pos[1])**2)**0.5 < 50:
                     score += points
                     bird.size = max(50, bird.size + size)
-
                     if color_effect:
                         bird.color_effect = color_effect
                         pygame.time.set_timer(pygame.USEREVENT + 1, 2000)
-
                     lst.remove(item_pos)
                     miam_sound.play()
                     bird.near_food = True
@@ -332,8 +319,8 @@ def clear_space():
 
 def restart_game():
     global birds, banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions
-    global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions
-    global brocoli_positions, dinde_positions, score, current_bird_index, game_over, end_game_time
+    global cookie_positions, poulet_positions, sandwich_positions, os_malus_positions
+    global score, current_bird_index, game_over, end_game_time
 
     clear_space()
 
@@ -344,16 +331,13 @@ def restart_game():
         bird.near_food = False
         bird.color_effect = None
 
-    # Recréer la nourriture selon le niveau
+    # Recréer la nourriture
     if current_level == 1:
         banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_food(current_level)
     elif current_level == 2:
         cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions = create_food(current_level)
     else:  # Niveau 3
         banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions = create_random_food(current_level)
-        # Compatibilité avec ancien code
-        brocoli_positions = banane_malus_positions
-        dinde_positions = poubelle_positions
 
     create_ground()
     create_borders()
@@ -500,7 +484,7 @@ def game_loop(obstacles=None, gobelets=None):
                 screen.blit(img, img_rect)
 
         # Dessiner la nourriture selon le niveau
-        if current_level == 1:
+        if current_level == 1 :
             for img, positions in [
                 (BANANE_BONUS, banane_positions),
                 (HOTDOG_BONUS, hotdog_positions),
@@ -520,12 +504,13 @@ def game_loop(obstacles=None, gobelets=None):
             ]:
                 for pos in positions:
                     screen.blit(img, img.get_rect(center=pos))
-        else:
+        else:  # Niveau 3
             for img, positions in [
-                (HOTDOG_IMG, hotdog_positions),
-                (BURGER_IMG, burger_positions),
-                (BROCOLI_IMG, brocoli_positions),
-                (DINDE_IMG, dinde_positions)
+                (BANANE_BONUS, banane_positions),
+                (HOTDOG_BONUS, hotdog_positions),
+                (BURGER_BONUS, burger_positions),
+                (BANANE_MALUS, banane_malus_positions),
+                (POUBELLE_MALUS, poubelle_positions)
             ]:
                 for pos in positions:
                     screen.blit(img, img.get_rect(center=pos))
