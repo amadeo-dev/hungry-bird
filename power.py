@@ -18,19 +18,23 @@ def activate_power(bird):
         )
         bird.shape.elasticity = 2
         bird.shape.friction = 0.5
+        # Durée de 1 seconde seulement pour Thomas
+        bird.power_end_time = time.time() + 1
 
     elif bird.power == 'bouclier':
         bird.shield_active = True
+        bird.power_end_time = time.time() + 2
 
     elif bird.power == 'Gourmand':
         bird.image_n = bird.special_image
         bird.image_o = bird.special_image
+        bird.power_end_time = time.time() + 2
 
     elif bird.power == 'saut':
         bird.body.apply_impulse_at_local_point((0, -1000))
+        bird.power_end_time = time.time() + 2
 
     bird.power_active = True
-    bird.power_end_time = time.time() + 2
     bird.can_use_power = False
 
 def deactivate_power(bird):
