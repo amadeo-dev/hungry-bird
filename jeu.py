@@ -243,6 +243,10 @@ def create_borders():
 def limit_speed():
     for bird in birds:
         if hasattr(bird, 'body') and bird.body:
+            # Exception pour Thomas quand son pouvoir est actif
+            if bird.name == 'Thomas' and bird.power_active:
+                continue
+
             vx, vy = bird.body.velocity
             speed = (vx ** 2 + vy ** 2) ** 0.5
             if speed > MAX_SPEED:
@@ -257,7 +261,20 @@ def check_collision():
         if not hasattr(bird, 'launched') or not bird.launched:
             continue
 
-        detection_distance = 150
+        bird.near_food = False
+
+        # Vérifier tous les aliments
+        all_food = []
+        if current_level == 1:
+            all_food = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
+        elif current_level == 2:
+            all_food = cookie_positions + poulet_positions + sandwich_positions + os_malus_positions + poubelle_positions
+
+        for pos in all_food:
+            distance = ((bird.body.position[0] - pos[0]) ** 2 + (bird.body.position[1] - pos[1]) ** 2) ** 0.5
+            if distance < 300:
+                bird.near_food = True
+                break
 
         # Proximité avec nourriture (tous les éléments)
         bird.near_food = False
@@ -331,12 +348,20 @@ def restart_game():
 
     clear_space()
 
-    # Réinitialiser les oiseaux
+    # Réinitialiser complètement les oiseaux et leurs pouvoirs
     for bird in birds:
         bird.launched = False
         bird.size = 100
         bird.near_food = False
         bird.color_effect = None
+        bird.power_active = False
+        bird.can_use_power = False
+        bird.shield_active = False
+        if hasattr(bird, 'power_end_time'):
+            bird.power_end_time = 0
+        if bird.name == 'Amadeo':  # Réinitialiser son apparence spéciale
+            bird.image_n = bird.original_image_n
+            bird.image_o = bird.original_image_o
 
     # Recréer la nourriture
     if current_level == 1:
@@ -354,7 +379,7 @@ def restart_game():
     gobelet_positions = [
         (330, screen_height - 70),  # 3ème gobelet (vert) - premier oiseau choisi
         (210, screen_height - 60),  # 2ème gobelet (rouge) - deuxième oiseau choisi
-        (90, screen_height - 70)  # 1er gobelet (bleu) - troisième oiseau choisi
+        (90, screen_height - 70)    # 1er gobelet (bleu) - troisième oiseau choisi
     ]
 
     for i, bird in enumerate(birds[:3]):
@@ -386,10 +411,11 @@ def update_bird_angle():
                 base_size = bird.size
 
             # Appliquer un effet de gourmandise si l'oiseau a ce pouvoir
-            if hasattr(bird, 'power') and bird.power == 'Gourmand' and bird.near_food:
-                target_size = (base_size * 1.5, base_size * 1.5)
-            else:
-                target_size = (base_size, base_size)
+            size_factor = 1.2 if bird.near_food else 1.0
+            if hasattr(bird, 'power') and bird.power == 'Gourmand' and bird.power_active:
+                size_factor *= 1.5  # Bouche encore plus grande avec le pouvoir
+
+            target_size = (int(base_size * size_factor), int(base_size * size_factor))
 
             if not hasattr(bird, 'cached_images'):
                 bird.cached_images = {}
@@ -398,14 +424,11 @@ def update_bird_angle():
             if size_key not in bird.cached_images:
                 base_image = bird.image_o if bird.near_food else bird.image_n
 
-                # Appliquer l'effet de couleur si nécessaire (modification ici)
+                # Appliquer l'effet de couleur si nécessaire
                 if hasattr(bird, 'color_effect') and bird.color_effect:
-                    # Créer une copie de l'image pour ne pas modifier l'originale
                     colored_image = base_image.copy()
-                    # Créer une surface pour la teinte
                     tint = pygame.Surface(colored_image.get_size(), pygame.SRCALPHA)
                     tint.fill(bird.color_effect)
-                    # Appliquer la teinte seulement aux pixels non transparents
                     colored_image.blit(tint, (0, 0), special_flags=pygame.BLEND_MULT)
                     base_image = colored_image
 
@@ -422,6 +445,15 @@ def update_bird_angle():
 
             bird_rect = bird_img.get_rect(center=(int(bird.body.position[0]), int(bird.body.position[1])))
             screen.blit(bird_img, bird_rect)
+
+            # Afficher le bouclier de Nicolas si son pouvoir est actif
+            if bird.name == 'Nicolas' and bird.shield_active:
+                shield_surface = pygame.Surface((bird.size * 1.5, bird.size * 1.5), pygame.SRCALPHA)
+                pygame.draw.circle(shield_surface, SHIELD_COLOR,
+                                  (int(bird.size * 0.75), int(bird.size * 0.75)),
+                                  int(bird.size * 0.7), 5)
+                shield_rect = shield_surface.get_rect(center=bird_rect.center)
+                screen.blit(shield_surface, shield_rect)
 
 
 def draw_end_menu():
@@ -455,7 +487,7 @@ def draw_end_menu():
 
     # Message aléatoire mais différent à chaque appel
     current_time = pygame.time.get_ticks()
-    random.seed(current_time // 3000)  # Change chaque seconde
+    random.seed(current_time // 10000)  # Change chaque seconde
     title_text = random.choice(messages)
 
     # Affichage des textes
@@ -603,6 +635,7 @@ def game_loop(obstacles=None, gobelets=None):
                     impulse = ((start_pos[0] - end_pos[0]) * 15, (start_pos[1] - end_pos[1]) * 15)
                     bird.body.apply_impulse_at_local_point(impulse)
                     bird.launched = True
+                    bird.can_use_power = True
                     current_bird_index += 1
                     start_pos = None
                     lance_sound.play()

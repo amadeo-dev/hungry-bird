@@ -46,12 +46,17 @@ BIRD_SIZE_DEFAULT = 50
 MAX_SPEED = 1000
 GRAVITY = (0, 900)
 MIN_DISTANCE = 50
+# Ajoutez ces constantes
+SHIELD_COLOR = (100, 100, 255, 150)  # Bleu semi-transparent
+NEAR_FOOD_THRESHOLD = 400  # Augmenté pour ouverture de bouche plus précoce
+POWER_ACTIVATION_SPEED = 100
 
 # SON
 miam_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - slurp 2.wav")
 lance_sound = pygame.mixer.Sound("Ressources/Sons/Amadéo - Yahoo.wav")
 menu_sound = pygame.mixer.Sound("Ressources/Sons/Thomas - mhmhmh 2.wav")
 POWER_SOUND = pygame.mixer.Sound("Ressources/Sons/Yihaaa.wav")
+POWER_SOUND.set_volume(0.5)  # Réduire le volume de moitié
 
 musique_list = [
         "Ressources/Sons/blue skies and sunshine - kortani (Official Audio).mp3",

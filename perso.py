@@ -26,6 +26,12 @@ class Bird:
         self.power = power
         self.power_active = False
         self.power_end_time = 0
+        self.can_use_power = False  # Devient True quand l'oiseau est lancé
+        self.near_food = False
+        if name == 'Amadeo':
+            self.special_image = pygame.image.load("Ressources/image/Personnages/Amadeo_s.png").convert_alpha()
+            self.special_image = pygame.transform.smoothscale(self.special_image,
+                                                              (self.image_n.get_width(), self.image_n.get_height()))
         self.shield_active = False
         self.original_image_n = self.image_n  # Sauvegarde des images originales
         self.original_image_o = self.image_o
