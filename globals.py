@@ -31,6 +31,7 @@ def ajustx(x):
 def ajusty(y):
     return (y * screen_height) / 1080
 
+POWER_DURATION = 2000  # 2 secondes en millisecondes
 
 # Espace physique
 space = pymunk.Space()

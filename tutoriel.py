@@ -1,18 +1,18 @@
 import pygame
 
 def lancer_tutoriel(screen):
-    # ⚙️ Définir une taille un peu plus petite que l'écran pour afficher le tuto au centre
+    # Définir une taille un peu plus petite que l'écran pour afficher le tuto au centre
     largeur_tuto, hauteur_tuto = 1020, 720
 
-    # 🖼️ Charger l’image de fond (le décor classique)
+    # Charger l’image de fond (le décor classique)
     fond = pygame.image.load("Ressources/image/Menu/Decors.png").convert()
     fond = pygame.transform.scale(fond, screen.get_size())  # On adapte à la taille de l’écran
 
-    # 📘 Charger l’image du tutoriel (explications du jeu)
+    # Charger l’image du tutoriel (explications du jeu)
     image_tutoriel = pygame.image.load("Ressources/image/Menu/Instruction.png").convert_alpha()
     image_tutoriel = pygame.transform.scale(image_tutoriel, (largeur_tuto, hauteur_tuto))
 
-    # 🎯 On centre l’image tutoriel dans l’écran
+    # On centre l’image tutoriel dans l’écran
     screen_rect = screen.get_rect()
     pos_x = (screen_rect.width - largeur_tuto) // 2
     pos_y = (screen_rect.height - hauteur_tuto) // 2
