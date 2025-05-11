@@ -263,21 +263,8 @@ def check_collision():
         bird.near_food = False
         food_lists = []
         if current_level == 1:
-            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]
-        elif current_level == 2:
-            food_lists = [cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions]
-        else:  # Niveau 3 - TOUS les éléments interactifs
-            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions, poubelle_positions]
-
-        for lst in food_lists:
-            for item in lst:
-                if ((bird.body.position[0] - item[0]) ** 2 + (
-                        bird.body.position[1] - item[1]) ** 2) ** 0.5 < detection_distance:
-                    bird.near_food = True
-                    break
-
-        # Collisions
-        if current_level == 1 or current_level == 3:  # Mêmes règles pour 1 et 3
+            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions,
+                          poubelle_positions]
             food_data = [
                 (banane_positions, 20, 5, BANANE_BONUS, None),
                 (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
@@ -286,6 +273,8 @@ def check_collision():
                 (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))
             ]
         elif current_level == 2:
+            food_lists = [cookie_positions, poulet_positions, sandwich_positions, os_malus_positions,
+                          poubelle_positions]
             food_data = [
                 (cookie_positions, 30, 8, COOKIE_BONUS, None),
                 (poulet_positions, 50, 12, POULET_BONUS, None),
@@ -293,10 +282,25 @@ def check_collision():
                 (os_malus_positions, -30, -8, OS_MALUS, (100, 255, 100)),
                 (poubelle_positions, -60, -15, POUBELLE_NV2_MALUS, (50, 255, 50))
             ]
+        else:  # Niveau 3 - TOUS les éléments interactifs
+            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions,
+                          poubelle_positions]
+            food_data = [
+                (banane_positions, 20, 5, BANANE_BONUS, None),
+                (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
+                (burger_positions, 100, 20, BURGER_BONUS, None),
+                (banane_malus_positions, -20, -5, BANANE_MALUS, (100, 255, 100)),
+                (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))
+            ]
 
         for lst, points, size, img, color_effect in food_data:
             for item_pos in lst[:]:
-                if ((bird.body.position[0] - item_pos[0])**2 + (bird.body.position[1] - item_pos[1])**2)**0.5 < 50:
+                if ((bird.body.position[0] - item_pos[0]) ** 2 + (
+                        bird.body.position[1] - item_pos[1]) ** 2) ** 0.5 < 50:
+                    # Si c'est un malus et que le bouclier est actif, on ignore
+                    if color_effect is not None and bird.shield_active:
+                        continue
+
                     score += points
                     bird.size = max(50, bird.size + size)
                     if color_effect:
@@ -496,13 +500,10 @@ def draw_restart_button():
     screen.blit(RESTART_IMG, (screen_width - 150, 20))
 
 def draw_menu_button():
-    button_rect = pygame.Rect(screen_width - 150, 80, 130, 50)
-    pygame.draw.rect(screen, RED, button_rect, border_radius=10)
-    pygame.draw.rect(screen, WHITE, button_rect, 2, border_radius=10)
+    pygame.draw.rect(screen, RED, (screen_width - 150, 80, 130, 50))
     font = pygame.font.Font(None, 36)
     text = font.render("Menu", True, WHITE)
     screen.blit(text, (screen_width - 120, 90))
-    return button_rect  # Retourne le rect pour la détection de clic
 
 
 def game_loop(obstacles=None, gobelets=None):
@@ -511,7 +512,7 @@ def game_loop(obstacles=None, gobelets=None):
 
     reglage_btn = BoutonInteractif('Reglages2', ajustx(screen_width), ajusty(60), ajustx(162), ajusty(117))
     restart_btn = pygame.Rect(screen_width - 150, 20, 130, 50)
-    menu_btn = draw_menu_button()  # Utilise la nouvelle fonction
+    menu_btn = pygame.Rect(screen_width - 150, 80, 130, 50)
 
     while running:
         # Afficher le décor approprié selon le niveau
@@ -590,10 +591,9 @@ def game_loop(obstacles=None, gobelets=None):
                     restart_button, menu_button = draw_end_menu()
                     if restart_button.collidepoint(mouse_pos):
                         obstacles, gobelets = restart_game()
-                    elif menu_btn.collidepoint(mouse_pos):
+                    elif menu_button.collidepoint(mouse_pos):
                         clear_space()
-                        reset_globals()
-                        return "menu"
+                        return  # Retour au menu principal
                 elif current_bird_index < len(birds):
                     start_pos = mouse_pos
             elif event.type == pygame.MOUSEBUTTONUP and current_bird_index < len(birds):
@@ -628,6 +628,8 @@ def game_loop(obstacles=None, gobelets=None):
             pygame.draw.line(screen, (0, 255, 0), bird_pos, (bird_pos[0] + dx * 0.1, bird_pos[1] + dy * 0.1), 4)
             pygame.draw.circle(screen, (0, 255, 0), bird_pos, 10, 2)
 
+        handle_power_input(birds)
+        check_power_duration(birds)
         space.step(dt)
         limit_speed()
         check_collision()

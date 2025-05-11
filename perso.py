@@ -23,6 +23,12 @@ class Bird:
         self.name = name
         self.image_n = load_high_quality_image(image)
         self.image_o = load_high_quality_image(image_o)
+        self.power = power
+        self.power_active = False
+        self.power_end_time = 0
+        self.shield_active = False
+        self.original_image_n = self.image_n  # Sauvegarde de l'image originale
+        self.original_image_o = self.image_o
 
         # Conserver les proportions originales
         original_width, original_height = self.image_n.get_size()
