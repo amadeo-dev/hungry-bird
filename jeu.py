@@ -48,7 +48,7 @@ def create_food(level):
         poulet_positions = [(600, 250), (1200, 600)]
         sandwich_positions = [(1250, 300)]
         os_malus_positions = [(700, 350), (900, 550)]
-        poubelle_positions = [(650, 700), (1250, 400)]
+        poubelle_positions = [(650, 700)]
         return cookie_positions, poulet_positions, sandwich_positions, os_malus_positions, poubelle_positions
     else:  # Niveau 3 - mêmes aliments que niveau 1
         return create_random_food(level)
@@ -133,62 +133,35 @@ def create_gobelets(level):
 def create_obstacles(level):
     obstacles = []
     if level == 1:
-        # Obstacle Jus - Hitbox précise
+        # Obstacle Jus
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
         body.position = (screen_width - 550, screen_height - 190)
-
-        # Création de la hitbox basée sur le contour de l'image
         mask = pygame.mask.from_surface(JUS_OBSTACLE)
         outline = mask.outline()
-        if outline:
-            simplified = [v for i, v in enumerate(outline) if i % 5 == 0]  # Simplifier le contour
-            vertices = [(x - JUS_OBSTACLE.get_width() / 2, y - JUS_OBSTACLE.get_height() / 2) for (x, y) in simplified]
-            shape = pymunk.Poly(body, vertices)
-        else:
-            shape = pymunk.Poly.create_box(body, (JUS_OBSTACLE.get_width() * 0.9, JUS_OBSTACLE.get_height() * 0.9))
-
+        simplified = [outline[i] for i in range(0, len(outline), 5)]
+        vertices = [(x - JUS_OBSTACLE.get_width() / 2, y - JUS_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+        shape = pymunk.Poly(body, vertices)
         shape.elasticity = 0.5
         shape.friction = 1.0
         space.add(body, shape)
-        obstacles.append((body, shape, JUS_OBSTACLE))
+        obstacles.append((body, shape, JUS_OBSTACLE, None))  # None pour pas de 2ème image
 
-        # Obstacle Jouet avec VOS VALEURS EXACTES
-        body = pymunk.Body(body_type=pymunk.Body.STATIC)
-        body.position = (screen_width - 800, screen_height - 710)
-        space.add(body)
+        # Obstacle Jouet (devant/derrière)
+        jouet_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        jouet_body.position = (screen_width - 800, screen_height - 710)
 
-        # Vos paramètres exacts du trou
-        radius_x = 5  # Largeur du trou
-        radius_y = 50  # Hauteur du trou
-        segments = 20  # Nombre de segments pour l'ovale
+        # Hitbox seulement pour la partie avant (jouet.png)
+        mask = pygame.mask.from_surface(JOUET_OBSTACLE)
+        outline = mask.outline()
+        simplified = [outline[i] for i in range(0, len(outline), 5)]
+        vertices = [(x - JOUET_OBSTACLE.get_width() / 2, y - JOUET_OBSTACLE.get_height() / 2) for (x, y) in simplified]
+        shape = pymunk.Poly(jouet_body, vertices)
+        shape.elasticity = 0.7
+        shape.friction = 0.3
+        shape.collision_type = 4
+        space.add(jouet_body, shape)
 
-        # Demi-cercle supérieur (comme dans votre code)
-        top_vertices = []
-        for i in range(segments + 1):
-            angle = math.pi * i / segments
-            x = radius_x * math.cos(angle) - 10
-            y = -radius_y * math.sin(angle) - 30
-            top_vertices.append((x, y))
-        top_shape = pymunk.Poly(body, top_vertices)
-
-        # Demi-cercle inférieur (comme dans votre code)
-        bottom_vertices = []
-        for i in range(segments + 1):
-            angle = math.pi * i / segments
-            x = radius_x * math.cos(angle) - 10
-            y = radius_y * math.sin(angle) + 130
-            bottom_vertices.append((x, y))
-        bottom_shape = pymunk.Poly(body, bottom_vertices)
-
-        # Propriétés physiques
-        for shape in [top_shape, bottom_shape]:
-            shape.elasticity = 0.7
-            shape.friction = 0.3
-            shape.collision_type = 4
-            space.add(shape)
-
-        # Stockage simple avec l'image
-        obstacles.append((body, [top_shape, bottom_shape], JOUET_OBSTACLE))
+        obstacles.append((jouet_body, shape, JOUET_OBSTACLE, JOUET2_OBSTACLE))
     elif level == 2:
         # Avion (statique avec hitbox précise)
         body = pymunk.Body(body_type=pymunk.Body.STATIC)
@@ -263,25 +236,36 @@ def check_collision():
 
         bird.near_food = False
 
-        # Vérifier tous les aliments
-        all_food = []
+        # Paramètres ajustés
+        BASE_PROXIMITY = 100  # Distance pour ouvrir la bouche
+        PROXIMITY_THRESHOLD = BASE_PROXIMITY * (1.8 if bird.name == 'Amadeo' else 1)
+        COLLISION_THRESHOLD = 40
+
+        # Liste des éléments interactifs
         if current_level == 1:
-            all_food = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
+            all_items = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
         elif current_level == 2:
-            all_food = cookie_positions + poulet_positions + sandwich_positions + os_malus_positions + poubelle_positions
+            all_items = cookie_positions + poulet_positions + sandwich_positions + os_malus_positions + poubelle_positions
+        else:
+            all_items = banane_positions + hotdog_positions + burger_positions + banane_malus_positions + poubelle_positions
 
-        for pos in all_food:
-            distance = ((bird.body.position[0] - pos[0]) ** 2 + (bird.body.position[1] - pos[1]) ** 2) ** 0.5
-            if distance < 300:
-                bird.near_food = True
-                break
+        # Détection de proximité améliorée
+        for pos in all_items:
+            dx = abs(bird.body.position.x - pos[0])
+            dy = abs(bird.body.position.y - pos[1])
 
-        # Proximité avec nourriture (tous les éléments)
-        bird.near_food = False
-        food_lists = []
+            # Pour Amadéo, zone de détection plus large
+            if bird.name == 'Amadeo':
+                if dx < PROXIMITY_THRESHOLD * 1.5 and dy < PROXIMITY_THRESHOLD * 1.2:
+                    bird.near_food = True
+                    break
+            else:
+                if dx < PROXIMITY_THRESHOLD and dy < PROXIMITY_THRESHOLD:
+                    bird.near_food = True
+                    break
+
+        food_data = []
         if current_level == 1:
-            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions,
-                          poubelle_positions]
             food_data = [
                 (banane_positions, 20, 5, BANANE_BONUS, None),
                 (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
@@ -290,8 +274,6 @@ def check_collision():
                 (poubelle_positions, -50, -10, POUBELLE_MALUS, (50, 255, 50))
             ]
         elif current_level == 2:
-            food_lists = [cookie_positions, poulet_positions, sandwich_positions, os_malus_positions,
-                          poubelle_positions]
             food_data = [
                 (cookie_positions, 30, 8, COOKIE_BONUS, None),
                 (poulet_positions, 50, 12, POULET_BONUS, None),
@@ -299,9 +281,7 @@ def check_collision():
                 (os_malus_positions, -30, -8, OS_MALUS, (100, 255, 100)),
                 (poubelle_positions, -60, -15, POUBELLE_NV2_MALUS, (50, 255, 50))
             ]
-        else:  # Niveau 3 - TOUS les éléments interactifs
-            food_lists = [banane_positions, hotdog_positions, burger_positions, banane_malus_positions,
-                          poubelle_positions]
+        else:
             food_data = [
                 (banane_positions, 20, 5, BANANE_BONUS, None),
                 (hotdog_positions, 40, 10, HOTDOG_BONUS, None),
@@ -312,9 +292,10 @@ def check_collision():
 
         for lst, points, size, img, color_effect in food_data:
             for item_pos in lst[:]:
-                if ((bird.body.position[0] - item_pos[0]) ** 2 + (
-                        bird.body.position[1] - item_pos[1]) ** 2) ** 0.5 < 50:
-                    # Si c'est un malus et que le bouclier est actif, on ignore
+                distance = ((bird.body.position.x - item_pos[0]) ** 2 +
+                            (bird.body.position.y - item_pos[1]) ** 2) ** 0.5
+
+                if distance < COLLISION_THRESHOLD:
                     if color_effect is not None and bird.shield_active:
                         continue
 
@@ -470,6 +451,7 @@ def draw_end_menu():
     title_font = pygame.font.Font(None, 74)
     score_font = pygame.font.Font(None, 48)
     button_font = pygame.font.Font(None, 36)
+    hint_font = pygame.font.Font(None, 32)
 
     # Messages en fonction du score
     if score >= 75:
@@ -490,6 +472,9 @@ def draw_end_menu():
     random.seed(current_time // 10000)  # Change chaque seconde
     title_text = random.choice(messages)
 
+    hint_text = hint_font.render("Appuie sur 'Espace' Pour activer les pouvoirs des Personnages !", True, WHITE)
+    hint_rect = hint_text.get_rect(center=(screen_width // 2, screen_height // 2 + 150))
+    screen.blit(hint_text, hint_rect)
     # Affichage des textes
     texts = [
         (title_text, title_font, color, -100),
@@ -558,14 +543,16 @@ def game_loop(obstacles=None, gobelets=None):
         # Dessiner les obstacles s'ils existent
         if obstacles:
             for obstacle in obstacles:
-                body, shape, img = obstacle
-                if body.body_type == pymunk.Body.DYNAMIC:  # Seulement pour la bouteille
-                    # Rotation en fonction de l'angle du corps physique
-                    rotated_img = pygame.transform.rotate(img, -math.degrees(body.angle))
-                    pos = int(body.position.x), int(body.position.y)
-                    screen.blit(rotated_img, rotated_img.get_rect(center=pos))
+                if len(obstacle) == 4:  # Cas du jouet avec deux images
+                    body, shape, front_img, back_img = obstacle
+                    if back_img:  # Afficher d'abord l'arrière-plan
+                        screen.blit(back_img, back_img.get_rect(center=(int(body.position.x), int(body.position.y))))
+                    # Les oiseaux seront affichés ici
+                    if front_img:  # Puis l'avant-plan
+                        screen.blit(front_img, front_img.get_rect(center=(int(body.position.x), int(body.position.y))))
                 else:
-                    # Obstacles statiques (affichage normal)
+                    # Affichage normal pour les autres obstacles
+                    body, shape, img = obstacle
                     screen.blit(img, img.get_rect(center=(int(body.position.x), int(body.position.y))))
 
         # Dessiner les gobelets
@@ -658,8 +645,31 @@ def game_loop(obstacles=None, gobelets=None):
                 dx *= factor
                 dy *= factor
 
-            pygame.draw.line(screen, (0, 255, 0), bird_pos, (bird_pos[0] + dx * 0.1, bird_pos[1] + dy * 0.1), 4)
-            pygame.draw.circle(screen, (0, 255, 0), bird_pos, 10, 2)
+            num_points = 30  # Plus de points pour une trajectoire plus lisse
+            trajectory_length = 0.4  # Augmenter cette valeur pour allonger la trajectoire
+
+            for i in range(1, num_points + 1):
+                t = i / num_points * trajectory_length
+
+                # Calcul de position avec gravité (mouvement parabolique)
+                x = bird_pos[0] + dx * t
+                y = bird_pos[1] + dy * t + 0.5 * space.gravity[1] * t ** 2
+
+                # Style des points (dégradé de taille et de couleur)
+                point_size = max(1, 6 * (1 - t / trajectory_length))  # Réduction progressive
+                alpha = int(200 * (1 - (t / trajectory_length) ** 2))  # Dégradé plus doux
+                color = (255, 0, 255, alpha)  # Vert plus clair
+
+                # Dessin avec anti-aliasing (pour des points plus lisses)
+                if point_size > 1.5:
+                    pygame.draw.circle(screen, color, (int(x), int(y)), int(point_size))
+                else:
+                    screen.set_at((int(x), int(y)), color[:3])  # Pixel parfait pour petits points
+
+            # Cercle autour de l'oiseau (plus stylisé)
+            pygame.draw.circle(screen, (100, 255, 100), bird_pos, 18, 2)  # Cercle extérieur
+            pygame.draw.circle(screen, (200, 255, 200), bird_pos, 10, 1)  # Cercle intérieur
+            pygame.draw.circle(screen, (50, 200, 50), bird_pos, 5)  # Point central
 
         handle_power_input(birds)
         check_power_duration(birds)
