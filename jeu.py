@@ -727,10 +727,10 @@ def game_loop(obstacles=None, gobelets=None):
         draw_menu_button() # Dessine le bouton Menu
 
         # Gestion fin de partie
-        if current_bird_index >= len(birds) or (end_game_time is not None and time.time() - end_game_time >= 2):
+        if current_bird_index >= len(birds) or (end_game_time is not None and time.time() - end_game_time >= 4):
             if end_game_time is None:
                 end_game_time = time.time()
-            if time.time() - end_game_time >= (2 if len(hotdog_positions) == 0 else 4):
+            if time.time() - end_game_time >= (4 if len(hotdog_positions) == 0 else 4):
                 if not game_over:
                     menu_sound.play()
                 game_over = True
