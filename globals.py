@@ -64,9 +64,9 @@ POWER_SOUND.set_volume(0.5)
 
 # Liste des musiques de fond à choisir aléatoirement
 musique_list = [
-    "Ressources/Sons/blue skies and sunshine - kortani (Official Audio).mp3",
+    #"Ressources/Sons/blue skies and sunshine - kortani (Official Audio).mp3",
     "Ressources/Sons/soleil.mp3",
-    "Ressources/Sons/~FREE~ Elmaa & Khali Type Beat ｜ God Bless.mp3",
+    #"Ressources/Sons/~FREE~ Elmaa & Khali Type Beat ｜ God Bless.mp3",
     "Ressources/Sons/GIMS - CIEL (Official Lyrics Video).mp3"
 ]
 Musique_jeu = random.choice(musique_list)

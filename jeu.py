@@ -201,22 +201,20 @@ def create_obstacles(level):
         obstacles.append((body, shape, AVION_OBSTACLE))
 
         # Bouteille avec correction
-        body = pymunk.Body(1, pymunk.moment_for_box(1,
-                                                    (BOUTEILLE_OBSTACLE.get_width() * 0.7,
-                                                     BOUTEILLE_OBSTACLE.get_height() * 0.7)))
+        # Bouteille dynamique, sans pivot
+        mass = 2
+        size = (BOUTEILLE_OBSTACLE.get_width() * 0.7, BOUTEILLE_OBSTACLE.get_height() * 0.7)
+        moment = pymunk.moment_for_box(mass, size)
+
+        body = pymunk.Body(mass, moment)
         body.position = (screen_width // 2, screen_height - 150)
-        shape = pymunk.Poly.create_box(body,
-                                       (BOUTEILLE_OBSTACLE.get_width() * 0.7, BOUTEILLE_OBSTACLE.get_height() * 0.7))
-        shape.elasticity = 0.7
-        shape.friction = 0.5
+
+        shape = pymunk.Poly.create_box(body, size)
+        shape.elasticity = 0.4
+        shape.friction = 1.2
         shape.collision_type = 4
 
-        # Créer une jointure pour empêcher la chute
-        pivot = pymunk.PivotJoint(space.static_body, body, (0, 0), (0, 0))
-        pivot.max_bias = 0
-        pivot.max_force = 1000
-
-        space.add(body, shape, pivot)
+        space.add(body, shape)
         obstacles.append((body, shape, BOUTEILLE_OBSTACLE))
 
         # Livre
